@@ -280,6 +280,74 @@ html.dark .bg-gray-800\/50 {
     @apply min-h-screen bg-white text-gray-900 flex items-center justify-center px-4 relative overflow-hidden;
   }
 
+  /* =========================================
+     FOOTER STYLES
+     ========================================= */
+  .footer {
+    @apply bg-sky-950 text-sky-100 py-8 mt-auto border-t border-sky-900;
+  }
+
+  .footerContainer {
+    @apply max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8;
+  }
+
+  /* Left Section */
+  .footerLeft {
+    @apply space-y-4;
+  }
+
+  .footerLogoContainer {
+    @apply h-12 w-12 rounded-lg overflow-hidden bg-sky-900 ring-1 ring-sky-800;
+  }
+
+  .footerLogo {
+    @apply w-full h-full object-cover;
+  }
+
+  .footerDescription {
+    @apply text-sm leading-relaxed text-sky-200/80 max-w-xs;
+  }
+
+  /* Middle Section */
+  .footerMiddle {
+    @apply flex flex-col;
+  }
+
+  .footerHeading {
+    @apply text-white font-semibold text-lg mb-4 relative inline-block;
+  }
+
+  .footerHeading::after {
+    content: '';
+    @apply absolute -bottom-2 left-0 w-12 h-1 bg-sky-500 rounded-full;
+  }
+
+  .footerLinks {
+    @apply space-y-2;
+  }
+
+  .footerLink {
+    @apply block text-sm text-sky-200/80 hover:text-white hover:translate-x-1 transition-all duration-200;
+  }
+
+  /* Right Section */
+  .footerRight {
+    @apply space-y-3;
+  }
+
+  .footerContactItem {
+    @apply flex items-start gap-3 text-sm text-sky-200/80;
+  }
+
+  .footerIcon {
+    @apply mt-0.5 text-lg shrink-0;
+  }
+
+  /* Bottom Bar */
+  .footerBottom {
+    @apply border-t border-sky-900 mt-8 pt-6 text-center text-xs text-sky-400;
+  }
+
   .auth-bg-bubble-1 {
     @apply absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse;
   }
