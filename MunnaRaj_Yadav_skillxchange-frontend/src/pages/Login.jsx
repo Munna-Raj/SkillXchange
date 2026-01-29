@@ -58,33 +58,33 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="auth-page">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="auth-bg-bubble-1"></div>
+        <div className="auth-bg-bubble-2"></div>
       </div>
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo and header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
+        <div className="auth-header">
+          <div className="auth-logo-container">
             <img 
               src="/src/Image/logo skillxChange.jpeg" 
               alt="SkillXchange Logo" 
-              className="w-12 h-12 rounded-xl shadow-lg object-cover"
+              className="auth-logo-img"
             />
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h1 className="auth-title">
               SkillXchange
             </h1>
           </div>
-          <p className="text-gray-600">Welcome back! Sign in to continue</p>
+          <p className="auth-subtitle">Welcome back! Sign in to continue</p>
         </div>
 
         {/* Login form */}
-        <div className="bg-white rounded-3xl p-8 shadow-2xl border border-gray-200">
+        <div className="auth-card">
           {error && (
-            <div className="mb-6 rounded-xl bg-red-50 p-4 text-red-700 border border-red-200">
+            <div className="auth-alert-error">
               <div className="flex items-center gap-3">
                 <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-600 ring-1 ring-blue-500/30">
                   <span className="text-lg font-bold text-white">SX</span>
@@ -100,11 +100,11 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="auth-label">
                 Email Address
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div className="auth-input-wrapper">
+                <div className="auth-input-icon">
                   <span className="text-gray-500">📧</span>
                 </div>
                 <input
@@ -114,11 +114,11 @@ export default function Login() {
                   onChange={handleChange}
                   onFocus={() => setFocusedField("email")}
                   onBlur={() => setFocusedField("")}
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl bg-white text-gray-900 outline-none ring-2 transition-all duration-200 ${
+                  className={`auth-input-field auth-input-field-icon-left ${
                     focusedField === "email"
-                      ? "ring-blue-500 bg-white"
-                      : "ring-gray-300"
-                  } placeholder-gray-400`}
+                      ? "auth-input-focus"
+                      : "auth-input-default"
+                  }`}
                   placeholder="you@example.com"
                   required
                 />
@@ -127,11 +127,11 @@ export default function Login() {
 
             {/* Password field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="auth-label">
                 Password
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div className="auth-input-wrapper">
+                <div className="auth-input-icon">
                   <span className="text-gray-500">🔒</span>
                 </div>
                 <input
@@ -141,18 +141,18 @@ export default function Login() {
                   onChange={handleChange}
                   onFocus={() => setFocusedField("password")}
                   onBlur={() => setFocusedField("")}
-                  className={`w-full pl-10 pr-12 py-3 rounded-xl bg-white text-gray-900 outline-none ring-2 transition-all duration-200 ${
+                  className={`auth-input-field auth-input-field-icon-both ${
                     focusedField === "password" 
-                      ? "ring-blue-500 bg-white" 
-                      : "ring-gray-300"
-                  } placeholder-gray-400`}
+                      ? "auth-input-focus" 
+                      : "auth-input-default"
+                  }`}
                   placeholder="•••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="auth-input-icon-right"
                 >
                   <span className="text-gray-500 hover:text-gray-700 transition-colors">
                     {showPassword ? "👁️" : "👁️‍🗨️"}
@@ -165,7 +165,7 @@ export default function Login() {
             <div className="text-right">
               <Link
                 to="/forgot-password"
-                className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                className="auth-link"
               >
                 Forgot your password?
               </Link>
@@ -175,7 +175,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="btn-auth-submit"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
@@ -189,12 +189,12 @@ export default function Login() {
           </form>
 
           {/* Sign up link */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+          <div className="auth-footer">
+            <p className="auth-footer-text">
               Don't have an account?{" "}
               <Link 
                 to="/register" 
-                className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                className="auth-link-bold"
               >
                 Sign up for free
               </Link>

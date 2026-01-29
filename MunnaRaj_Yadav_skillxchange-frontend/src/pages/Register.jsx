@@ -77,39 +77,39 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="auth-page">
+      <div className="w-full max-w-md relative z-10">
         {/* Logo Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 shadow-lg">
+        <div className="auth-header">
+          <div className="auth-logo-container-center">
             <img 
               src="/src/Image/logo skillxChange.jpeg" 
               alt="SkillXchange Logo" 
-              className="w-full h-full object-cover rounded-2xl"
+              className="auth-logo-img-lg"
             />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-          <p className="text-gray-600">Join SkillXchange today</p>
+          <h1 className="auth-title-simple">Create Account</h1>
+          <p className="auth-subtitle">Join SkillXchange today</p>
         </div>
 
         {/* Registration Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+        <div className="auth-card">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-700 text-sm">{error}</p>
+            <div className="auth-alert-error">
+              <p className="text-sm">{error}</p>
             </div>
           )}
 
           {success && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-700 text-sm">{success}</p>
+            <div className="auth-alert-success">
+              <p className="text-sm">{success}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="auth-label">
                 Full Name
               </label>
               <input
@@ -119,11 +119,11 @@ export default function Register() {
                 onChange={handleChange}
                 onFocus={() => setFocusedField("fullName")}
                 onBlur={() => setFocusedField("")}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-colors ${
+                className={`auth-input-field auth-input-field-no-icon ${
                   focusedField === "fullName"
-                    ? "border-blue-500 ring-blue-500"
-                    : "border-gray-300"
-                } bg-white text-gray-900 placeholder-gray-400`}
+                    ? "auth-input-focus"
+                    : "auth-input-default"
+                }`}
                 placeholder="Enter your full name"
                 required
               />
@@ -131,11 +131,11 @@ export default function Register() {
 
             {/* Username */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="auth-label">
                 Username
               </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+              <div className="auth-input-wrapper">
+                <span className="auth-input-icon">
                   @
                 </span>
                 <input
@@ -145,11 +145,11 @@ export default function Register() {
                   onChange={handleChange}
                   onFocus={() => setFocusedField("username")}
                   onBlur={() => setFocusedField("")}
-                  className={`w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-colors ${
+                  className={`auth-input-field auth-input-field-icon-left ${
                     focusedField === "username"
-                      ? "border-blue-500 ring-blue-500"
-                      : "border-gray-300"
-                  } bg-white text-gray-900 placeholder-gray-400`}
+                      ? "auth-input-focus"
+                      : "auth-input-default"
+                  }`}
                   placeholder="johndoe"
                   required
                 />
@@ -161,7 +161,7 @@ export default function Register() {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="auth-label">
                 Email Address
               </label>
               <input
@@ -171,11 +171,11 @@ export default function Register() {
                 onChange={handleChange}
                 onFocus={() => setFocusedField("email")}
                 onBlur={() => setFocusedField("")}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-colors ${
+                className={`auth-input-field auth-input-field-no-icon ${
                   focusedField === "email"
-                    ? "border-blue-500 ring-blue-500"
-                    : "border-gray-300"
-                } bg-white text-gray-900 placeholder-gray-400`}
+                    ? "auth-input-focus"
+                    : "auth-input-default"
+                }`}
                 placeholder="you@example.com"
                 required
               />
@@ -183,10 +183,10 @@ export default function Register() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="auth-label">
                 Password
               </label>
-              <div className="relative">
+              <div className="auth-input-wrapper">
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
@@ -194,20 +194,22 @@ export default function Register() {
                   onChange={handleChange}
                   onFocus={() => setFocusedField("password")}
                   onBlur={() => setFocusedField("")}
-                  className={`w-full pr-12 px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-colors ${
+                  className={`auth-input-field auth-input-field-icon-right ${
                     focusedField === "password"
-                      ? "border-blue-500 ring-blue-500"
-                      : "border-gray-300"
-                  } bg-white text-gray-900 placeholder-gray-400`}
+                      ? "auth-input-focus"
+                      : "auth-input-default"
+                  }`}
                   placeholder="•••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                  className="auth-input-icon-right"
                 >
-                  {showPassword ? "Hide" : "Show"}
+                  <span className="text-gray-500 hover:text-gray-700 transition-colors">
+                    {showPassword ? "Hide" : "Show"}
+                  </span>
                 </button>
               </div>
             </div>
@@ -216,19 +218,19 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="btn-auth-submit"
             >
               {loading ? "Creating account..." : "Create Account"}
             </button>
           </form>
 
           {/* Login Link */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+          <div className="auth-footer">
+            <p className="auth-footer-text">
               Already have an account?{" "}
               <Link 
                 to="/login" 
-                className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                className="auth-link-bold"
               >
                 Sign in
               </Link>

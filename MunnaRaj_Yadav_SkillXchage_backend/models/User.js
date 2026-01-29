@@ -23,6 +23,26 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  bio: {
+    type: String,
+    default: ""
+  },
+  contactNumber: {
+    type: String,
+    default: ""
+  },
+  skillsToTeach: [{
+    name: { type: String, required: true },
+    category: { type: String, required: true },
+    level: { type: String, enum: ["Beginner", "Intermediate", "Advanced"], required: true },
+    description: { type: String }
+  }],
+  skillsToLearn: [{
+    name: { type: String, required: true },
+    category: { type: String, required: true },
+    level: { type: String, enum: ["Beginner", "Intermediate", "Advanced"], required: true },
+    description: { type: String }
+  }],
   resetToken: String,
   resetTokenExpire: Date
 });

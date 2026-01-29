@@ -11,3 +11,13 @@ export const getProfileApi = () =>
 
 export const updateProfileApi = (data) => 
   api.put("/profile", data, { headers: getAuthHeader() });
+
+export const addSkillApi = (skillData) =>
+  api.post("/profile/skills", skillData, { headers: getAuthHeader() });
+
+export const deleteSkillApi = (type, skillId) =>
+  api.delete(`/profile/skills/${type}/${skillId}`, { headers: getAuthHeader() });
+
+export const updateSkillApi = (type, skillId, skillData) =>
+  api.put(`/profile/skills/${type}/${skillId}`, skillData, { headers: getAuthHeader() });
+

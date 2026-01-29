@@ -1,19 +1,39 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { addSkillApi, deleteSkillApi } from "../services/profileService";
 
 export default function Profile() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  
   const [profile, setProfile] = useState({
     fullName: "",
     username: "",
     email: "",
     profilePic: null,
+    bio: "",
+    contactNumber: "",
+    skillsToTeach: [],
+    skillsToLearn: []
   });
+
   const [editForm, setEditForm] = useState({
     fullName: "",
     email: "",
+    bio: "",
+    contactNumber: ""
   });
+
+  // Skill Management State
+  const [showSkillForm, setShowSkillForm] = useState(false);
+  const [skillForm, setSkillForm] = useState({
+    type: "teach",
+    name: "",
+    category: "",
+    level: "Beginner",
+    description: ""
+  });
+
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -28,20 +48,18 @@ export default function Profile() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch("http://localhost:5000/api/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       
-      if (!response.ok) {
-        throw new Error("Failed to fetch profile");
-      }
+      if (!response.ok) throw new Error("Failed to fetch profile");
       
       const data = await response.json();
       setProfile(data);
       setEditForm({
         fullName: data.fullName,
         email: data.email,
+        bio: data.bio || "",
+        contactNumber: data.contactNumber || ""
       });
     } catch (err) {
       setError("Failed to load profile");
@@ -83,8 +101,6 @@ export default function Profile() {
       const data = await response.json();
       setProfile(data.user);
       setSuccess("Profile updated successfully!");
-      
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err.message || "Update failed");
@@ -97,26 +113,25 @@ export default function Profile() {
     setEditForm({
       fullName: profile.fullName,
       email: profile.email,
+      bio: profile.bio || "",
+      contactNumber: profile.contactNumber || ""
     });
     setError("");
     setSuccess("");
   };
 
+  // Profile Picture Logic
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Check file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
         setError("File size must be less than 5MB");
         return;
       }
-      
-      // Check file type
       if (!file.type.startsWith("image/")) {
         setError("Only image files are allowed");
         return;
       }
-
       uploadProfilePicture(file);
     }
   };
@@ -124,8 +139,7 @@ export default function Profile() {
   const uploadProfilePicture = async (file) => {
     setUploading(true);
     setError("");
-    setSuccess("");
-
+    
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
@@ -133,9 +147,7 @@ export default function Profile() {
 
       const response = await fetch("http://localhost:5000/api/profile/picture", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
@@ -147,8 +159,6 @@ export default function Profile() {
       const data = await response.json();
       setProfile(data.user);
       setSuccess("Profile picture updated successfully!");
-      
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err.message || "Upload failed");
@@ -164,27 +174,64 @@ export default function Profile() {
     return null;
   };
 
+  // Skill Logic
+  const handleSkillChange = (e) => {
+    setSkillForm({ ...skillForm, [e.target.name]: e.target.value });
+  };
+
+  const handleAddSkill = async (e) => {
+    e.preventDefault();
+    setUpdating(true);
+    try {
+      const res = await addSkillApi(skillForm);
+      setProfile(res.data);
+      setSuccess("Skill added successfully!");
+      setShowSkillForm(false);
+      setSkillForm({ type: "teach", name: "", category: "", level: "Beginner", description: "" });
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err.response?.data?.msg || "Failed to add skill");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleDeleteSkill = async (type, skillId) => {
+    if (!window.confirm("Are you sure you want to delete this skill?")) return;
+    setUpdating(true);
+    try {
+      const res = await deleteSkillApi(type, skillId);
+      setProfile(res.data);
+      setSuccess("Skill deleted successfully!");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err.response?.data?.msg || "Failed to delete skill");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-white text-gray-900 flex items-center justify-center">
-        <div className="text-lg">Loading profile...</div>
+      <div className="loading-screen">
+        <div className="loading-text">Loading profile...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 transition-colors duration-200">
+    <div className="page-container">
       {/* Background glow */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-indigo-600/20 blur-3xl" />
-        <div className="absolute top-40 right-[-8rem] h-72 w-72 rounded-full bg-fuchsia-500/10 blur-3xl" />
+      <div className="profile-bg-wrapper">
+        <div className="profile-bg-blob-1" />
+        <div className="profile-bg-blob-2" />
       </div>
 
       {/* Navbar */}
-      <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/70 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+      <header className="navbar">
+        <div className="navbar-inner">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl ring-1 ring-indigo-500/30 overflow-hidden">
+            <div className="nav-logo-container">
               <img 
                 src="/src/Image/logo skillxChange.jpeg" 
                 alt="SkillXchange Logo" 
@@ -196,154 +243,275 @@ export default function Profile() {
               <p className="text-xs text-gray-500">Profile</p>
             </div>
           </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold ring-1 ring-gray-300 hover:bg-gray-200"
-            >
-              ← Back to Dashboard
-            </button>
-          </div>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="btn-back"
+          >
+            ← Back to Dashboard
+          </button>
         </div>
       </header>
 
-      {/* Content */}
-      <main className="relative mx-auto max-w-2xl px-4 py-8">
-        <div className="rounded-3xl bg-gray-50 p-8 ring-1 ring-gray-200">
-          <h1 className="text-2xl font-bold">My Profile</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Manage your account information
-          </p>
-
-          {error && (
-            <div className="mt-4 rounded-lg bg-red-50 p-3 text-red-800 ring-1 ring-red-200">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="mt-4 rounded-lg bg-green-50 p-3 text-green-800 ring-1 ring-green-200">
-              {success}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-          {/* Profile Picture Section */}
-          <div className="text-center">
-            <div className="relative inline-block">
-              <div className="h-24 w-24 rounded-full bg-gray-200 overflow-hidden ring-4 ring-gray-300">
+      <main className="content-wrapper">
+        
+        {/* Left Column: Basic Info */}
+        <div className="md:col-span-1 space-y-6">
+          <div className="profile-card text-center">
+             <div className="profile-pic-wrapper">
+              <div className="profile-pic-container">
                 {getProfilePictureUrl() ? (
-                  <img
-                    src={getProfilePictureUrl()}
-                    alt="Profile"
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={getProfilePictureUrl()} alt="Profile" className="h-full w-full object-cover" />
                 ) : (
-                  <div className="h-full w-full flex items-center justify-center">
-                    <span className="text-2xl font-bold text-gray-600">
-                      {profile.fullName.charAt(0).toUpperCase()}
+                  <div className="profile-pic-placeholder">
+                    <span className="profile-pic-initial">
+                      {profile.fullName?.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
               </div>
-              
               <button
-                type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 disabled:opacity-60"
+                className="btn-icon absolute bottom-0 right-0"
               >
-                {uploading ? (
-                  <span className="text-xs">...</span>
-                ) : (
-                  <span className="text-xs">📷</span>
-                )}
+                {uploading ? "..." : "📷"}
               </button>
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
             </div>
-            
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-            
-            <p className="mt-2 text-xs text-gray-500">
-              Click camera to change profile picture
-            </p>
-            <p className="text-xs text-gray-500">
-              Max size: 5MB, JPG/PNG only
-            </p>
+            <h2 className="section-title text-center mb-0">{profile.fullName}</h2>
+            <p className="text-sm text-gray-500">@{profile.username}</p>
           </div>
-            {/* Username (Read-only) */}
-            <div>
-              <label className="text-sm text-gray-600">Username</label>
-              <div className="mt-1 flex items-center gap-2">
+          
+          <div className="profile-card">
+             <h3 className="card-title">Contact Info</h3>
+             <div className="space-y-3 text-sm">
+               <div>
+                 <span className="label-text text-xs">Email</span>
+                 <span className="text-gray-900 break-all">{profile.email}</span>
+               </div>
+               <div>
+                 <span className="label-text text-xs">Phone</span>
+                 <span className="text-gray-900">{profile.contactNumber || "Not provided"}</span>
+               </div>
+             </div>
+          </div>
+        </div>
+
+        {/* Right Column: Edit Form & Skills */}
+        <div className="md:col-span-2 space-y-6">
+          
+          {/* Messages */}
+          {error && <div className="alert-error">{error}</div>}
+          {success && <div className="alert-success">{success}</div>}
+
+          {/* Edit Profile Form */}
+          <div className="profile-card">
+            <h3 className="card-title">Edit Profile</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="form-grid-2">
+                <div>
+                  <label className="label-text">Username</label>
+                  <input
+                    type="text"
+                    value={profile.username}
+                    disabled
+                    className="input-field-disabled"
+                  />
+                </div>
+                <div>
+                  <label className="label-text">Full Name</label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={editForm.fullName}
+                    onChange={handleChange}
+                    className="input-field"
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="label-text">Email (Login ID)</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={editForm.email}
+                  onChange={handleChange}
+                  className="input-field"
+                  required
+                />
+              </div>
+              <div>
+                <label className="label-text">Bio</label>
+                <textarea
+                  name="bio"
+                  value={editForm.bio}
+                  onChange={handleChange}
+                  rows="3"
+                  className="input-field"
+                  placeholder="Tell us about yourself..."
+                />
+              </div>
+              <div>
+                <label className="label-text">Contact Number</label>
                 <input
                   type="text"
-                  value={profile.username}
-                  disabled
-                  className="w-full rounded-lg bg-gray-100 px-3 py-2 text-gray-600 outline-none ring-1 ring-gray-300 cursor-not-allowed"
-                  placeholder="Username"
+                  name="contactNumber"
+                  value={editForm.contactNumber}
+                  onChange={handleChange}
+                  className="input-field"
+                  placeholder="+977 9812345678"
                 />
-                <span className="rounded-full bg-gray-200 px-3 py-1 text-xs text-gray-600">
-                  Cannot be changed
-                </span>
               </div>
-              <p className="mt-1 text-xs text-gray-500">
-                Username is unique and cannot be modified
-              </p>
-            </div>
+              <div className="flex gap-3 justify-end">
+                <button type="button" onClick={handleCancel} disabled={updating} className="btn-secondary">Cancel</button>
+                <button type="submit" disabled={updating} className="btn-primary">
+                  {updating ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
 
-            {/* Full Name (Editable) */}
-            <div>
-              <label className="text-sm text-gray-600">Full Name</label>
-              <input
-                type="text"
-                name="fullName"
-                value={editForm.fullName}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-lg bg-white px-3 py-2 text-gray-900 outline-none ring-1 ring-gray-300 focus:ring-2 focus:ring-indigo-500"
-                placeholder="Enter your full name"
-                required
-              />
-            </div>
-
-            {/* Email (Editable) */}
-            <div>
-              <label className="text-sm text-gray-600">Email Address</label>
-              <input
-                type="email"
-                name="email"
-                value={editForm.email}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-lg bg-white px-3 py-2 text-gray-900 outline-none ring-1 ring-gray-300 focus:ring-2 focus:ring-indigo-500"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
-              <button
-                type="submit"
-                disabled={updating}
-                className="flex-1 rounded-lg bg-indigo-600 py-2 font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+          {/* Skills Section */}
+          <div className="profile-card">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="card-title mb-0">Skills</h3>
+              <button 
+                onClick={() => setShowSkillForm(!showSkillForm)}
+                className="btn-add"
               >
-                {updating ? "Updating..." : "Update Profile"}
-              </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                disabled={updating}
-                className="rounded-lg bg-gray-100 px-6 py-2 font-semibold ring-1 ring-gray-300 hover:bg-gray-200 disabled:opacity-60"
-              >
-                Cancel
+                {showSkillForm ? "Cancel" : "+ Add Skill"}
               </button>
             </div>
-          </form>
+
+            {/* Add Skill Form */}
+            {showSkillForm && (
+              <form onSubmit={handleAddSkill} className="skill-form-container">
+                <div className="form-grid-2">
+                  <div>
+                    <label className="label-uppercase">Type</label>
+                    <select
+                      name="type"
+                      value={skillForm.type}
+                      onChange={handleSkillChange}
+                      className="select-field"
+                    >
+                      <option value="teach">I want to Teach</option>
+                      <option value="learn">I want to Learn</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="label-uppercase">Level</label>
+                    <select
+                      name="level"
+                      value={skillForm.level}
+                      onChange={handleSkillChange}
+                      className="select-field"
+                    >
+                      <option value="Beginner">Beginner</option>
+                      <option value="Intermediate">Intermediate</option>
+                      <option value="Advanced">Advanced</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-grid-2">
+                  <div>
+                    <label className="label-uppercase">Skill Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={skillForm.name}
+                      onChange={handleSkillChange}
+                      className="select-field"
+                      placeholder="e.g. React, Guitar, Spanish"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="label-uppercase">Category</label>
+                    <input
+                      type="text"
+                      name="category"
+                      value={skillForm.category}
+                      onChange={handleSkillChange}
+                      className="select-field"
+                      placeholder="e.g. Programming, Music"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="label-uppercase">Description</label>
+                  <input
+                    type="text"
+                    name="description"
+                    value={skillForm.description}
+                    onChange={handleSkillChange}
+                    className="select-field"
+                    placeholder="Brief details..."
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <button type="submit" className="btn-primary">
+                    Add Skill
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="grid grid-cols-1 gap-6">
+              {/* Teaching Skills */}
+              <div>
+                <h4 className="skill-section-header">Skills I Teach</h4>
+                {profile.skillsToTeach?.length === 0 ? (
+                  <p className="text-sm text-gray-400 italic">No skills listed yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {profile.skillsToTeach?.map((skill) => (
+                      <div key={skill._id} className="skill-item">
+                        <div>
+                          <p className="font-semibold text-gray-900">{skill.name}</p>
+                          <p className="text-xs text-gray-500">{skill.category} • {skill.level}</p>
+                        </div>
+                        <button 
+                          onClick={() => handleDeleteSkill('teach', skill._id)}
+                          className="btn-delete"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Learning Skills */}
+              <div>
+                <h4 className="skill-section-header">Skills I Want to Learn</h4>
+                {profile.skillsToLearn?.length === 0 ? (
+                  <p className="text-sm text-gray-400 italic">No skills listed yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {profile.skillsToLearn?.map((skill) => (
+                      <div key={skill._id} className="skill-item">
+                        <div>
+                          <p className="font-semibold text-gray-900">{skill.name}</p>
+                          <p className="text-xs text-gray-500">{skill.category} • {skill.level}</p>
+                        </div>
+                        <button 
+                          onClick={() => handleDeleteSkill('learn', skill._id)}
+                          className="btn-delete"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
         </div>
       </main>
     </div>
