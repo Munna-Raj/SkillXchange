@@ -4,6 +4,9 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import SkillSearch from "./pages/SkillSearch";
+import SearchResults from "./pages/SearchResults";
+import UserProfileView from "./pages/UserProfileView";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Footer from "./components/Footer";
 
@@ -16,6 +19,9 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/search" element={<SkillSearch />} />
+          <Route path="/search-results" element={<SearchResults />} />
+          <Route path="/user/:id" element={<UserProfileView />} />
 
           {/* Private routes */}
           <Route

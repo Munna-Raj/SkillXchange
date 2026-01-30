@@ -44,6 +44,14 @@ function SecondaryButton({ children, to }) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search-results?query=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
   useEffect(() => {
     fetchUserProfile();
@@ -148,13 +156,15 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="hidden w-full max-w-sm items-center gap-2 rounded-xl bg-gray-100 px-3 py-2 ring-1 ring-gray-300 md:flex">
+          <form onSubmit={handleSearch} className="hidden w-full max-w-sm items-center gap-2 rounded-xl bg-gray-100 px-3 py-2 ring-1 ring-gray-300 md:flex">
             <span className="text-gray-500">⌕</span>
             <input
               className="w-full bg-transparent text-sm text-gray-900 placeholder-gray-600 outline-none"
               placeholder="Search skills, mentors..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </div>
+          </form>
 
           <div className="flex items-center gap-3">
             <div className="hidden sm:block text-right">
