@@ -7,6 +7,9 @@ const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const skillRoutes = require("./routes/skillRoutes");
 const searchRoutes = require("./routes/searchRoutes");
+const matchRoutes = require("./routes/matchRoutes");
+const requestRoutes = require("./routes/requestRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
@@ -23,6 +26,9 @@ app.get("/", (req, res) => res.send("API working!"));
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/skills", skillRoutes);
+app.use("/api/matches", matchRoutes); // New matching route
+app.use("/api/requests", requestRoutes); // Skill exchange requests
+app.use("/api/notifications", notificationRoutes); // Notifications
 app.use("/api", searchRoutes); // Mount at /api so routes become /api/search and /api/users/:id
 
 const PORT = process.env.PORT || 5000;

@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import NotificationBell from "../components/NotificationBell";
 
 function StatCard({ title, value, sub }) {
   return (
@@ -167,6 +168,7 @@ export default function Dashboard() {
           </form>
 
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <div className="hidden sm:block text-right">
               <p className="text-sm font-semibold text-gray-900">{userProfile?.username || data.username}</p>
               <p className="text-xs text-gray-500">Member</p>
@@ -208,24 +210,16 @@ export default function Dashboard() {
         <div className="rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Welcome back, <span className="text-blue-600">{data.username}</span> 👋
+              <h1 className="text-3xl font-bold text-gray-900">
+                Welcome back, {userProfile?.fullName?.split(" ")[0] || data.username}!
               </h1>
-              <p className="mt-1 text-sm text-gray-600">
-                Keep your profile updated to get better matches.
+              <p className="mt-2 text-gray-600">
+                You have new matches waiting for you.
               </p>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {data.mySkills.slice(0, 6).map((s) => (
-                  <Pill key={s}>{s}</Pill>
-                ))}
-              </div>
             </div>
-
-            <div className="flex flex-wrap gap-3">
-              <PrimaryButton to="/profile">Update Profile</PrimaryButton>
-              <SecondaryButton to="/skills">Browse Skills</SecondaryButton>
-              <SecondaryButton to="/requests">My Requests</SecondaryButton>
+            <div className="flex gap-3">
+              <SecondaryButton to="/profile">Edit Profile</SecondaryButton>
+              <PrimaryButton to="/matches">Find Matches ✨</PrimaryButton>
             </div>
           </div>
         </div>

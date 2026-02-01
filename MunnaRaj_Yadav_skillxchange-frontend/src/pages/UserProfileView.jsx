@@ -1,28 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getUserProfileApi } from '../services/searchService';
+import { getProfileApi } from '../services/profileService';
+import SendRequestModal from '../components/SendRequestModal';
+import NotificationBell from '../components/NotificationBell';
 
 const UserProfileView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [currentUserSkills, setCurrentUserSkills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getUserProfileApi(id);
-        setUser(data);
+        const [userProfile, currentUser] = await Promise.all([
+          getUserProfileApi(id),
+          getProfileApi().catch(() => ({ data: { skillsToTeach: [] } })) // Fallback if not logged in
+        ]);
+        
+        setUser(userProfile);
+        // Safely access skills from the response
+        const skills = currentUser?.data?.skillsToTeach || currentUser?.skillsToTeach || [];
+        setCurrentUserSkills(skills);
       } catch (err) {
-        console.error("Failed to load user:", err);
+        console.error("Failed to load data:", err);
         setError("User not found or server error");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
+    fetchData();
   }, [id]);
 
   if (loading) return (
@@ -54,7 +66,7 @@ const UserProfileView = () => {
           
           <div className="public-profile-content">
             <img 
-              src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : "https://via.placeholder.com/150"} 
+              src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`} 
               alt={user.fullName} 
               className="public-profile-avatar"
             />
@@ -66,7 +78,12 @@ const UserProfileView = () => {
             </div>
 
             <div className="public-profile-actions">
-              <button className="action-btn-primary">Connect</button>
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="action-btn-primary"
+              >
+                Send Request
+              </button>
               <button className="action-btn-secondary">Message</button>
             </div>
           </div>
@@ -125,6 +142,14 @@ const UserProfileView = () => {
           </div>
         </div>
       </div>
+
+      {/* Send Request Modal */}
+      <SendRequestModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        receiver={user}
+        currentUserSkills={currentUserSkills}
+      />
     </div>
   );
 };

@@ -6,7 +6,9 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import SkillSearch from "./pages/SkillSearch";
 import SearchResults from "./pages/SearchResults";
+import SkillMatches from "./pages/SkillMatches";
 import UserProfileView from "./pages/UserProfileView";
+import MyRequests from "./pages/MyRequests";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Footer from "./components/Footer";
 
@@ -29,6 +31,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/matches"
+            element={
+              <ProtectedRoute>
+                <SkillMatches />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/requests"
+            element={
+              <ProtectedRoute>
+                <MyRequests />
               </ProtectedRoute>
             }
           />

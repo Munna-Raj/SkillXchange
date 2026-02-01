@@ -72,7 +72,7 @@ const SearchResults = () => {
               <div key={user._id} className="user-result-card">
                 <div className="user-card-header">
                   <img 
-                    src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : "https://via.placeholder.com/150"} 
+                    src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`} 
                     alt={user.fullName} 
                     className="user-card-avatar"
                   />

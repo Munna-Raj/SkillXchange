@@ -126,7 +126,7 @@ const SkillSearch = () => {
 
                     <div className="skillCardFooter">
                       <img 
-                        src={skill.user.profilePic ? `http://localhost:5000${skill.user.profilePic}` : "https://via.placeholder.com/40"} 
+                        src={skill.user.profilePic ? `http://localhost:5000${skill.user.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(skill.user.fullName)}&background=random`} 
                         alt={skill.user.fullName} 
                         className="userAvatar"
                       />

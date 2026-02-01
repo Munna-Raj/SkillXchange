@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { addSkillApi, deleteSkillApi } from "../services/profileService";
+import NotificationBell from "../components/NotificationBell";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -243,12 +244,15 @@ export default function Profile() {
               <p className="text-xs text-gray-500">Profile</p>
             </div>
           </div>
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="btn-back"
-          >
-            ← Back to Dashboard
-          </button>
+          <div className="flex items-center gap-4">
+            <NotificationBell />
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="btn-back"
+            >
+              ← Back to Dashboard
+            </button>
+          </div>
         </div>
       </header>
 
@@ -376,12 +380,14 @@ export default function Profile() {
           <div className="profile-card">
             <div className="flex items-center justify-between mb-6">
               <h3 className="card-title mb-0">Skills</h3>
-              <button 
-                onClick={() => setShowSkillForm(!showSkillForm)}
-                className="btn-add"
-              >
-                {showSkillForm ? "Cancel" : "+ Add Skill"}
-              </button>
+              {showSkillForm && (
+                <button 
+                  onClick={() => setShowSkillForm(false)}
+                  className="text-sm text-red-500 hover:text-red-700 font-medium"
+                >
+                  Cancel
+                </button>
+              )}
             </div>
 
             {/* Add Skill Form */}
@@ -453,7 +459,7 @@ export default function Profile() {
                 </div>
                 <div className="flex justify-end">
                   <button type="submit" className="btn-primary">
-                    Add Skill
+                    Save Skill
                   </button>
                 </div>
               </form>
@@ -462,7 +468,18 @@ export default function Profile() {
             <div className="grid grid-cols-1 gap-6">
               {/* Teaching Skills */}
               <div>
-                <h4 className="skill-section-header">Skills I Teach</h4>
+                <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-3">
+                  <h4 className="text-sm font-bold text-gray-500 uppercase mb-0 border-none">Skills I Teach</h4>
+                  <button 
+                    onClick={() => {
+                      setSkillForm(prev => ({ ...prev, type: "teach" }));
+                      setShowSkillForm(true);
+                    }}
+                    className="btn-add"
+                  >
+                    + Add
+                  </button>
+                </div>
                 {profile.skillsToTeach?.length === 0 ? (
                   <p className="text-sm text-gray-400 italic">No skills listed yet.</p>
                 ) : (
@@ -487,7 +504,18 @@ export default function Profile() {
 
               {/* Learning Skills */}
               <div>
-                <h4 className="skill-section-header">Skills I Want to Learn</h4>
+                <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-3">
+                  <h4 className="text-sm font-bold text-gray-500 uppercase mb-0 border-none">Skills I Want to Learn</h4>
+                  <button 
+                    onClick={() => {
+                      setSkillForm(prev => ({ ...prev, type: "learn" }));
+                      setShowSkillForm(true);
+                    }}
+                    className="btn-add"
+                  >
+                    + Add
+                  </button>
+                </div>
                 {profile.skillsToLearn?.length === 0 ? (
                   <p className="text-sm text-gray-400 italic">No skills listed yet.</p>
                 ) : (
