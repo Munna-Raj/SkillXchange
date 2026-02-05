@@ -21,6 +21,13 @@ import "react-toastify/dist/ReactToastify.css";
 function Layout() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const role = localStorage.getItem("role");
+  const email = localStorage.getItem("email");
+  // Safely determine admin status
+  const isAdminUser = role === "admin" || email === "rajyadavproject@gmail.com";
+  
+  // Debug log (can be removed later)
+  // console.log("Current user role:", role, "Is Admin:", isAdminUser);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -114,7 +121,7 @@ function Layout() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       
-      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && !isAdminUser && <Footer />}
     </div>
   );
 }

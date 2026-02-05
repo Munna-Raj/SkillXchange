@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import adminService from '../../services/adminService';
 import { toast } from 'react-toastify';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
   const fetchUsers = async () => {
     try {
       const data = await adminService.getUsers();
-      setUsers(Array.isArray(data) ? data : []);
+      const userList = Array.isArray(data) ? data : [];
+      setUsers(userList);
+      setFilteredUsers(userList);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching users:', err);
@@ -22,12 +27,23 @@ const AdminUsers = () => {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filtered = users.filter(user => {
+      const name = (user.name || user.fullName || user.username || '').toLowerCase();
+      const email = (user.email || '').toLowerCase();
+      return name.includes(lowercasedFilter) || email.includes(lowercasedFilter);
+    });
+    setFilteredUsers(filtered);
+  }, [searchTerm, users]);
+
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
       try {
         await adminService.deleteUser(id);
         toast.success('User deleted successfully');
-        setUsers(users.filter((user) => user._id !== id));
+        const updatedUsers = users.filter((user) => user._id !== id);
+        setUsers(updatedUsers);
       } catch (err) {
         console.error('Error deleting user:', err);
         toast.error('Failed to delete user');
@@ -47,9 +63,28 @@ const AdminUsers = () => {
     <div className="flex-1 flex flex-col overflow-hidden">
       <header className="flex justify-between items-center py-4 px-6 bg-white shadow-sm">
         <h1 className="text-2xl font-semibold text-gray-800">Manage Users</h1>
-        <span className="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
-          Total: {users.length}
-        </span>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search users..."
+              className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <svg
+              className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+            Total: {filteredUsers.length}
+          </span>
+        </div>
       </header>
       
       <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
@@ -76,20 +111,21 @@ const AdminUsers = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {users.length > 0 ? (
-                  users.map((user) => (
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((user) => (
                     <tr key={user._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl">
+                        <Link to={`/user/${user._id}`} className="flex items-center group">
+                          <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl group-hover:bg-blue-600 transition-colors">
                             {((user.name || user.fullName || user.username || user.email || '?')[0] || '?').toUpperCase()}
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
                               {user.name || user.fullName || user.username || user.email || 'Unknown'}
                             </div>
+                            <div className="text-xs text-gray-400 group-hover:text-blue-400">View Profile</div>
                           </div>
-                        </div>
+                        </Link>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">{user.email}</div>

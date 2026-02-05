@@ -55,6 +55,14 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    // Redirect admin to admin dashboard
+    const role = localStorage.getItem("role");
+    const email = localStorage.getItem("email");
+    if (role === "admin" || email === "rajyadavproject@gmail.com") {
+      navigate("/admin/dashboard");
+      return;
+    }
+
     fetchUserProfile();
   }, []);
 
@@ -70,6 +78,13 @@ export default function Dashboard() {
       if (response.ok) {
         const userData = await response.json();
         setUserProfile(userData);
+      } else {
+        if (response.status === 404 || response.status === 401) {
+          // Token invalid or user not found
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/login");
+        }
       }
     } catch (error) {
       console.error("Failed to fetch user profile:", error);

@@ -42,6 +42,14 @@ export default function Profile() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
+    // Redirect admin to admin dashboard
+    const role = localStorage.getItem("role");
+    const email = localStorage.getItem("email");
+    if (role === "admin" || email === "rajyadavproject@gmail.com") {
+      navigate("/admin/dashboard");
+      return;
+    }
+
     fetchProfile();
   }, []);
 
@@ -52,7 +60,14 @@ export default function Profile() {
         headers: { Authorization: `Bearer ${token}` },
       });
       
-      if (!response.ok) throw new Error("Failed to fetch profile");
+      if (!response.ok) {
+        if (response.status === 404 || response.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login");
+          return;
+        }
+        throw new Error("Failed to fetch profile");
+      }
       
       const data = await response.json();
       setProfile(data);

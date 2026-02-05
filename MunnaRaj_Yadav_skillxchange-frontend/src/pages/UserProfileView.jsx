@@ -14,18 +14,31 @@ const UserProfileView = () => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Check if current user is admin
+  const role = localStorage.getItem("role");
+  const email = localStorage.getItem("email");
+  const isAdmin = role === "admin" || email === "rajyadavproject@gmail.com";
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [userProfile, currentUser] = await Promise.all([
-          getUserProfileApi(id),
-          getProfileApi().catch(() => ({ data: { skillsToTeach: [] } })) // Fallback if not logged in
-        ]);
-        
+        // Only fetch current user profile if not admin (needed for Send Request modal)
+        const promises = [getUserProfileApi(id)];
+        if (!isAdmin) {
+          promises.push(getProfileApi().catch(() => ({ data: { skillsToTeach: [] } })));
+        }
+
+        const results = await Promise.all(promises);
+        const userProfile = results[0];
+        const currentUser = results[1]; // Will be undefined if isAdmin
+
         setUser(userProfile);
-        // Safely access skills from the response
-        const skills = currentUser?.data?.skillsToTeach || currentUser?.skillsToTeach || [];
-        setCurrentUserSkills(skills);
+        
+        // Safely access skills from the response if available
+        if (currentUser) {
+          const skills = currentUser?.data?.skillsToTeach || currentUser?.skillsToTeach || [];
+          setCurrentUserSkills(skills);
+        }
       } catch (err) {
         console.error("Failed to load data:", err);
         setError("User not found or server error");
@@ -90,17 +103,19 @@ const UserProfileView = () => {
                  </div>
                </div>
 
-               <div className="public-profile-actions flex flex-col gap-3 min-w-[140px] mt-4 md:mt-0">
-                 <button 
-                   onClick={() => setIsModalOpen(true)}
-                   className="action-btn-primary w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm transition-all active:scale-95"
-                 >
-                   Send Request
-                 </button>
-                 <button className="action-btn-secondary w-full py-2.5 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all">
-                   Message
-                 </button>
-               </div>
+               {!isAdmin && (
+                 <div className="public-profile-actions flex flex-col gap-3 min-w-[140px] mt-4 md:mt-0">
+                   <button 
+                     onClick={() => setIsModalOpen(true)}
+                     className="action-btn-primary w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm transition-all active:scale-95"
+                   >
+                     Send Request
+                   </button>
+                   <button className="action-btn-secondary w-full py-2.5 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all">
+                     Message
+                   </button>
+                 </div>
+               )}
             </div>
           </div>
         </div>
