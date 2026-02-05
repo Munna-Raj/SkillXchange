@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { adminLogin, getAllUsers, deleteUser } = require("../controllers/adminController");
+const { adminLogin, getAllUsers, deleteUser, getDashboardStats } = require("../controllers/adminController");
 const adminAuth = require("../middleware/adminAuth");
 
 // @route   POST /api/admin/login
@@ -24,5 +24,10 @@ router.delete("/users/:id", adminAuth, deleteUser);
 router.get("/dashboard", adminAuth, (req, res) => {
     res.json({ msg: "Welcome to Admin Dashboard" });
 });
+
+// @route   GET /api/admin/stats
+// @desc    Get dashboard statistics
+// @access  Private (Admin only)
+router.get("/stats", adminAuth, getDashboardStats);
 
 module.exports = router;

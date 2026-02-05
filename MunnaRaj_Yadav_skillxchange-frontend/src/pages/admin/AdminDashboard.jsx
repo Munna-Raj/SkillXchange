@@ -1,115 +1,162 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
+import adminService from "../../services/adminService";
+import "./AdminDashboard.css";
 
 const AdminDashboard = ({ content }) => {
   const navigate = useNavigate();
-  const [admin, setAdmin] = useState(null);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeRequests: 0,
+    pendingReports: 0,
+    totalSkills: 0,
+    recentActivity: []
+  });
 
   useEffect(() => {
+    // Get user details from local storage
     const token = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
     const role = localStorage.getItem("role");
     const email = localStorage.getItem("email");
 
-    // Check if user is admin or the specific super admin email
+    // Check if user is admin or the specific super admin
     const isAdmin = role === "admin" || email === "rajyadavproject@gmail.com";
 
+    // Redirect to login if not admin
     if (!token || !isAdmin) {
       navigate("/login");
     } else {
-      setAdmin(storedUser ? JSON.parse(storedUser) : { email });
+      setAdminEmail(email || "Admin");
+      // Only fetch stats if we are on the main dashboard view (no specific content passed)
+      if (!content) {
+        fetchStats();
+      }
     }
-  }, [navigate]);
+  }, [navigate, content]);
+
+  const fetchStats = async () => {
+    try {
+      const data = await adminService.getDashboardStats();
+      setStats(data);
+    } catch (error) {
+      console.error("Failed to fetch admin stats", error);
+    }
+  };
 
   const handleLogout = () => {
+    // Clear all stored data
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("role");
     localStorage.removeItem("email");
+    
+    // Redirect to login page
     navigate("/login");
   };
 
-  if (!admin) return null; // Or loading spinner
+  // If we are redirecting, we can show nothing or a loading spinner
+  if (!adminEmail) return null;
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className="sidebar w-64 bg-gray-900 text-white flex flex-col">
-        <div className="p-4 text-xl font-bold border-b border-gray-700">
+    <div className="admin-container">
+      {/* Sidebar Navigation */}
+      <aside className="sidebar">
+        <div className="sidebar-header">
           SkillXchange Admin
         </div>
-        <nav className="flex-1 p-4 space-y-2">
-          <Link to="/admin/dashboard" className="sidebarItem block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-800 bg-gray-800">
+        
+        <nav className="sidebar-nav">
+          <NavLink to="/admin/dashboard" end className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
             Dashboard
-          </Link>
-          <Link to="/admin/users" className="sidebarItem block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-800">
+          </NavLink>
+          <NavLink to="/admin/users" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
             Users
-          </Link>
-          <Link to="/admin/skills" className="sidebarItem block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-800">
+          </NavLink>
+          <NavLink to="/admin/skills" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
             Skills
-          </Link>
-          <Link to="/admin/requests" className="sidebarItem block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-800">
+          </NavLink>
+          <NavLink to="/admin/requests" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
             Requests
-          </Link>
-          <Link to="/admin/reports" className="sidebarItem block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-800">
+          </NavLink>
+          <NavLink to="/admin/reports" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
             Reports
-          </Link>
+          </NavLink>
         </nav>
-        <div className="p-4 border-t border-gray-700">
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none"
-          >
+
+        <div className="sidebar-footer">
+          <button onClick={handleLogout} className="logout-btn">
             Logout
           </button>
         </div>
-      </div>
+      </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="flex justify-between items-center py-4 px-6 bg-white shadow-sm">
-          <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
-          <div className="flex items-center">
-            <span className="text-gray-600 mr-2">Welcome, {admin.email}</span>
-            <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+      {/* Main Content Area */}
+      <main className="main-content">
+        {/* Top Header */}
+        <header className="dashboard-header">
+          <h1 className="header-title">Dashboard</h1>
+          <div className="user-info">
+            <span className="user-email">Welcome, {adminEmail}</span>
+            <div className="user-avatar">
               A
             </div>
           </div>
         </header>
 
-        <main className="dashboardContent flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+        {/* Dashboard Content */}
+        <div className="dashboard-body">
           {content ? (
+            // If a specific page content is provided (like Users list), show it
             content
           ) : (
+            // Otherwise, show the default Dashboard widgets
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {/* Stats Cards Placeholders */}
-                <div className="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
-                  <div className="text-gray-500 text-sm uppercase font-bold mb-1">Total Users</div>
-                  <div className="text-3xl font-bold text-gray-800">--</div>
+              {/* Summary Cards */}
+              <div className="stats-grid">
+                <div className="stat-card blue">
+                  <div className="stat-label">Total Users</div>
+                  <div className="stat-value">{stats.totalUsers}</div>
                 </div>
-                <div className="bg-white rounded-lg shadow p-5 border-l-4 border-green-500">
-                  <div className="text-gray-500 text-sm uppercase font-bold mb-1">Active Requests</div>
-                  <div className="text-3xl font-bold text-gray-800">--</div>
+                
+                <div className="stat-card green">
+                  <div className="stat-label">Active Requests</div>
+                  <div className="stat-value">{stats.activeRequests}</div>
                 </div>
-                <div className="bg-white rounded-lg shadow p-5 border-l-4 border-yellow-500">
-                  <div className="text-gray-500 text-sm uppercase font-bold mb-1">Pending Reports</div>
-                  <div className="text-3xl font-bold text-gray-800">--</div>
+                
+                <div className="stat-card yellow">
+                  <div className="stat-label">Pending Reports</div>
+                  <div className="stat-value">{stats.pendingReports}</div>
                 </div>
-                <div className="bg-white rounded-lg shadow p-5 border-l-4 border-purple-500">
-                  <div className="text-gray-500 text-sm uppercase font-bold mb-1">Total Skills</div>
-                  <div className="text-3xl font-bold text-gray-800">--</div>
+                
+                <div className="stat-card purple">
+                  <div className="stat-label">Total Skills</div>
+                  <div className="stat-value">{stats.totalSkills}</div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">Recent Activity</h3>
-                <p className="text-gray-600">No recent activity to show.</p>
+              {/* Recent Activity Section */}
+              <div className="activity-section">
+                <h3 className="activity-title">Recent Activity</h3>
+                {stats.recentActivity && stats.recentActivity.length > 0 ? (
+                  <ul className="activity-list">
+                    {stats.recentActivity.map((activity) => (
+                      <li key={activity.id} className="activity-item">
+                        <span className="activity-message">{activity.message}</span>
+                        <span className="activity-date">
+                          {new Date(activity.date).toLocaleDateString()}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="activity-placeholder">No recent activity to show.</p>
+                )}
               </div>
             </>
           )}
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 };

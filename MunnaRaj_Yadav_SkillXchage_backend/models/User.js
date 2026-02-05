@@ -50,6 +50,6 @@ const userSchema = new mongoose.Schema({
   }],
   resetToken: String,
   resetTokenExpire: Date
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

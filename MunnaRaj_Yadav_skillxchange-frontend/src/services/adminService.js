@@ -10,9 +10,15 @@ const deleteUser = async (id) => {
   return response.data;
 };
 
+const getDashboardStats = async () => {
+  const response = await api.get('/admin/stats');
+  return response.data;
+};
+
 const adminService = {
   getUsers,
   deleteUser,
+  getDashboardStats,
 };
 
 export default adminService;

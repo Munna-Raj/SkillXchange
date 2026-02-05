@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const SkillExchangeRequest = require("../models/SkillExchangeRequest");
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "my2056875@gmail.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin123";
@@ -88,6 +89,52 @@ exports.deleteUser = async (req, res) => {
     if (err.kind === "ObjectId") {
       return res.status(404).json({ msg: "User not found" });
     }
+    res.status(500).send("Server Error");
+  }
+};
+
+// @desc    Get dashboard stats
+// @route   GET /api/admin/stats
+// @access  Private (Admin)
+exports.getDashboardStats = async (req, res) => {
+  try {
+    // 1. Total Users
+    const totalUsers = await User.countDocuments();
+
+    // 2. Active Requests (pending)
+    const activeRequests = await SkillExchangeRequest.countDocuments({ status: "pending" });
+
+    // 3. Total Skills (Aggregate all skillsToTeach across users)
+    const skillsAggregation = await User.aggregate([
+      { $project: { skillCount: { $size: { $ifNull: ["$skillsToTeach", []] } } } },
+      { $group: { _id: null, total: { $sum: "$skillCount" } } }
+    ]);
+    const totalSkills = skillsAggregation.length > 0 ? skillsAggregation[0].total : 0;
+
+    // 4. Pending Reports (Placeholder for now as Report model doesn't exist)
+    const pendingReports = 0;
+
+    // 5. Recent Activity (Latest 5 users joined)
+    const recentUsers = await User.find()
+      .select("fullName email createdAt")
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    const recentActivity = recentUsers.map(user => ({
+      id: user._id,
+      message: `New user joined: ${user.fullName} (${user.email})`,
+      date: user.createdAt || user._id.getTimestamp()
+    }));
+
+    res.json({
+      totalUsers,
+      activeRequests,
+      pendingReports,
+      totalSkills,
+      recentActivity
+    });
+  } catch (err) {
+    console.error("ADMIN STATS ERROR:", err);
     res.status(500).send("Server Error");
   }
 };
