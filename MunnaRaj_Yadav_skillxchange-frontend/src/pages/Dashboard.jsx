@@ -4,7 +4,7 @@ import NotificationBell from "../components/NotificationBell";
 
 function StatCard({ title, value, sub }) {
   return (
-    <div className="rounded-2xl bg-white p-5 ring-1 ring-gray-200 shadow-lg">
+    <div className="stat-card rounded-2xl bg-white p-5 ring-1 ring-gray-200 shadow-lg">
       <p className="text-sm text-gray-600">{title}</p>
       <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
       <p className="mt-2 text-xs text-gray-500">{sub}</p>
@@ -14,7 +14,7 @@ function StatCard({ title, value, sub }) {
 
 function Pill({ children }) {
   return (
-    <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-700 font-medium">
+    <span className="pill-badge inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-700 font-medium">
       {children}
     </span>
   );
@@ -24,7 +24,7 @@ function PrimaryButton({ children, to }) {
   return (
     <Link
       to={to}
-      className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+      className="btn-primary inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
     >
       {children}
     </Link>
@@ -35,7 +35,7 @@ function SecondaryButton({ children, to }) {
   return (
     <Link
       to={to}
-      className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-gray-900 border border-gray-300 hover:bg-gray-50 transition-colors"
+      className="btn-secondary inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-gray-900 border border-gray-300 hover:bg-gray-50 transition-colors"
     >
       {children}
     </Link>
@@ -132,7 +132,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 transition-colors duration-200">
+    <div className="dashboard-page min-h-screen bg-white text-gray-900 transition-colors duration-200">
       {/* Background glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-blue-500/10 blur-3xl" />
@@ -141,10 +141,10 @@ export default function Dashboard() {
       </div>
 
       {/* Navbar */}
-      <header className="sticky top-0 z-20 border-b border-gray-200 bg-white backdrop-blur">
+      <header className="navbar-container sticky top-0 z-20 border-b border-gray-200 bg-white backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl ring-1 ring-blue-500/30 overflow-hidden">
+            <div className="logo-box grid h-10 w-10 place-items-center rounded-xl ring-1 ring-blue-500/30 overflow-hidden">
               <img 
                 src="/src/Image/logo skillxChange.jpeg" 
                 alt="SkillXchange Logo" 
@@ -157,7 +157,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <form onSubmit={handleSearch} className="hidden w-full max-w-sm items-center gap-2 rounded-xl bg-gray-100 px-3 py-2 ring-1 ring-gray-300 md:flex">
+          <form onSubmit={handleSearch} className="search-bar hidden w-full max-w-sm items-center gap-2 rounded-xl bg-gray-100 px-3 py-2 ring-1 ring-gray-300 md:flex">
             <span className="text-gray-500">⌕</span>
             <input
               className="w-full bg-transparent text-sm text-gray-900 placeholder-gray-600 outline-none"
@@ -205,9 +205,9 @@ export default function Dashboard() {
       </header>
 
       {/* Content */}
-      <main className="relative mx-auto max-w-6xl px-4 py-8">
+      <main className="dashboard-main relative mx-auto max-w-6xl px-4 py-8">
         {/* Hero */}
-        <div className="rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
+        <div className="hero-section rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
@@ -225,7 +225,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats */}
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="stats-grid mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard title="Skills Added" value={data.stats.skills} sub="Teach or learn skills" />
           <StatCard title="Matches Found" value={data.stats.matches} sub="Recommended connections" />
           <StatCard title="Pending Requests" value={data.stats.requests} sub="Awaiting responses" />
@@ -233,9 +233,9 @@ export default function Dashboard() {
         </div>
 
         {/* Two columns */}
-        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <div className="dashboard-content-grid mt-6 grid gap-6 lg:grid-cols-3">
           {/* Recommended matches */}
-          <section className="lg:col-span-2 rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
+          <section className="recommended-section lg:col-span-2 rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">Recommended Matches</h2>
               <Link className="text-sm text-blue-700 hover:text-blue-800" to="/matches">
@@ -247,7 +247,7 @@ export default function Dashboard() {
               {data.recommended.map((m) => (
                 <div
                   key={m.name}
-                  className="rounded-2xl bg-gray-50 p-5 ring-1 ring-gray-200"
+                  className="match-card rounded-2xl bg-gray-50 p-5 ring-1 ring-gray-200"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -284,7 +284,7 @@ export default function Dashboard() {
           </section>
 
           {/* Requests */}
-          <section className="rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
+          <section className="requests-section rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">Recent Requests</h2>
               <Link className="text-sm text-blue-700 hover:text-blue-800" to="/requests">
@@ -296,7 +296,7 @@ export default function Dashboard() {
               {data.requests.map((r, idx) => (
                 <div
                   key={idx}
-                  className="rounded-2xl bg-gray-50 p-4 ring-1 ring-gray-200"
+                  className="request-card rounded-2xl bg-gray-50 p-4 ring-1 ring-gray-200"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -305,7 +305,7 @@ export default function Dashboard() {
                     </div>
                     <span
                       className={[
-                        "rounded-full px-3 py-1 text-xs font-medium ring-1",
+                        "status-badge rounded-full px-3 py-1 text-xs font-medium ring-1",
                         r.status === "Accepted"
                           ? "bg-green-100 text-green-900 ring-green-200"
                           : "bg-yellow-100 text-yellow-900 ring-yellow-200",
@@ -337,7 +337,7 @@ export default function Dashboard() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-10 pb-10 text-center text-xs text-gray-500">
+        <footer className="dashboard-footer mt-10 pb-10 text-center text-xs text-gray-500">
           SkillXchange • MERN + Tailwind • Showcase Build
         </footer>
       </main>

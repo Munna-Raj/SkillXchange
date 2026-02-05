@@ -3,9 +3,11 @@ const Notification = require("../models/Notification");
 // Get all notifications for the current user
 exports.getNotifications = async (req, res) => {
   try {
+    // console.log("Fetching notifications for user:", req.user.id);
     const notifications = await Notification.find({ userId: req.user.id })
       .sort({ createdAt: -1 }) // Newest first
       .limit(20); // Limit to last 20
+    // console.log("Found notifications:", notifications.length);
     res.json(notifications);
   } catch (err) {
     console.error(err.message);
@@ -50,6 +52,7 @@ exports.markAllAsRead = async (req, res) => {
 // Internal helper to create notification
 exports.createNotification = async (userId, type, message, relatedId) => {
   try {
+    console.log(`Creating notification for user ${userId}: ${message}`);
     const notification = new Notification({
       userId,
       type,
@@ -57,6 +60,7 @@ exports.createNotification = async (userId, type, message, relatedId) => {
       relatedId,
     });
     await notification.save();
+    console.log("Notification created successfully");
   } catch (err) {
     console.error("Failed to create notification:", err);
   }

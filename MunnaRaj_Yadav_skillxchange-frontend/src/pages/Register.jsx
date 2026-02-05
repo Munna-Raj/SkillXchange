@@ -77,25 +77,25 @@ export default function Register() {
   };
 
   return (
-    <div className="auth-page">
+    <div className="register-page">
       <div className="w-full max-w-md relative z-10">
         {/* Logo Section */}
-        <div className="auth-header">
-          <div className="auth-logo-container-center">
+        <div className="register-header">
+          <div className="register-logo-container">
             <img 
               src="/src/Image/logo skillxChange.jpeg" 
               alt="SkillXchange Logo" 
-              className="auth-logo-img-lg"
+              className="register-logo-img-lg"
             />
           </div>
-          <h1 className="auth-title-simple">Create Account</h1>
-          <p className="auth-subtitle">Join SkillXchange today</p>
+          <h1 className="register-title">Create Account</h1>
+          <p className="register-subtitle">Join SkillXchange today</p>
         </div>
 
         {/* Registration Card */}
-        <div className="auth-card">
+        <div className="register-card">
           {error && (
-            <div className="auth-alert-error">
+            <div className="register-error-alert">
               <p className="text-sm">{error}</p>
             </div>
           )}

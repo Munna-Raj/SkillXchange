@@ -10,6 +10,7 @@ const searchRoutes = require("./routes/searchRoutes");
 const matchRoutes = require("./routes/matchRoutes");
 const requestRoutes = require("./routes/requestRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/api/skills", skillRoutes);
 app.use("/api/matches", matchRoutes); // New matching route
 app.use("/api/requests", requestRoutes); // Skill exchange requests
 app.use("/api/notifications", notificationRoutes); // Notifications
+app.use("/api/admin", adminRoutes); // Admin Routes
 app.use("/api", searchRoutes); // Mount at /api so routes become /api/search and /api/users/:id
 
 const PORT = process.env.PORT || 5000;

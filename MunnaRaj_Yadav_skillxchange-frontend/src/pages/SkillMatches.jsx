@@ -25,8 +25,12 @@ const SkillMatches = () => {
     }
   };
 
+  if (loading) return <div className="text-center p-8">Loading matches...</div>;
+  if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
+
   return (
-    <div className="page-container">
+    <div className="skill-matches-page min-h-screen bg-white">
+      {/* Background glow */}
       <div className="profile-bg-wrapper">
         <div className="profile-bg-blob-1" />
         <div className="profile-bg-blob-2" />
@@ -40,89 +44,66 @@ const SkillMatches = () => {
              </div>
              <p className="text-sm font-semibold">SkillXchange</p>
           </div>
-          <div className="flex items-center gap-4">
-            <NotificationBell />
-            <button onClick={() => navigate("/dashboard")} className="btn-back">
-              ← Back to Dashboard
-            </button>
-          </div>
+          <button onClick={() => navigate("/dashboard")} className="btn-back">
+            ← Back to Dashboard
+          </button>
         </div>
       </header>
 
-      <div className="search-page-container relative z-10">
-        <div className="search-header-simple">
-          <h1 className="search-results-title">Your Skill Matches</h1>
-          <p className="search-results-count">
-            Based on what you want to learn and what others can teach.
-          </p>
-        </div>
-
-        {loading ? (
-          <div className="loading-container">
-            <div className="spinner"></div>
-            <p>Finding your best matches...</p>
-          </div>
-        ) : error ? (
-          <div className="error-message">
-            {error}
-          </div>
-        ) : matches.length === 0 ? (
-          <div className="no-matches-box">
-            <h3>No matches found yet!</h3>
-            <p>Try adding more skills to your "Skills to Learn" list in your profile.</p>
-            <button onClick={() => navigate('/profile')} className="action-btn-primary mt-4">
-              Update Profile
-            </button>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        <h1 className="matches-title text-3xl font-bold text-gray-900 mb-8">Recommended Matches</h1>
+        
+        {matches.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No matches found based on your skills yet.</p>
+            <p className="text-gray-400 mt-2">Try adding more skills to your profile!</p>
           </div>
         ) : (
-          <div className="results-grid-users">
+          <div className="matches-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {matches.map((user) => (
-              <div key={user._id} className="match-card">
-                {/* Match Score Badge */}
-                <div className="match-score-badge">
-                  {user.matchScore > 15 ? "🔥 Perfect Match" : "✅ Good Match"}
-                </div>
-
-                <div className="user-card-header">
-                  <img 
-                    src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`} 
-                    alt={user.fullName} 
-                    className="user-card-avatar"
-                  />
-                  <div className="user-card-info">
-                    <h3 className="user-card-name">{user.fullName}</h3>
-                    <p className="user-card-username">@{user.username}</p>
-                  </div>
-                </div>
-
-                {/* Why matched? */}
-                <div className="match-reason-section">
-                  <p className="match-reason-title">They can teach you:</p>
-                  <div className="match-tags-container">
-                    {user.matchingSkills.map((skill, idx) => (
-                      <span key={idx} className="match-tag-teach">{skill}</span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Mutual Match Bonus */}
-                {user.mutualSkills.length > 0 && (
-                  <div className="match-reason-section mt-3">
-                    <p className="match-reason-title text-purple-600">You can swap skills (Mutual):</p>
-                    <div className="match-tags-container">
-                      {user.mutualSkills.map((skill, idx) => (
-                        <span key={idx} className="match-tag-mutual">You teach {skill}</span>
-                      ))}
+              <div key={user._id} className="user-match-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+                <div className="p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <img 
+                      src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`} 
+                      alt={user.fullName}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-indigo-100"
+                    />
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">{user.fullName}</h3>
+                      <p className="text-sm text-gray-500">{user.location || 'Location not set'}</p>
                     </div>
                   </div>
-                )}
-
-                <div className="mt-auto pt-4">
+                  
+                  <div className="space-y-3 mb-6">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Teaches</p>
+                      <div className="flex flex-wrap gap-2">
+                        {user.skillsOffered?.map((skill, idx) => (
+                          <span key={idx} className="skill-badge-teach px-2 py-1 bg-green-50 text-green-700 text-xs font-medium rounded-lg border border-green-100">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Wants to Learn</p>
+                      <div className="flex flex-wrap gap-2">
+                        {user.skillsWanted?.map((skill, idx) => (
+                          <span key={idx} className="skill-badge-learn px-2 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-lg border border-indigo-100">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
                   <button 
                     onClick={() => navigate(`/user/${user._id}`)}
-                    className="view-profile-btn"
+                    className="view-user-profile-btn w-full py-2.5 bg-gray-900 text-white rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors"
                   >
-                    View Full Profile
+                    View Profile
                   </button>
                 </div>
               </div>
@@ -132,6 +113,6 @@ const SkillMatches = () => {
       </div>
     </div>
   );
-};
+}
 
 export default SkillMatches;

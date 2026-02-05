@@ -51,7 +51,7 @@ const MyRequests = () => {
       rejected: "bg-red-100 text-red-800 border-red-200",
     };
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-bold border uppercase tracking-wide ${styles[status] || "bg-gray-100"}`}>
+      <span className={`status-badge px-2 py-1 rounded-full text-xs font-bold border uppercase tracking-wide ${styles[status] || "bg-gray-100"}`}>
         {status}
       </span>
     );
@@ -66,7 +66,7 @@ const MyRequests = () => {
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container my-requests-page">
       {/* Background glow */}
       <div className="profile-bg-wrapper">
         <div className="profile-bg-blob-1" />
@@ -88,13 +88,13 @@ const MyRequests = () => {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 relative z-10">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Skill Exchange Requests</h1>
+        <h1 className="my-requests-title text-3xl font-bold text-gray-900 mb-6">Skill Exchange Requests</h1>
 
         {/* Tabs */}
-        <div className="flex space-x-4 mb-6 border-b border-gray-200">
+        <div className="tabs-container flex space-x-4 mb-6 border-b border-gray-200">
           <button
             onClick={() => setActiveTab("received")}
-            className={`pb-2 px-4 font-semibold text-sm transition-colors ${
+            className={`tab-button pb-2 px-4 font-semibold text-sm transition-colors ${
               activeTab === "received"
                 ? "border-b-2 border-indigo-600 text-indigo-600"
                 : "text-gray-500 hover:text-gray-700"
@@ -104,7 +104,7 @@ const MyRequests = () => {
           </button>
           <button
             onClick={() => setActiveTab("sent")}
-            className={`pb-2 px-4 font-semibold text-sm transition-colors ${
+            className={`tab-button pb-2 px-4 font-semibold text-sm transition-colors ${
               activeTab === "sent"
                 ? "border-b-2 border-indigo-600 text-indigo-600"
                 : "text-gray-500 hover:text-gray-700"
@@ -116,14 +116,14 @@ const MyRequests = () => {
 
         {error && <div className="p-4 mb-4 bg-red-50 text-red-700 rounded-lg">{error}</div>}
 
-        <div className="grid gap-4">
+        <div className="requests-grid grid gap-4">
           {activeTab === "received" ? (
             receivedRequests.length === 0 ? (
               <p className="text-gray-500 text-center py-8">No received requests yet.</p>
             ) : (
               receivedRequests.map((req) => (
-                <div key={req._id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 w-full md:w-auto">
+                <div key={req._id} className="request-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="request-user-info flex items-center gap-4 w-full md:w-auto">
                     <img
                       src={req.senderId.profilePic ? `http://localhost:5000/uploads/${req.senderId.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.senderId.fullName)}&background=random`}
                       alt={req.senderId.fullName}
@@ -140,7 +140,7 @@ const MyRequests = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                  <div className="request-actions flex items-center gap-3 w-full md:w-auto justify-end">
                     {req.status === "pending" ? (
                       <>
                         <button
@@ -167,8 +167,8 @@ const MyRequests = () => {
             <p className="text-gray-500 text-center py-8">You haven't sent any requests yet.</p>
           ) : (
             sentRequests.map((req) => (
-              <div key={req._id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
+              <div key={req._id} className="request-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="request-user-info flex items-center gap-4">
                   <img
                     src={req.receiverId.profilePic ? `http://localhost:5000/uploads/${req.receiverId.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.receiverId.fullName)}&background=random`}
                     alt={req.receiverId.fullName}

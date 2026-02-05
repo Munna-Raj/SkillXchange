@@ -47,9 +47,20 @@ export default function Login() {
       // If backend returns token as `token`
       if (res?.data?.token) {
         localStorage.setItem("token", res.data.token);
-      }
+        
+        // Store user info
+        const user = res.data.user || {};
+        localStorage.setItem("role", user.role);
+        localStorage.setItem("email", user.email);
+        localStorage.setItem("user", JSON.stringify(user));
 
-      navigate("/dashboard");
+        // Role-based redirection
+        if (user.role === "admin" || user.email === "rajyadavproject@gmail.com") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/dashboard");
+        }
+      }
     } catch (err) {
       setError(err?.response?.data?.message || "Login failed. Please try again.");
     } finally {
@@ -58,33 +69,33 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-page">
+    <div className="login-page">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="auth-bg-bubble-1"></div>
-        <div className="auth-bg-bubble-2"></div>
+        <div className="login-bg-bubble-1"></div>
+        <div className="login-bg-bubble-2"></div>
       </div>
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo and header */}
-        <div className="auth-header">
-          <div className="auth-logo-container">
+        <div className="login-header">
+          <div className="login-logo-container">
             <img 
               src="/src/Image/logo skillxChange.jpeg" 
               alt="SkillXchange Logo" 
-              className="auth-logo-img"
+              className="login-logo-img"
             />
-            <h1 className="auth-title">
+            <h1 className="login-title">
               SkillXchange
             </h1>
           </div>
-          <p className="auth-subtitle">Welcome back! Sign in to continue</p>
+          <p className="login-subtitle">Welcome back! Sign in to continue</p>
         </div>
 
         {/* Login form */}
-        <div className="auth-card">
+        <div className="login-card">
           {error && (
-            <div className="auth-alert-error">
+            <div className="login-error-alert">
               <div className="flex items-center gap-3">
                 <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-600 ring-1 ring-blue-500/30">
                   <span className="text-lg font-bold text-white">SX</span>
