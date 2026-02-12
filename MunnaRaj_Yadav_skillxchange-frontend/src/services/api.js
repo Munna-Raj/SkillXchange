@@ -19,4 +19,31 @@ api.interceptors.request.use(
   }
 );
 
+// Add a response interceptor to handle auth errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("email");
+      localStorage.removeItem("user");
+      if (window.location.pathname !== "/login" && window.location.pathname !== "/" && !window.location.pathname.startsWith("/user/")) {
+        window.location.href = "/login";
+      }
+    }
+    
+    // Handle 404 for User Profile (User deleted but token exists)
+    if (error.response && error.response.status === 404 && error.config.url.includes("/profile") && error.config.method === "get") {
+       localStorage.removeItem("token");
+       localStorage.removeItem("role");
+       localStorage.removeItem("email");
+       localStorage.removeItem("user");
+       window.location.href = "/login";
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default api;

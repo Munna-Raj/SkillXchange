@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { addSkillApi, deleteSkillApi } from "../services/profileService";
+import { getFeedbackForUser } from "../services/feedbackService";
 import NotificationBell from "../components/NotificationBell";
 
 export default function Profile() {
@@ -35,6 +36,7 @@ export default function Profile() {
     description: ""
   });
 
+  const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -77,6 +79,14 @@ export default function Profile() {
         bio: data.bio || "",
         contactNumber: data.contactNumber || ""
       });
+
+      // Fetch feedback
+      try {
+        const feedbackData = await getFeedbackForUser(data._id);
+        setFeedbacks(feedbackData);
+      } catch (err) {
+        console.error("Failed to load feedback", err);
+      }
     } catch (err) {
       setError("Failed to load profile");
       if (err.message.includes("401")) {
@@ -552,6 +562,46 @@ export default function Profile() {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* Received Feedback Section */}
+          <div className="profile-card">
+            <h3 className="card-title mb-6 flex items-center gap-2">
+              <span className="text-xl">⭐</span> Received Feedback
+            </h3>
+            <div className="space-y-4">
+              {feedbacks.length > 0 ? (
+                feedbacks.map((feedback) => (
+                  <div key={feedback._id} className="feedback-card p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={feedback.reviewer?.profilePic 
+                            ? `http://localhost:5000/uploads/${feedback.reviewer.profilePic}` 
+                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(feedback.reviewer?.fullName || 'Anonymous')}&background=random`} 
+                          alt={feedback.reviewer?.fullName}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                        />
+                        <div>
+                          <h4 className="font-bold text-gray-900">{feedback.reviewer?.fullName || "Unknown User"}</h4>
+                          <p className="text-xs text-gray-500">{new Date(feedback.createdAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <div className="flex text-yellow-400">
+                        {[...Array(5)].map((_, i) => (
+                          <span key={i} className={i < feedback.rating ? "text-yellow-400" : "text-gray-300"}>★</span>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-gray-700 pl-[52px]">{feedback.comment}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                  <p>No feedback received yet.</p>
+                </div>
+              )}
             </div>
           </div>
 

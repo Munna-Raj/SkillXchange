@@ -1,8 +1,9 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const sendEmail = require("../utils/sendEmail");
 
-// ================== SIGNUP ==================
+// SIGNUP 
 exports.signup = async (req, res) => {
   const fullName = req.body.fullName?.trim();
   const username = req.body.username?.trim();
@@ -23,7 +24,7 @@ exports.signup = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
+   
     const user = new User({
       fullName,
       username,
@@ -40,7 +41,70 @@ exports.signup = async (req, res) => {
   }
 };
 
-// ================== LOGIN ==================
+// VERIFY EMAIL 
+exports.verifyEmail = async (req, res) => {
+  const { email, code } = req.body;
+
+  try {
+    const user = await User.findOne({ 
+      email, 
+      verificationCode: code,
+      verificationCodeExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ msg: "Invalid or expired verification code" });
+    }
+
+    user.isVerified = true;
+    user.verificationCode = undefined;
+    user.verificationCodeExpire = undefined;
+    await user.save();
+
+    res.json({ msg: "Email verified successfully. You can now login." });
+  } catch (error) {
+    console.error("VERIFY EMAIL ERROR:", error);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
+// RESEND CODE 
+exports.resendCode = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ msg: "Account already verified" });
+    }
+
+    // Generate new code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCodeExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    user.verificationCode = verificationCode;
+    user.verificationCodeExpire = verificationCodeExpire;
+    await user.save();
+
+    await sendEmail({
+      email: user.email,
+      subject: "SkillXchange - New Verification Code",
+      message: `Your new verification code is: ${verificationCode}`,
+      html: `<h1>SkillXchange</h1><p>Your new verification code is: <strong>${verificationCode}</strong></p>`
+    });
+
+    res.json({ msg: "Verification code resent" });
+  } catch (error) {
+    console.error("RESEND CODE ERROR:", error);
+    res.status(500).json({ msg: "Server error: " + error.message });
+  }
+};
+
+// LOGIN 
 exports.login = async (req, res) => {
   const email = req.body.email?.toLowerCase().trim();
   const password = req.body.password;
@@ -78,7 +142,7 @@ exports.login = async (req, res) => {
   }
 };
 
-// ================== FORGOT PASSWORD ==================
+// FORGOT PASSWORD 
 exports.forgotPassword = async (req, res) => {
   const email = req.body.email?.toLowerCase().trim();
 
@@ -103,7 +167,7 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// ================== RESET PASSWORD ==================
+//  RESET PASSWORD
 exports.resetPassword = async (req, res) => {
   const token = req.params.token;
   const newPassword = req.body.newPassword;

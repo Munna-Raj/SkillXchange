@@ -15,6 +15,7 @@ import { AdminSkills, AdminRequests, AdminReports } from "./pages/admin/AdminPag
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import Footer from "./components/Footer";
+import ComingSoon from "./pages/ComingSoon";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -40,6 +41,12 @@ function Layout() {
         <Route path="/search" element={<SkillSearch />} />
         <Route path="/search-results" element={<SearchResults />} />
         <Route path="/user/:id" element={<UserProfileView />} />
+        
+        {/* Footer Pages */}
+        <Route path="/about" element={<ComingSoon title="About Us" />} />
+        <Route path="/services" element={<ComingSoon title="Our Services" />} />
+        <Route path="/contact" element={<ComingSoon title="Contact Us" />} />
+        <Route path="/privacy" element={<ComingSoon title="Privacy Policy" />} />
 
         {/* Admin Routes */}
         <Route 

@@ -9,7 +9,14 @@ exports.getProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
-    res.json(user);
+
+    // Fix for legacy users without createdAt
+    let userObj = user.toObject();
+    if (!userObj.createdAt) {
+      userObj.createdAt = user._id.getTimestamp();
+    }
+
+    res.json(userObj);
   } catch (error) {
     console.error("GET PROFILE ERROR:", error);
     res.status(500).json({ msg: "Server error" });

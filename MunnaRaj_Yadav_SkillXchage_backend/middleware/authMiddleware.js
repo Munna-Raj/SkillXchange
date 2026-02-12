@@ -9,7 +9,17 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { id: decoded.id };
+    console.log("Decoded Token:", JSON.stringify(decoded, null, 2));
+
+    if (decoded.user) {
+      req.user = decoded.user;
+    } else if (decoded.id) {
+      req.user = { id: decoded.id };
+    } else {
+      console.error("Invalid token structure:", decoded);
+      return res.status(401).json({ msg: "Token structure invalid" });
+    }
+    
     next();
   } catch (error) {
     res.status(401).json({ msg: "Token is not valid" });

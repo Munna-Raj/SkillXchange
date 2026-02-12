@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { signupApi } from "../services/authService";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -67,10 +68,14 @@ export default function Register() {
 
     try {
       const res = await signupApi(form);
-      setSuccess(res?.data?.msg || "Account created successfully! Please login.");
+      const successMessage = res?.data?.msg || "Account created successfully! Please login.";
+      setSuccess(successMessage);
+      toast.success(successMessage);
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError(err?.response?.data?.msg || "Registration failed. Please try again.");
+      const errorMessage = err?.response?.data?.msg || "Registration failed. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

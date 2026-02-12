@@ -7,10 +7,7 @@ const AdminPlaceholder = ({ title }) => {
         <h1 className="text-2xl font-semibold text-gray-800">{title}</h1>
       </header>
       <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">Manage {title}</h2>
-          <p className="text-gray-600">This feature is coming soon.</p>
-        </div>
+      
       </main>
     </div>
   );

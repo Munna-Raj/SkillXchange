@@ -1,8 +1,6 @@
 const User = require("../models/User");
 
-// @desc    Search skills
-// @route   GET /api/skills/search
-// @access  Public
+
 const searchSkills = async (req, res) => {
   try {
     const { keyword, category, level } = req.query;
@@ -10,8 +8,7 @@ const searchSkills = async (req, res) => {
     // Build the query
     let query = {};
 
-    // We are searching within the 'skillsToTeach' array of users
-    // If a user has a skill that matches our criteria, they are a match
+    
     
     if (keyword) {
       // Search for keyword in skill name or description
@@ -37,7 +34,7 @@ const searchSkills = async (req, res) => {
     users.forEach(user => {
       user.skillsToTeach.forEach(skill => {
         // Check if this specific skill matches the criteria
-        // (Because a user might have multiple skills, but only one matches the search)
+       
         
         let isMatch = true;
 

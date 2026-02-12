@@ -1,6 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import NotificationBell from "../components/NotificationBell";
+import { getMatchesApi } from "../services/matchService";
+import { getReceivedRequestsApi } from "../services/requestService";
 
 function StatCard({ title, value, sub }) {
   return (
@@ -46,6 +48,10 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [recommendedMatches, setRecommendedMatches] = useState([]);
+  const [loadingMatches, setLoadingMatches] = useState(true);
+  const [recentRequests, setRecentRequests] = useState([]);
+  const [loadingRequests, setLoadingRequests] = useState(true);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -64,7 +70,33 @@ export default function Dashboard() {
     }
 
     fetchUserProfile();
+    fetchMatches();
+    fetchRecentRequests();
   }, []);
+
+  const fetchMatches = async () => {
+    try {
+      setLoadingMatches(true);
+      const matches = await getMatchesApi();
+      setRecommendedMatches(matches);
+    } catch (error) {
+      console.error("Failed to fetch matches:", error);
+    } finally {
+      setLoadingMatches(false);
+    }
+  };
+
+  const fetchRecentRequests = async () => {
+    try {
+      setLoadingRequests(true);
+      const requests = await getReceivedRequestsApi();
+      setRecentRequests(requests.slice(0, 3));
+    } catch (error) {
+      console.error("Failed to fetch requests:", error);
+    } finally {
+      setLoadingRequests(false);
+    }
+  };
 
   const fetchUserProfile = async () => {
     try {
@@ -241,10 +273,26 @@ export default function Dashboard() {
 
         {/* Stats */}
         <div className="stats-grid mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Skills Added" value={data.stats.skills} sub="Teach or learn skills" />
-          <StatCard title="Matches Found" value={data.stats.matches} sub="Recommended connections" />
-          <StatCard title="Pending Requests" value={data.stats.requests} sub="Awaiting responses" />
-          <StatCard title="Rating" value={data.stats.rating} sub="After completed exchanges" />
+          <StatCard 
+            title="Skills Added" 
+            value={(userProfile?.skillsToTeach?.length || 0) + (userProfile?.skillsToLearn?.length || 0)} 
+            sub="Teach or learn skills" 
+          />
+          <StatCard 
+            title="Matches Found" 
+            value={recommendedMatches.length} 
+            sub="Recommended connections" 
+          />
+          <StatCard 
+            title="Pending Requests" 
+            value={recentRequests.filter(r => r.status === "pending").length} 
+            sub="Awaiting responses" 
+          />
+          <StatCard 
+            title="Rating" 
+            value="4.8/5" 
+            sub="After completed exchanges" 
+          />
         </div>
 
         {/* Two columns */}
@@ -259,42 +307,125 @@ export default function Dashboard() {
             </div>
 
             <div className="mt-4 grid gap-4 md:grid-cols-2">
-              {data.recommended.map((m) => (
-                <div
-                  key={m.name}
-                  className="match-card rounded-2xl bg-gray-50 p-5 ring-1 ring-gray-200"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-base font-semibold text-gray-900">{m.name}</p>
-                      <p className="text-xs text-gray-600">{m.city} • {m.level}</p>
-                    </div>
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs text-green-900 font-medium">
-                      Match
+              {/* Login User Card (First in list) */}
+              {userProfile && (
+                <div className="match-card rounded-2xl bg-blue-50/50 p-5 ring-1 ring-blue-200 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0">
+                    <span className="bg-blue-600 text-white text-[10px] px-3 py-1 font-bold uppercase tracking-widest rounded-bl-xl shadow-sm">
+                      Me
                     </span>
+                  </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-blue-200">
+                        {getProfilePictureUrl() ? (
+                          <img src={getProfilePictureUrl()} alt="Me" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                            {userProfile.fullName?.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-base font-bold text-gray-900">{userProfile.fullName}</p>
+                        <p className="text-xs text-blue-600 font-medium">Your Profile Details</p>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="mt-4 grid grid-cols-2 gap-3">
-                    <div className="rounded-xl bg-blue-50 p-3 ring-1 ring-blue-200">
-                      <p className="text-xs text-blue-800">Can Teach</p>
-                      <p className="mt-1 text-sm font-semibold text-gray-900">{m.teach}</p>
+                    <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-blue-100">
+                      <p className="text-[10px] uppercase font-bold text-blue-500 tracking-tight">I Teach</p>
+                      <p className="mt-1 text-sm font-semibold text-gray-800">
+                        {userProfile.skillsToTeach?.[0]?.name || "Not set"}
+                      </p>
                     </div>
-                    <div className="rounded-xl bg-purple-50 p-3 ring-1 ring-purple-200">
-                      <p className="text-xs text-purple-800">Wants to Learn</p>
-                      <p className="mt-1 text-sm font-semibold text-gray-900">{m.learn}</p>
+                    <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-purple-100">
+                      <p className="text-[10px] uppercase font-bold text-purple-500 tracking-tight">I Want to Learn</p>
+                      <p className="mt-1 text-sm font-semibold text-gray-800">
+                        {userProfile.skillsToLearn?.[0]?.name || "Not set"}
+                      </p>
                     </div>
                   </div>
 
                   <div className="mt-4 flex gap-3">
-                    <button className="flex-1 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-                      Send Request
-                    </button>
-                    <button className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-200">
-                      Message
+                    <button 
+                      onClick={() => navigate("/profile")}
+                      className="flex-1 rounded-xl bg-white border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 transition-colors"
+                    >
+                      Update My Skills
                     </button>
                   </div>
                 </div>
-              ))}
+              )}
+
+              {/* Recommended Matches from API */}
+              {loadingMatches ? (
+                <div className="col-span-full py-10 text-center text-gray-400 text-sm italic">
+                  Finding best matches for you...
+                </div>
+              ) : recommendedMatches.length > 0 ? (
+                recommendedMatches.slice(0, 3).map((m) => (
+                  <div
+                    key={m._id}
+                    className="match-card rounded-2xl bg-gray-50 p-5 ring-1 ring-gray-200 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-200">
+                          {m.profilePic ? (
+                            <img src={`http://localhost:5000/uploads/${m.profilePic}`} alt={m.fullName} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold">
+                              {m.fullName?.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-base font-semibold text-gray-900">{m.fullName}</p>
+                          <p className="text-xs text-gray-600">
+                            {m.matchScore}% Match • {m.skillsToTeach?.[0]?.level || "User"}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="rounded-full bg-green-100 px-3 py-1 text-[10px] text-green-700 font-bold uppercase">
+                        Match
+                      </span>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="rounded-xl bg-blue-50 p-3 ring-1 ring-blue-100">
+                        <p className="text-[10px] uppercase font-bold text-blue-800 tracking-tight">Can Teach</p>
+                        <p className="mt-1 text-sm font-semibold text-gray-900">
+                          {m.skillsToTeach?.[0]?.name || "Skill"}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-purple-50 p-3 ring-1 ring-purple-100">
+                        <p className="text-[10px] uppercase font-bold text-purple-800 tracking-tight">Wants to Learn</p>
+                        <p className="mt-1 text-sm font-semibold text-gray-900">
+                          {m.skillsToLearn?.[0]?.name || "Skill"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex gap-3">
+                      <button 
+                        onClick={() => navigate(`/user/${m._id}`)}
+                        className="flex-1 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 shadow-sm"
+                      >
+                        Send Request
+                      </button>
+                      <button className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-200">
+                        Message
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full py-10 text-center text-gray-500 text-sm">
+                  No matches found. Try adding more skills to your profile!
+                </div>
+              )}
             </div>
           </section>
 
@@ -308,45 +439,69 @@ export default function Dashboard() {
             </div>
 
             <div className="mt-4 space-y-3">
-              {data.requests.map((r, idx) => (
-                <div
-                  key={idx}
-                  className="request-card rounded-2xl bg-gray-50 p-4 ring-1 ring-gray-200"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{r.from}</p>
-                      <p className="text-xs text-gray-600">{r.skill}</p>
-                    </div>
-                    <span
-                      className={[
-                        "status-badge rounded-full px-3 py-1 text-xs font-medium ring-1",
-                        r.status === "Accepted"
-                          ? "bg-green-100 text-green-900 ring-green-200"
-                          : "bg-yellow-100 text-yellow-900 ring-yellow-200",
-                      ].join(" ")}
-                    >
-                      {r.status}
-                    </span>
-                  </div>
-
-                  <div className="mt-3 flex gap-2">
-                    <button className="flex-1 rounded-xl bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-200">
-                      View
-                    </button>
-                    <button className="flex-1 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-                      Action
-                    </button>
-                  </div>
+              {loadingRequests ? (
+                <div className="py-4 text-center text-gray-400 text-xs italic">
+                  Loading requests...
                 </div>
-              ))}
-            </div>
+              ) : recentRequests.length > 0 ? (
+                recentRequests.map((r) => (
+                  <div
+                    key={r._id}
+                    className="request-card rounded-2xl bg-gray-50 p-4 ring-1 ring-gray-200"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
+                          {r.senderId.profilePic ? (
+                            <img src={`http://localhost:5000/uploads/${r.senderId.profilePic}`} alt={r.senderId.fullName} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-[10px] font-bold">
+                              {r.senderId.fullName?.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{r.senderId.fullName}</p>
+                          <p className="text-[10px] text-gray-600">Wants: {r.learnSkill}</p>
+                        </div>
+                      </div>
+                      <span
+                        className={[
+                          "status-badge rounded-full px-2 py-0.5 text-[10px] font-bold ring-1 uppercase",
+                          r.status === "accepted"
+                            ? "bg-green-100 text-green-700 ring-green-200"
+                            : r.status === "rejected"
+                            ? "bg-red-100 text-red-700 ring-red-200"
+                            : "bg-yellow-100 text-yellow-700 ring-yellow-200",
+                        ].join(" ")}
+                      >
+                        {r.status}
+                      </span>
+                    </div>
 
-            <div className="mt-5 rounded-2xl bg-blue-50 p-4 ring-1 ring-blue-200">
-              <p className="text-sm font-semibold text-blue-800">Showcase Tip</p>
-              <p className="mt-1 text-xs text-gray-700">
-                Click "Send Request" and "Message" (UI demo). You'll connect them to backend next week.
-              </p>
+                    <div className="mt-3 flex gap-2">
+                      <button 
+                        onClick={() => navigate("/requests")}
+                        className="flex-1 rounded-xl bg-white border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                      >
+                        View
+                      </button>
+                      {r.status === "pending" && (
+                        <button 
+                          onClick={() => navigate("/requests")}
+                          className="flex-1 rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 shadow-sm"
+                        >
+                          Respond
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-8 text-center text-gray-500 text-sm">
+                  No recent requests.
+                </div>
+              )}
             </div>
           </section>
         </div>

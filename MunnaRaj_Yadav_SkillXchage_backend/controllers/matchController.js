@@ -58,16 +58,16 @@ const getMatches = async (req, res) => {
         bio: user.bio,
         skillsToTeach: user.skillsToTeach,
         skillsToLearn: user.skillsToLearn,
+        skillsOffered: (user.skillsToTeach || []).map(s => s.name),
+        skillsWanted: (user.skillsToLearn || []).map(s => s.name),
         matchScore: score,
         matchingSkills, // What they can teach me
         mutualSkills    // What we can swap
       };
     });
 
-    // 4. Filter and Sort
-    // Only keep users with at least one match (score > 0)
+    // 4. Sort (Show all users, but highest score first)
     const results = matchedUsers
-      .filter(user => user.matchScore > 0)
       .sort((a, b) => b.matchScore - a.matchScore); // Highest score first
 
     res.status(200).json(results);

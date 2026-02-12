@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { loginApi } from "../services/authService";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -62,7 +63,9 @@ export default function Login() {
         }
       }
     } catch (err) {
-      setError(err?.response?.data?.message || "Login failed. Please try again.");
+      const errorMessage = err?.response?.data?.msg || "Login failed. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -95,16 +98,8 @@ export default function Login() {
         {/* Login form */}
         <div className="login-card">
           {error && (
-            <div className="login-error-alert">
-              <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-600 ring-1 ring-blue-500/30">
-                  <span className="text-lg font-bold text-white">SX</span>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold leading-4 text-gray-900">SkillXchange</p>
-                  <p className="text-xs text-gray-500">Dashboard</p>
-                </div>
-              </div>
+            <div className="login-error-alert mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded relative" role="alert">
+              <span className="block sm:inline">{error}</span>
             </div>
           )}
 

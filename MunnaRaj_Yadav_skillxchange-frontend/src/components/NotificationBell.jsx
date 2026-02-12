@@ -10,6 +10,9 @@ const NotificationBell = () => {
   const navigate = useNavigate();
 
   const fetchNotifications = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     try {
       const data = await getNotificationsApi();
       setNotifications(data);
@@ -53,6 +56,8 @@ const NotificationBell = () => {
     // Navigate based on type
     if (notification.type === "request_received" || notification.type === "request_accepted") {
       navigate("/requests");
+    } else if (notification.type === "feedback_received") {
+      navigate("/profile");
     }
   };
 
