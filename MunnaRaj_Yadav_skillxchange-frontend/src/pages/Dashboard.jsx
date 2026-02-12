@@ -61,7 +61,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    // Redirect admin to admin dashboard
+    // Check admin role
     const role = localStorage.getItem("role");
     const email = localStorage.getItem("email");
     if (role === "admin" || email === "rajyadavproject@gmail.com") {
@@ -74,6 +74,7 @@ export default function Dashboard() {
     fetchRecentRequests();
   }, []);
 
+  // Fetch recommended matches
   const fetchMatches = async () => {
     try {
       setLoadingMatches(true);
@@ -86,6 +87,7 @@ export default function Dashboard() {
     }
   };
 
+  // Fetch last 3 received requests
   const fetchRecentRequests = async () => {
     try {
       setLoadingRequests(true);
@@ -98,31 +100,29 @@ export default function Dashboard() {
     }
   };
 
+  // Get user profile data
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch("http://localhost:5000/api/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       
       if (response.ok) {
         const userData = await response.json();
         setUserProfile(userData);
-      } else {
-        if (response.status === 404 || response.status === 401) {
-          // Token invalid or user not found
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          navigate("/login");
-        }
+      } else if (response.status === 404 || response.status === 401) {
+        // Clear session on error
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
       }
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
     }
   };
 
+  // Format profile pic URL
   const getProfilePictureUrl = () => {
     if (userProfile?.profilePic) {
       return `http://localhost:5000/uploads/${userProfile.profilePic}`;
@@ -130,49 +130,7 @@ export default function Dashboard() {
     return null;
   };
 
-  // For showcase: mock data (replace later with API)
-  const data = useMemo(
-    () => ({
-      username: "SkillXchanger",
-      stats: {
-        skills: 6,
-        matches: 12,
-        requests: 3,
-        rating: "4.8/5",
-      },
-      recommended: [
-        {
-          name: "Aarav Sharma",
-          teach: "React",
-          learn: "Node.js",
-          level: "Intermediate",
-          city: "Kathmandu",
-        },
-        {
-          name: "Priya Singh",
-          teach: "UI/UX",
-          learn: "MongoDB",
-          level: "Beginner",
-          city: "Pokhara",
-        },
-        {
-          name: "Sanjay Thapa",
-          teach: "Java",
-          learn: "Express",
-          level: "Advanced",
-          city: "Lalitpur",
-        },
-      ],
-      requests: [
-        { from: "Priya Singh", skill: "UI/UX Mentorship", status: "Pending" },
-        { from: "Aarav Sharma", skill: "React Pair-Session", status: "Accepted" },
-        { from: "Sanjay Thapa", skill: "Express Help", status: "Pending" },
-      ],
-      mySkills: ["React", "Node.js", "MongoDB", "Tailwind", "JWT", "Git"],
-    }),
-    []
-  );
-
+  // Logout user
   const logout = () => {
     localStorage.removeItem("token");
     navigate("/login");

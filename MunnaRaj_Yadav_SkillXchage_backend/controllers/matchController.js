@@ -1,11 +1,9 @@
 const User = require("../models/User");
 
-// @desc    Get matched users based on skills
-// @route   GET /api/matches
-// @access  Private
+// Get matched users
 const getMatches = async (req, res) => {
   try {
-    // 1. Get current user's skills
+    // Current user's skills
     const currentUser = await User.findById(req.user.id);
     if (!currentUser) {
       return res.status(404).json({ message: "User not found" });
@@ -14,37 +12,36 @@ const getMatches = async (req, res) => {
     const myLearnSkills = (currentUser.skillsToLearn || []).map(s => s.name?.toLowerCase() || "");
     const myTeachSkills = (currentUser.skillsToTeach || []).map(s => s.name?.toLowerCase() || "");
 
+    // Return empty if no learning skills
     if (myLearnSkills.length === 0) {
-      return res.status(200).json([]); // No matches if I don't want to learn anything
+      return res.status(200).json([]);
     }
 
-    // 2. Find all other users
-    // In a real production app, we would use a more specific MongoDB query to filter initially
-    // But for a student project, fetching users and filtering in JS is easier to understand and debug.
+    // Get all other users
     const users = await User.find({ _id: { $ne: req.user.id } })
       .select("fullName username profilePic bio skillsToTeach skillsToLearn");
 
-    // 3. Calculate Match Score
+    // Calculate match scores
     const matchedUsers = users.map(user => {
       let score = 0;
-      let matchingSkills = []; // Skills they teach that I want
-      let mutualSkills = [];   // Skills I teach that they want
+      let matchingSkills = []; // What they teach, I learn
+      let mutualSkills = [];   // What I teach, they learn
 
-      // Check for "They Teach -> I Learn" (Primary Match)
+      // Check: They Teach -> I Learn
       if (user.skillsToTeach && Array.isArray(user.skillsToTeach)) {
         user.skillsToTeach.forEach(skill => {
           if (skill.name && myLearnSkills.includes(skill.name.toLowerCase())) {
-            score += 10; // Base score for a match
+            score += 10;
             matchingSkills.push(skill.name);
           }
         });
       }
 
-      // Check for "I Teach -> They Learn" (Mutual Match Bonus)
+      // Check: I Teach -> They Learn
       if (user.skillsToLearn && Array.isArray(user.skillsToLearn)) {
         user.skillsToLearn.forEach(skill => {
           if (skill.name && myTeachSkills.includes(skill.name.toLowerCase())) {
-            score += 5; // Bonus for mutual exchange potential
+            score += 5;
             mutualSkills.push(skill.name);
           }
         });
@@ -61,14 +58,14 @@ const getMatches = async (req, res) => {
         skillsOffered: (user.skillsToTeach || []).map(s => s.name),
         skillsWanted: (user.skillsToLearn || []).map(s => s.name),
         matchScore: score,
-        matchingSkills, // What they can teach me
-        mutualSkills    // What we can swap
+        matchingSkills,
+        mutualSkills
       };
     });
 
-    // 4. Sort (Show all users, but highest score first)
+    // Sort by highest score
     const results = matchedUsers
-      .sort((a, b) => b.matchScore - a.matchScore); // Highest score first
+      .sort((a, b) => b.matchScore - a.matchScore);
 
     res.status(200).json(results);
 

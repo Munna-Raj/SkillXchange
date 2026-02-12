@@ -14,6 +14,7 @@ const SkillMatches = () => {
     fetchData();
   }, []);
 
+  // Fetch matches and user profile
   const fetchData = async () => {
     try {
       setLoading(true);
