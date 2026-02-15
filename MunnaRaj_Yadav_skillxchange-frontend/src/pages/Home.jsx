@@ -59,7 +59,7 @@ export default function Home() {
           </div>
         </div>
 
-        <section className="mb-10 rounded-2xl bg-white border border-gray-200 shadow-md p-6">
+        <section className="homeSectionCard">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-gray-900">Recommended Matches</h2>
             <Link to={matchesLink} className="text-sm text-blue-700 hover:text-blue-800">
@@ -94,7 +94,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mb-10 rounded-2xl bg-gray-50 border border-gray-200 p-6">
+        <section className="homeSectionCard bg-gray-50">
           <h2 className="text-lg font-semibold text-gray-900 mb-3">Skills available in the system</h2>
           <p className="text-sm text-gray-600 mb-3">
             A sample of skills learners and mentors are already exchanging:
