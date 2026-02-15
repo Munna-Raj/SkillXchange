@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function Home() {
   const token = localStorage.getItem("token");
+  const matchesLink = token ? "/matches" : "/login";
 
   return (
     <div className="home-page min-h-screen bg-white text-gray-900 flex items-center justify-center px-4 relative overflow-hidden">
@@ -79,6 +80,58 @@ export default function Home() {
               <li>• No subscription fees or hidden costs to get started.</li>
               <li>• Designed for students, professionals, and lifelong learners.</li>
             </ul>
+          </div>
+        </section>
+
+        <section className="mb-10 rounded-2xl bg-white border border-gray-200 shadow-md p-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-gray-900">Recommended Matches</h2>
+            <Link to={matchesLink} className="text-sm text-blue-700 hover:text-blue-800">
+              View all →
+            </Link>
+          </div>
+          <p className="text-sm text-gray-600 mb-4">
+            Preview how SkillXchange recommends people you can learn from and teach.
+          </p>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
+              <p className="text-sm font-semibold text-gray-900 mb-1">Aarav • Frontend</p>
+              <p className="text-xs text-gray-600 mb-2">Can teach React • Wants to learn Node.js</p>
+              <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
+                92% Match
+              </span>
+            </div>
+            <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
+              <p className="text-sm font-semibold text-gray-900 mb-1">Sara • Design</p>
+              <p className="text-xs text-gray-600 mb-2">Can teach UI/UX • Wants to learn JavaScript</p>
+              <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
+                88% Match
+              </span>
+            </div>
+            <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
+              <p className="text-sm font-semibold text-gray-900 mb-1">Rahul • Data</p>
+              <p className="text-xs text-gray-600 mb-2">Can teach Python • Wants to learn Public Speaking</p>
+              <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
+                85% Match
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-10 rounded-2xl bg-gray-50 border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">Skills available in the system</h2>
+          <p className="text-sm text-gray-600 mb-3">
+            A sample of skills learners and mentors are already exchanging:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">React & Frontend</span>
+            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">Node.js & APIs</span>
+            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">Data Structures & Algorithms</span>
+            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">UI/UX Design</span>
+            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">Graphic Design</span>
+            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">Public Speaking</span>
+            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">English Communication</span>
+            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">Career & Resume</span>
           </div>
         </section>
 
