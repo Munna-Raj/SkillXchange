@@ -59,30 +59,6 @@ export default function Home() {
           </div>
         </div>
 
-        <section className="mb-10 grid gap-6 md:grid-cols-2 items-start">
-          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-md">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">How the system works</h2>
-            <ol className="space-y-3 text-sm text-gray-700 list-decimal list-inside text-left">
-              <li>Create your profile and list the skills you can teach and want to learn.</li>
-              <li>Our system finds matches based on skills, level, and interests.</li>
-              <li>Send a request, agree on time and format, and start the session.</li>
-              <li>Use the built‑in chat and request management to stay organized.</li>
-              <li>Share feedback after each exchange and unlock better matches.</li>
-            </ol>
-          </div>
-
-          <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100 shadow-md text-left">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Why use SkillXchange?</h2>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li>• Turn your existing skills into learning opportunities.</li>
-              <li>• Discover mentors and peers from different backgrounds.</li>
-              <li>• Keep all your requests, messages, and sessions in one place.</li>
-              <li>• No subscription fees or hidden costs to get started.</li>
-              <li>• Designed for students, professionals, and lifelong learners.</li>
-            </ul>
-          </div>
-        </section>
-
         <section className="mb-10 rounded-2xl bg-white border border-gray-200 shadow-md p-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-gray-900">Recommended Matches</h2>
