@@ -1,9 +1,9 @@
 const User = require("../models/User");
 
-// Get matched users
+// Matches
 const getMatches = async (req, res) => {
   try {
-    // Current user's skills
+    // User skills
     const currentUser = await User.findById(req.user.id);
     if (!currentUser) {
       return res.status(404).json({ message: "User not found" });
@@ -12,22 +12,22 @@ const getMatches = async (req, res) => {
     const myLearnSkills = (currentUser.skillsToLearn || []).map(s => s.name?.toLowerCase() || "");
     const myTeachSkills = (currentUser.skillsToTeach || []).map(s => s.name?.toLowerCase() || "");
 
-    // Return empty if no learning skills
+    // Check skills
     if (myLearnSkills.length === 0) {
       return res.status(200).json([]);
     }
 
-    // Get all other users
+    // Other users
     const users = await User.find({ _id: { $ne: req.user.id } })
       .select("fullName username profilePic bio skillsToTeach skillsToLearn");
 
-    // Calculate match scores
+    // Scores
     const matchedUsers = users.map(user => {
       let score = 0;
-      let matchingSkills = []; // What they teach, I learn
-      let mutualSkills = [];   // What I teach, they learn
+      let matchingSkills = []; // They teach
+      let mutualSkills = [];   // I teach
 
-      // Check: They Teach -> I Learn
+      // Match teach
       if (user.skillsToTeach && Array.isArray(user.skillsToTeach)) {
         user.skillsToTeach.forEach(skill => {
           if (skill.name && myLearnSkills.includes(skill.name.toLowerCase())) {
@@ -37,7 +37,7 @@ const getMatches = async (req, res) => {
         });
       }
 
-      // Check: I Teach -> They Learn
+      // Match learn
       if (user.skillsToLearn && Array.isArray(user.skillsToLearn)) {
         user.skillsToLearn.forEach(skill => {
           if (skill.name && myTeachSkills.includes(skill.name.toLowerCase())) {
@@ -63,7 +63,7 @@ const getMatches = async (req, res) => {
       };
     });
 
-    // Sort by highest score
+    // Sort
     const results = matchedUsers
       .sort((a, b) => b.matchScore - a.matchScore);
 

@@ -10,10 +10,10 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose }) => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    // Join the room for this request
+    // Join room
     socket.emit("join_room", requestId);
 
-    // Fetch chat history
+    // History
     const fetchHistory = async () => {
       try {
         const history = await getChatHistoryApi(requestId);
@@ -25,7 +25,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose }) => {
 
     fetchHistory();
 
-    // Listen for incoming messages
+    // Listen
     socket.on("receive_message", (data) => {
       setMessages((prev) => [...prev, data]);
     });
@@ -36,7 +36,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose }) => {
   }, [requestId]);
 
   useEffect(() => {
-    // Scroll to bottom when messages change
+    // Scroll
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 

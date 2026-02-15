@@ -24,12 +24,12 @@ const NotificationBell = () => {
 
   useEffect(() => {
     fetchNotifications();
-    // Poll every 5 seconds for better responsiveness
+    // Poll
     const interval = setInterval(fetchNotifications, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  // Close dropdown when clicking outside
+  // Click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -53,7 +53,7 @@ const NotificationBell = () => {
       }
     }
     setIsOpen(false);
-    // Navigate based on type
+    // Navigate
     if (notification.type === "request_received" || notification.type === "request_accepted") {
       navigate("/requests");
     } else if (notification.type === "feedback_received") {

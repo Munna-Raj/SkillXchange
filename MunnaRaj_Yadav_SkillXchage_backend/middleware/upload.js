@@ -1,21 +1,21 @@
 const multer = require("multer");
 const path = require("path");
 
-// Set storage engine
+// Multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
-    // Create unique filename
+    // Unique filename
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
     cb(null, "profile-" + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
-// Check file type
+// File filter
 const fileFilter = (req, file, cb) => {
-  // Allow only image files
+  // Images only
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
@@ -23,7 +23,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialize multer
+// Multer config
 const upload = multer({
   storage: storage,
   limits: {

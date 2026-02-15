@@ -1,6 +1,6 @@
 const Message = require("../models/Message");
 
-// Get chat history for a specific request
+// Chat history
 exports.getChatHistory = async (req, res) => {
   try {
     const { requestId } = req.params;
@@ -15,7 +15,7 @@ exports.getChatHistory = async (req, res) => {
   }
 };
 
-// Mark messages as read (optional future feature)
+// Mark as read
 exports.markAsRead = async (req, res) => {
   try {
     const { requestId } = req.params;

@@ -1,8 +1,6 @@
 const User = require("../models/User");
 
-// @desc    Search users and skills
-// @route   GET /api/search
-// @access  Public
+// Search
 const searchUsersAndSkills = async (req, res) => {
   try {
     const { query } = req.query;
@@ -13,11 +11,7 @@ const searchUsersAndSkills = async (req, res) => {
 
     const regex = new RegExp(query, "i");
 
-    // Search for users matching the query in:
-    // 1. fullName
-    // 2. username
-    // 3. skillsToTeach.name
-    // 4. skillsToLearn.name
+    // Query
     const users = await User.find({
       $or: [
         { fullName: regex },
@@ -27,7 +21,6 @@ const searchUsersAndSkills = async (req, res) => {
       ]
     }).select("fullName username profilePic skillsToTeach skillsToLearn bio");
 
-    // We return the raw user objects, the frontend will decide how to display them
     res.status(200).json(users);
   } catch (error) {
     console.error("Search error:", error);
@@ -35,19 +28,17 @@ const searchUsersAndSkills = async (req, res) => {
   }
 };
 
-// @desc    Get public user profile by ID
-// @route   GET /api/users/:id
-// @access  Public
+// Public profile
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
-      .select("-password -resetToken -resetTokenExpire"); // Exclude sensitive data
+      .select("-password -resetToken -resetTokenExpire");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Fix for legacy users without createdAt
+    // Fix legacy
     let userObj = user.toObject();
     if (!userObj.createdAt) {
       userObj.createdAt = user._id.getTimestamp();

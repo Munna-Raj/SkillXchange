@@ -2,25 +2,23 @@ const Feedback = require("../models/Feedback");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
 
-// @desc    Create a new feedback
-// @route   POST /api/feedback
-// @access  Private
+// Create
 exports.createFeedback = async (req, res) => {
   const { recipientId, rating, comment } = req.body;
 
   try {
-    // 1. Check if recipient exists
+    // Recipient
     const recipient = await User.findById(recipientId);
     if (!recipient) {
       return res.status(404).json({ msg: "Recipient not found" });
     }
 
-    // 2. Prevent self-review
+    // Check self
     if (recipientId === req.user.id) {
       return res.status(400).json({ msg: "You cannot rate yourself" });
     }
 
-    // 3. Check if feedback already exists
+    // Existing
     const existingFeedback = await Feedback.findOne({
       reviewer: req.user.id,
       recipient: recipientId
@@ -30,7 +28,7 @@ exports.createFeedback = async (req, res) => {
       return res.status(400).json({ msg: "You have already reviewed this user" });
     }
 
-    // 4. Create Feedback
+    // Save
     const feedback = new Feedback({
       reviewer: req.user.id,
       recipient: recipientId,
@@ -40,12 +38,12 @@ exports.createFeedback = async (req, res) => {
 
     await feedback.save();
 
-    // 5. Create Notification
+    // Notify
     const notification = new Notification({
       userId: recipientId,
       type: "feedback_received",
       message: `You received a ${rating}-star review from ${req.user.fullName || "a user"}`,
-      relatedId: feedback._id // Storing feedback ID
+      relatedId: feedback._id
     });
     await notification.save();
 
@@ -56,9 +54,7 @@ exports.createFeedback = async (req, res) => {
   }
 };
 
-// @desc    Get feedback for a user
-// @route   GET /api/feedback/:userId
-// @access  Public
+// User feedback
 exports.getFeedbackForUser = async (req, res) => {
   try {
     const feedbackList = await Feedback.find({ recipient: req.params.userId })

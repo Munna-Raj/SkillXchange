@@ -46,7 +46,7 @@ const FeedbackModal = ({ isOpen, onClose, recipientId, onFeedbackSubmit }) => {
           )}
 
           <form onSubmit={handleSubmit}>
-            {/* Star Rating */}
+            {/* Rating */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
               <div className="flex gap-2">

@@ -45,17 +45,16 @@ export default function Login() {
     try {
       const res = await loginApi(form);
 
-      // If backend returns token as `token`
+      // Store auth data
       if (res?.data?.token) {
         localStorage.setItem("token", res.data.token);
         
-        // Store user info
         const user = res.data.user || {};
         localStorage.setItem("role", user.role);
         localStorage.setItem("email", user.email);
         localStorage.setItem("user", JSON.stringify(user));
 
-        // Role-based redirection
+        // Redirect
         if (user.role === "admin" || user.email === "rajyadavproject@gmail.com") {
           navigate("/admin/dashboard");
         } else {
@@ -104,7 +103,7 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email field */}
+            {/* Email */}
             <div>
               <label className="auth-label">
                 Email Address
@@ -131,7 +130,7 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Password field */}
+            {/* Password */}
             <div>
               <label className="auth-label">
                 Password
@@ -167,7 +166,7 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Forgot password link */}
+            {/* Forgot password */}
             <div className="text-right">
               <Link
                 to="/forgot-password"
@@ -177,7 +176,7 @@ export default function Login() {
               </Link>
             </div>
 
-            {/* Submit button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
@@ -194,7 +193,7 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Sign up link */}
+          {/* Signup link */}
           <div className="auth-footer">
             <p className="auth-footer-text">
               Don't have an account?{" "}

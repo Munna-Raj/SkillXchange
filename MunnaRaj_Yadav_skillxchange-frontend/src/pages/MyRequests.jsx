@@ -39,7 +39,7 @@ const MyRequests = () => {
   const handleRespond = async (requestId, status) => {
     try {
       await respondToRequestApi(requestId, status);
-      // Optimistic update
+      // Update UI
       setReceivedRequests((prev) =>
         prev.map((req) => (req._id === requestId ? { ...req, status } : req))
       );
@@ -71,7 +71,7 @@ const MyRequests = () => {
 
   return (
     <div className="page-container my-requests-page">
-      {/* Background glow */}
+      {/* Background */}
       <div className="profile-bg-wrapper">
         <div className="profile-bg-blob-1" />
         <div className="profile-bg-blob-2" />
@@ -221,7 +221,7 @@ const MyRequests = () => {
         </div>
       </div>
 
-      {/* Chat Box */}
+      {/* Chat */}
       {activeChat && (
         <ChatBox
           requestId={activeChat.requestId}

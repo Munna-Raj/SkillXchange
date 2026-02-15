@@ -5,13 +5,10 @@ const searchSkills = async (req, res) => {
   try {
     const { keyword, category, level } = req.query;
 
-    // Build the query
+    // Query
     let query = {};
 
-    
-    
     if (keyword) {
-      // Search for keyword in skill name or description
       query["skillsToTeach.name"] = { $regex: keyword, $options: "i" };
     }
 
@@ -23,19 +20,14 @@ const searchSkills = async (req, res) => {
       query["skillsToTeach.level"] = level;
     }
 
-    // Find users who have matching skills
-    // Select specific fields to return (avoid returning password, etc.)
+    // Users
     const users = await User.find(query).select("fullName username profilePic skillsToTeach bio");
 
-    // Process results to flatten them into a list of skills with user info
-    // This makes it easier for the frontend to display "Skill Cards"
+    // Flatten
     const results = [];
 
     users.forEach(user => {
       user.skillsToTeach.forEach(skill => {
-        // Check if this specific skill matches the criteria
-       
-        
         let isMatch = true;
 
         if (keyword) {

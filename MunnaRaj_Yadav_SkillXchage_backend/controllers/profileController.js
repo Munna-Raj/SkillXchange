@@ -2,7 +2,7 @@ const User = require("../models/User");
 const fs = require("fs");
 const path = require("path");
 
-// ================== GET PROFILE ==================
+// GET PROFILE 
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpire");
@@ -10,7 +10,7 @@ exports.getProfile = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    // Fix for legacy users without createdAt
+    // Legacy user fix
     let userObj = user.toObject();
     if (!userObj.createdAt) {
       userObj.createdAt = user._id.getTimestamp();
@@ -23,7 +23,7 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// ================== UPDATE PROFILE ==================
+// UPDATE PROFILE 
 exports.updateProfile = async (req, res) => {
   const { fullName, email, bio, contactNumber } = req.body;
 
@@ -33,7 +33,7 @@ exports.updateProfile = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    // Check if email is being changed and if it's already taken
+    // Email update check
     if (email && email !== user.email) {
       const emailExists = await User.findOne({ email });
       if (emailExists) {
@@ -42,14 +42,13 @@ exports.updateProfile = async (req, res) => {
       user.email = email;
     }
 
-    // Update fields if provided
+    // Update fields
     if (fullName) user.fullName = fullName;
     if (bio !== undefined) user.bio = bio;
     if (contactNumber !== undefined) user.contactNumber = contactNumber;
 
     await user.save();
 
-    // Return updated user without sensitive fields
     const updatedUser = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpire");
     res.json({ msg: "Profile updated successfully", user: updatedUser });
   } catch (error) {
@@ -58,14 +57,14 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// ================== SKILL MANAGEMENT ==================
+// SKILL MANAGEMENT 
 
 // Add Skill
 exports.addSkill = async (req, res) => {
   const { type, name, category, level, description } = req.body;
   
   if (!['teach', 'learn'].includes(type)) {
-    return res.status(400).json({ msg: "Invalid skill type (must be 'teach' or 'learn')" });
+    return res.status(400).json({ msg: "Invalid skill type" });
   }
 
   try {
@@ -157,7 +156,7 @@ exports.updateSkill = async (req, res) => {
   }
 };
 
-// ================== UPDATE PROFILE PICTURE ==================
+// UPDATE PROFILE PICTURE 
 exports.updateProfilePicture = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -165,7 +164,7 @@ exports.updateProfilePicture = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    // Delete old profile picture if it exists
+    // Delete old pic
     if (user.profilePic) {
       const oldPicPath = path.join(__dirname, "..", "uploads", user.profilePic);
       if (fs.existsSync(oldPicPath)) {
@@ -173,11 +172,10 @@ exports.updateProfilePicture = async (req, res) => {
       }
     }
 
-    // Update user with new profile picture filename
+    // Set new pic
     user.profilePic = req.file.filename;
     await user.save();
 
-    // Return updated user without sensitive fields
     const updatedUser = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpire");
     res.json({ 
       msg: "Profile picture updated successfully", 

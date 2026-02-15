@@ -5,17 +5,17 @@ import { searchSkillsApi } from '../services/skillService';
 const SkillSearch = () => {
   const navigate = useNavigate();
   
-  // State for search parameters
+  // Search params
   const [keyword, setKeyword] = useState('');
   const [level, setLevel] = useState('');
   
-  // State for results and loading status
+  // Results & status
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState(null);
 
-  // Handle search submission
+  // Search handler
   const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -23,7 +23,7 @@ const SkillSearch = () => {
     setHasSearched(true);
 
     try {
-      // Call the API with current search parameters
+      // API call
       const results = await searchSkillsApi({ keyword, level });
       setSkills(results);
     } catch (err) {
@@ -34,7 +34,7 @@ const SkillSearch = () => {
     }
   };
 
-  // Helper to get badge color based on level
+  // Level badge helper
   const getLevelBadgeClass = (level) => {
     switch(level) {
       case 'Beginner': return 'skillLevelBeginner';
@@ -46,7 +46,7 @@ const SkillSearch = () => {
 
   return (
     <div className="page-container">
-      {/* Background decoration */}
+      {/* Background */}
       <div className="profile-bg-wrapper">
         <div className="profile-bg-blob-1" />
         <div className="profile-bg-blob-2" />
@@ -59,7 +59,7 @@ const SkillSearch = () => {
           <p className="searchSubtitle">Search for skills you want to learn from our community</p>
         </div>
 
-        {/* Search Form */}
+        {/* Form */}
         <form onSubmit={handleSearch} className="searchForm">
           <input
             type="text"
@@ -85,14 +85,14 @@ const SkillSearch = () => {
           </button>
         </form>
 
-        {/* Error Message */}
+        {/* Error */}
         {error && (
           <div className="mb-8 p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 text-center">
             {error}
           </div>
         )}
 
-        {/* Results Section */}
+        {/* Results */}
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>

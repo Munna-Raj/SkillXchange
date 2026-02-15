@@ -39,6 +39,7 @@ const SearchResults = () => {
   return (
     <div className="page-container">
        <div className="profile-bg-wrapper">
+        {/* Background */}
         <div className="profile-bg-blob-1" />
         <div className="profile-bg-blob-2" />
       </div>

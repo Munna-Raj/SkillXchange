@@ -1,13 +1,11 @@
 const Notification = require("../models/Notification");
 
-// Get all notifications for the current user
+// User notifications
 exports.getNotifications = async (req, res) => {
   try {
-    // console.log("Fetching notifications for user:", req.user.id);
     const notifications = await Notification.find({ userId: req.user.id })
-      .sort({ createdAt: -1 }) // Newest first
-      .limit(20); // Limit to last 20
-    // console.log("Found notifications:", notifications.length);
+      .sort({ createdAt: -1 })
+      .limit(20);
     res.json(notifications);
   } catch (err) {
     console.error(err.message);
@@ -15,13 +13,13 @@ exports.getNotifications = async (req, res) => {
   }
 };
 
-// Mark a notification as read
+// Mark read
 exports.markAsRead = async (req, res) => {
   try {
     const notification = await Notification.findById(req.params.id);
     if (!notification) return res.status(404).json({ msg: "Notification not found" });
 
-    // Ensure user owns the notification
+    // Owner check
     if (notification.userId.toString() !== req.user.id) {
       return res.status(401).json({ msg: "Not authorized" });
     }
@@ -35,7 +33,7 @@ exports.markAsRead = async (req, res) => {
   }
 };
 
-// Mark all notifications as read
+// Mark all
 exports.markAllAsRead = async (req, res) => {
   try {
     await Notification.updateMany(
@@ -49,10 +47,9 @@ exports.markAllAsRead = async (req, res) => {
   }
 };
 
-// Internal helper to create notification
+// Helper
 exports.createNotification = async (userId, type, message, relatedId) => {
   try {
-    console.log(`Creating notification for user ${userId}: ${message}`);
     const notification = new Notification({
       userId,
       type,
@@ -60,7 +57,6 @@ exports.createNotification = async (userId, type, message, relatedId) => {
       relatedId,
     });
     await notification.save();
-    console.log("Notification created successfully");
   } catch (err) {
     console.error("Failed to create notification:", err);
   }

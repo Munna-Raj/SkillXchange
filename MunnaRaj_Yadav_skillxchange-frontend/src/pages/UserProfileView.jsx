@@ -18,7 +18,7 @@ const UserProfileView = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
-  // Check if current user is admin
+  // Admin check
   const role = localStorage.getItem("role");
   const email = localStorage.getItem("email");
   const isAdmin = role === "admin" || email === "rajyadavproject@gmail.com";
@@ -27,7 +27,7 @@ const UserProfileView = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
-        // Only fetch current user profile if not admin (needed for Send Request modal)
+        // Only fetch current user profile if not admin
         const promises = [getUserProfileApi(id), getFeedbackForUser(id)];
         if (!isAdmin && token) {
           promises.push(getProfileApi().catch(() => ({ data: { skillsToTeach: [] } })));
@@ -36,13 +36,13 @@ const UserProfileView = () => {
         const results = await Promise.all(promises);
         const userProfile = results[0];
         const feedbackList = results[1];
-        // If token exists and not admin, result is at index 2
+        // Result at index 2 if not admin
         const currentUser = (!isAdmin && token) ? results[2] : null;
 
         setUser(userProfile);
         setFeedbacks(feedbackList);
         
-        // Safely access skills from the response if available
+        // Safely access skills
         if (currentUser) {
           const skills = currentUser?.data?.skillsToTeach || currentUser?.skillsToTeach || [];
           setCurrentUserSkills(skills);
@@ -61,19 +61,17 @@ const UserProfileView = () => {
   const handleFeedbackSubmit = async (feedbackData) => {
     try {
       const newFeedback = await createFeedback(feedbackData);
-      // Refresh feedback list or append new feedback
+      // Refresh feedbacks
       const feedbackWithUser = {
         ...newFeedback,
         reviewer: {
-          // We can't easily get full reviewer details without refetching or passing them, 
-          // but for now we can just refetch the list or rely on server response if populated
-          // The server response for create doesn't populate reviewer, so let's refetch all for simplicity
+          // Refetch for simplicity
         }
       };
       const updatedFeedbacks = await getFeedbackForUser(id);
       setFeedbacks(updatedFeedbacks);
     } catch (error) {
-      throw error; // Let the modal handle the error display
+      throw error; // Handle in modal
     }
   };
 
@@ -95,7 +93,7 @@ const UserProfileView = () => {
 
   return (
     <div className="page-container user-profile-view-page min-h-screen bg-white">
-      {/* Background glow */}
+      {/* Background */}
       <div className="profile-bg-wrapper fixed inset-0 pointer-events-none overflow-hidden">
         <div className="profile-bg-blob-1 absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-50 to-indigo-50 opacity-50" />
       </div>

@@ -24,7 +24,7 @@ const feedbackSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Prevent duplicate reviews from the same user to the same recipient
+// Unique index
 feedbackSchema.index({ reviewer: 1, recipient: 1 }, { unique: true });
 
 module.exports = mongoose.model("Feedback", feedbackSchema);

@@ -15,20 +15,20 @@ const AdminDashboard = ({ content }) => {
   });
 
   useEffect(() => {
-    // Get user details from local storage
+    // Auth check
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
     const email = localStorage.getItem("email");
 
-    // Check if user is admin or the specific super admin
+    // Admin check
     const isAdmin = role === "admin" || email === "rajyadavproject@gmail.com";
 
-    // Redirect to login if not admin
+    // Auth redirect
     if (!token || !isAdmin) {
       navigate("/login");
     } else {
       setAdminEmail(email || "Admin");
-      // Only fetch stats if we are on the main dashboard view (no specific content passed)
+      // Fetch stats
       if (!content) {
         fetchStats();
       }
@@ -45,22 +45,22 @@ const AdminDashboard = ({ content }) => {
   };
 
   const handleLogout = () => {
-    // Clear all stored data
+    // Clear auth
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("role");
     localStorage.removeItem("email");
     
-    // Redirect to login page
+    // Redirect
     navigate("/login");
   };
 
-  // If we are redirecting, we can show nothing or a loading spinner
+  // Auth guard
   if (!adminEmail) return null;
 
   return (
     <div className="admin-container">
-      {/* Sidebar Navigation */}
+      {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
           SkillXchange Admin
@@ -91,9 +91,9 @@ const AdminDashboard = ({ content }) => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {/* Main content */}
       <main className="main-content">
-        {/* Top Header */}
+        {/* Header */}
         <header className="dashboard-header">
           <h1 className="header-title">Dashboard</h1>
           <div className="user-info">

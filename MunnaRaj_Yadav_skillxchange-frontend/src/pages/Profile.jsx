@@ -44,7 +44,7 @@ export default function Profile() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    // Redirect admin to admin dashboard
+    // Admin check
     const role = localStorage.getItem("role");
     const email = localStorage.getItem("email");
     if (role === "admin" || email === "rajyadavproject@gmail.com") {
@@ -80,7 +80,7 @@ export default function Profile() {
         contactNumber: data.contactNumber || ""
       });
 
-      // Fetch feedback
+      // Feedback
       try {
         const feedbackData = await getFeedbackForUser(data._id);
         setFeedbacks(feedbackData);
@@ -146,7 +146,7 @@ export default function Profile() {
     setSuccess("");
   };
 
-  // Profile Picture Logic
+  // Profile Pic
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -200,7 +200,7 @@ export default function Profile() {
     return null;
   };
 
-  // Skill Logic
+  // Skill logic
   const handleSkillChange = (e) => {
     setSkillForm({ ...skillForm, [e.target.name]: e.target.value });
   };
@@ -247,7 +247,7 @@ export default function Profile() {
 
   return (
     <div className="page-container">
-      {/* Background glow */}
+      {/* Background */}
       <div className="profile-bg-wrapper">
         <div className="profile-bg-blob-1" />
         <div className="profile-bg-blob-2" />
@@ -283,7 +283,7 @@ export default function Profile() {
 
       <main className="content-wrapper">
         
-        {/* Left Column: Basic Info */}
+        {/* Left Column */}
         <div className="md:col-span-1 space-y-6">
           <div className="profile-card text-center">
              <div className="profile-pic-wrapper">
@@ -326,14 +326,14 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Right Column: Edit Form & Skills */}
+        {/* Right Column */}
         <div className="md:col-span-2 space-y-6">
           
           {/* Messages */}
           {error && <div className="alert-error">{error}</div>}
           {success && <div className="alert-success">{success}</div>}
 
-          {/* Edit Profile Form */}
+          {/* Edit Form */}
           <div className="profile-card">
             <h3 className="card-title">Edit Profile</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -401,7 +401,7 @@ export default function Profile() {
             </form>
           </div>
 
-          {/* Skills Section */}
+          {/* Skills */}
           <div className="profile-card">
             <div className="flex items-center justify-between mb-6">
               <h3 className="card-title mb-0">Skills</h3>
@@ -415,7 +415,7 @@ export default function Profile() {
               )}
             </div>
 
-            {/* Add Skill Form */}
+            {/* Add Skill */}
             {showSkillForm && (
               <form onSubmit={handleAddSkill} className="skill-form-container">
                 <div className="form-grid-2">
@@ -491,7 +491,7 @@ export default function Profile() {
             )}
 
             <div className="grid grid-cols-1 gap-6">
-              {/* Teaching Skills */}
+              {/* Teaching */}
               <div>
                 <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-3">
                   <h4 className="text-sm font-bold text-gray-500 uppercase mb-0 border-none">Skills I Teach</h4>
@@ -527,7 +527,7 @@ export default function Profile() {
                 )}
               </div>
 
-              {/* Learning Skills */}
+              {/* Learning */}
               <div>
                 <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-3">
                   <h4 className="text-sm font-bold text-gray-500 uppercase mb-0 border-none">Skills I Want to Learn</h4>
@@ -565,7 +565,7 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Received Feedback Section */}
+          {/* Feedback */}
           <div className="profile-card">
             <h3 className="card-title mb-6 flex items-center gap-2">
               <span className="text-xl">⭐</span> Received Feedback

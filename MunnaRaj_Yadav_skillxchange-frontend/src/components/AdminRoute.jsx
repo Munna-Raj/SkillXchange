@@ -5,7 +5,7 @@ export default function AdminRoute({ children }) {
   const role = localStorage.getItem("role");
   const email = localStorage.getItem("email");
 
-  // Check if user is admin or the specific super admin email
+  // Admin check
   const isAdmin = role === "admin" || email === "rajyadavproject@gmail.com";
 
   if (!token) {
@@ -13,7 +13,7 @@ export default function AdminRoute({ children }) {
   }
 
   if (!isAdmin) {
-    // Optional: Redirect to user dashboard if logged in but not admin
+    // Not admin
     return <Navigate to="/dashboard" replace />;
   }
 

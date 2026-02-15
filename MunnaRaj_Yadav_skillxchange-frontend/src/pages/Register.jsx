@@ -160,7 +160,7 @@ export default function Register() {
                 />
               </div>
               <p className="mt-1 text-xs text-gray-500">
-                Letters, numbers, and underscores only
+                Letters, numbers, underscores
               </p>
             </div>
 
@@ -219,7 +219,7 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
@@ -246,7 +246,7 @@ export default function Register() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-xs text-gray-500">
-          <p>By creating an account, you agree to our Terms of Service and Privacy Policy</p>
+          <p>By creating an account, you agree to our Terms and Privacy Policy</p>
         </div>
       </div>
     </div>

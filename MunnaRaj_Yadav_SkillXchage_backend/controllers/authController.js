@@ -11,13 +11,13 @@ exports.signup = async (req, res) => {
   const password = req.body.password;
 
   try {
-    // Check if email already exists
+    // Check email exists
     const emailExists = await User.findOne({ email });
     if (emailExists) {
       return res.status(400).json({ msg: "Email already registered" });
     }
 
-    // Check if username already exists
+    // Check username exists
     const usernameExists = await User.findOne({ username });
     if (usernameExists) {
       return res.status(400).json({ msg: "Username already taken" });
@@ -33,7 +33,6 @@ exports.signup = async (req, res) => {
     });
 
     await user.save();
-
     res.status(201).json({ msg: "Signup successful" });
   } catch (error) {
     console.error("SIGNUP ERROR:", error);
@@ -82,9 +81,9 @@ exports.resendCode = async (req, res) => {
       return res.status(400).json({ msg: "Account already verified" });
     }
 
-    // Generate new code
+    // Generate code
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const verificationCodeExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const verificationCodeExpire = Date.now() + 10 * 60 * 1000; // 10 mins
 
     user.verificationCode = verificationCode;
     user.verificationCodeExpire = verificationCodeExpire;
@@ -155,11 +154,10 @@ exports.forgotPassword = async (req, res) => {
     const token = Math.random().toString(36).substring(2);
 
     user.resetToken = token;
-    user.resetTokenExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+    user.resetTokenExpire = Date.now() + 10 * 60 * 1000; // 10 mins
     await user.save();
 
     console.log(`Reset Link: http://localhost:5000/reset/${token}`);
-
     res.json({ msg: "Password reset link sent (check console)" });
   } catch (error) {
     console.error("FORGOT PASSWORD ERROR:", error);
@@ -185,7 +183,6 @@ exports.resetPassword = async (req, res) => {
     user.password = await bcrypt.hash(newPassword, 10);
     user.resetToken = undefined;
     user.resetTokenExpire = undefined;
-
     await user.save();
 
     res.json({ msg: "Password reset successful" });

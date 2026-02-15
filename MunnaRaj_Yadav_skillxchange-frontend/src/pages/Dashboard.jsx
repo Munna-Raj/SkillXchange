@@ -53,6 +53,16 @@ export default function Dashboard() {
   const [recentRequests, setRecentRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
 
+  // Initial user data from storage
+  const data = useMemo(() => {
+    try {
+      const user = localStorage.getItem("user");
+      return user ? JSON.parse(user) : {};
+    } catch (e) {
+      return {};
+    }
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -61,7 +71,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    // Check admin role
+    // Check admin
     const role = localStorage.getItem("role");
     const email = localStorage.getItem("email");
     if (role === "admin" || email === "rajyadavproject@gmail.com") {
@@ -130,7 +140,7 @@ export default function Dashboard() {
     return null;
   };
 
-  // Logout user
+  // Logout
   const logout = () => {
     localStorage.removeItem("token");
     navigate("/login");
@@ -175,7 +185,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             <NotificationBell />
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-semibold text-gray-900">{userProfile?.username || data.username}</p>
+              <p className="text-sm font-semibold text-gray-900">{userProfile?.username || data.username || "User"}</p>
               <p className="text-xs text-gray-500">Member</p>
             </div>
             <div className="h-10 w-10 rounded-full bg-gray-200 ring-1 ring-gray-300 overflow-hidden">
@@ -188,7 +198,7 @@ export default function Dashboard() {
               ) : (
                 <div className="h-full w-full flex items-center justify-center">
                   <span className="text-sm font-bold text-gray-600">
-                    {(userProfile?.fullName || data.username).charAt(0).toUpperCase()}
+                    {(userProfile?.fullName || data.username || "?").charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
@@ -216,7 +226,7 @@ export default function Dashboard() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Welcome back, {userProfile?.fullName?.split(" ")[0] || data.username}!
+                Welcome back, {userProfile?.fullName?.split(" ")[0] || data.username || "User"}!
               </h1>
               <p className="mt-2 text-gray-600">
                 You have new matches waiting for you.
@@ -464,10 +474,7 @@ export default function Dashboard() {
           </section>
         </div>
 
-        {/* Footer */}
-        <footer className="dashboard-footer mt-10 pb-10 text-center text-xs text-gray-500">
-          SkillXchange • MERN + Tailwind • Showcase Build
-        </footer>
+
       </main>
     </div>
   );

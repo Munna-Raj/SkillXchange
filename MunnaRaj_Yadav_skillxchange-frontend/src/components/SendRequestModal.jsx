@@ -70,7 +70,7 @@ const SendRequestModal = ({ isOpen, onClose, receiver, currentUserSkills }) => {
                </div>
             )}
 
-            {/* I want to learn... (Receiver's teach skills) */}
+            {/* Receiver skills */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">
                 I want to learn from {receiver.fullName.split(" ")[0]}
@@ -90,7 +90,7 @@ const SendRequestModal = ({ isOpen, onClose, receiver, currentUserSkills }) => {
               </select>
             </div>
 
-            {/* I can teach... (My teach skills) */}
+            {/* My skills */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">
                 I can teach {receiver.fullName.split(" ")[0]}

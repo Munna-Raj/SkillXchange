@@ -2,7 +2,7 @@ const SkillExchangeRequest = require("../models/SkillExchangeRequest");
 const User = require("../models/User");
 const { createNotification } = require("./notificationController");
 
-// Send a skill exchange request
+// Send skill exchange request
 exports.sendRequest = async (req, res) => {
   try {
     const { receiverId, teachSkill, learnSkill } = req.body;
@@ -12,7 +12,7 @@ exports.sendRequest = async (req, res) => {
       return res.status(400).json({ msg: "You cannot send a request to yourself" });
     }
 
-    // Check for duplicate pending requests
+    // Check duplicate pending requests
     const existingRequest = await SkillExchangeRequest.findOne({
       senderId,
       receiverId,
@@ -34,7 +34,7 @@ exports.sendRequest = async (req, res) => {
 
     await newRequest.save();
 
-    // Notify the receiver
+    // Notify receiver
     const sender = await User.findById(senderId);
     await createNotification(
       receiverId,
@@ -50,7 +50,7 @@ exports.sendRequest = async (req, res) => {
   }
 };
 
-// Get requests sent by the current user
+// Get sent requests
 exports.getSentRequests = async (req, res) => {
   try {
     const requests = await SkillExchangeRequest.find({ senderId: req.user.id })
@@ -63,7 +63,7 @@ exports.getSentRequests = async (req, res) => {
   }
 };
 
-// Get requests received by the current user
+// Get received requests
 exports.getReceivedRequests = async (req, res) => {
   try {
     const requests = await SkillExchangeRequest.find({ receiverId: req.user.id })
@@ -76,7 +76,7 @@ exports.getReceivedRequests = async (req, res) => {
   }
 };
 
-// Accept or Reject a request
+// Accept or Reject request
 exports.respondToRequest = async (req, res) => {
   try {
     const { status } = req.body; // 'accepted' or 'rejected'
@@ -92,7 +92,7 @@ exports.respondToRequest = async (req, res) => {
       return res.status(404).json({ msg: "Request not found" });
     }
 
-    // Ensure the current user is the receiver
+    // Check auth
     if (request.receiverId.toString() !== req.user.id) {
       return res.status(401).json({ msg: "Not authorized to respond to this request" });
     }
@@ -100,7 +100,7 @@ exports.respondToRequest = async (req, res) => {
     request.status = status;
     await request.save();
 
-    // Notify the sender
+    // Notify sender
     const receiver = await User.findById(req.user.id);
     await createNotification(
       request.senderId,

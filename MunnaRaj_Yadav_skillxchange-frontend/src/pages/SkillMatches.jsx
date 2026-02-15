@@ -44,7 +44,7 @@ const SkillMatches = () => {
 
   return (
     <div className="skill-matches-page min-h-screen bg-white">
-      {/* Background glow */}
+      {/* Background */}
       <div className="profile-bg-wrapper">
         <div className="profile-bg-blob-1" />
         <div className="profile-bg-blob-2" />
@@ -68,7 +68,7 @@ const SkillMatches = () => {
         <h1 className="matches-title text-3xl font-bold text-gray-900 mb-8">Recommended Matches</h1>
         
         <div className="matches-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Login User Card (First) */}
+          {/* User Card */}
           {userProfile && (
             <div className="user-match-card bg-blue-50/30 rounded-2xl shadow-sm border-2 border-blue-100 overflow-hidden relative">
               <div className="absolute top-0 right-0">
@@ -123,7 +123,7 @@ const SkillMatches = () => {
             </div>
           )}
 
-          {/* Recommended Matches from API */}
+          {/* Matches */}
           {matches.map((user) => (
             <div key={user._id} className="user-match-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
               <div className="p-6">

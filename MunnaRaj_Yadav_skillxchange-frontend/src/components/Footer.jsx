@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className="footer">
       <div className="footerContainer">
-        {/* Left Side: Logo and Description */}
+        {/* Logo Section */}
         <div className="footerLeft">
           <div className="flex items-center gap-3">
             <div className="footerLogoContainer">
@@ -22,7 +22,7 @@ const Footer = () => {
           </p>
         </div>
 
-        {/* Middle Section: Quick Links */}
+        {/* Links */}
         <div className="footerMiddle">
           <h3 className="footerHeading">Quick Links</h3>
           <div className="footerLinks">
@@ -34,7 +34,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Right Side: Contact Information */}
+        {/* Contact */}
         <div className="footerRight">
           <h3 className="footerHeading">Contact Information</h3>
           <div className="space-y-4">
