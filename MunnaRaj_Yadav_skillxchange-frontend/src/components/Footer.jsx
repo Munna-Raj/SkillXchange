@@ -29,7 +29,14 @@ const Footer = () => {
             <Link to="/" className="footerLink">Home</Link>
             <Link to="/about" className="footerLink">About Us</Link>
             <Link to="/services" className="footerLink">Services</Link>
-            <Link to="/contact" className="footerLink">Contact</Link>
+            <a
+              href="https://wa.me/919829395174"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footerLink"
+            >
+              Contact
+            </a>
           </div>
         </div>
 
@@ -37,10 +44,15 @@ const Footer = () => {
         <div className="footerRight">
           <h3 className="footerHeading">Contact Information</h3>
           <div className="space-y-4">
-            <div className="footerContactItem">
+            <a
+              href="https://wa.me/919829395174"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footerContactItem"
+            >
               <span className="footerIcon">📞</span> 
-              <span>9829395174</span>
-            </div>
+              <span>9829395174 (WhatsApp)</span>
+            </a>
             <div className="footerContactItem">
               <span className="footerIcon">📍</span> 
               <span>Inaruwa-3, Sunsari, Nepal</span>
