@@ -46,41 +46,49 @@ export default function Home() {
         <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
-      <header className="fixed top-0 inset-x-0 z-20 bg-white/90 backdrop-blur border-b border-gray-100">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-xl overflow-hidden shadow-lg border border-gray-200">
+      <header className="fixed top-0 inset-x-0 z-20 bg-white/95 backdrop-blur border-b border-gray-100">
+        <div className="max-w-5xl mx-auto px-4 py-4 md:py-5 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="h-11 w-11 md:h-12 md:w-12 rounded-2xl overflow-hidden shadow-lg border border-gray-200">
               <img
                 src="/src/Image/logo skillxChange.jpeg"
                 alt="SkillXchange home"
                 className="h-full w-full object-cover"
               />
             </div>
-            <span className="text-sm md:text-base font-semibold text-gray-900">
+            <span className="text-base md:text-lg font-semibold text-gray-900">
               SkillXchange
             </span>
           </Link>
-          <div>
+          <div className="flex items-center gap-3">
             {token ? (
               <Link
                 to="/dashboard"
-                className="px-4 py-2 text-sm font-semibold rounded-full bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+                className="px-5 py-2.5 text-sm md:text-base font-semibold rounded-full bg-gray-900 text-white hover:bg-gray-800 transition-colors"
               >
-                Go to dashboard
+                Explore
               </Link>
             ) : (
-              <Link
-                to="/login"
-                className="px-4 py-2 text-sm font-semibold rounded-full border border-gray-300 text-gray-800 hover:bg-gray-50 transition-colors"
-              >
-                Log in
-              </Link>
+              <>
+                <Link
+                  to="/login"
+                  className="px-5 py-2.5 text-sm md:text-base font-semibold rounded-full bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-5 py-2.5 text-sm md:text-base font-semibold rounded-full border border-gray-300 text-gray-800 hover:bg-gray-50 transition-colors"
+                >
+                  Sign up
+                </Link>
+              </>
             )}
           </div>
         </div>
       </header>
 
-      <div className="home-content-container relative z-10 max-w-5xl w-full pt-20 md:pt-24">
+      <div className="home-content-container relative z-10 max-w-5xl w-full pt-24 md:pt-28">
         <div className="home-header text-center mb-12">
           <div className="brand-logo-container inline-flex items-center gap-3 mb-6 justify-center">
             <img

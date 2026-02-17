@@ -16,6 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import Footer from "./components/Footer";
 import ComingSoon from "./pages/ComingSoon";
+import Services from "./pages/Services";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -44,7 +45,7 @@ function Layout() {
         
         {/* Footer Pages */}
         <Route path="/about" element={<ComingSoon title="About Us" />} />
-        <Route path="/services" element={<ComingSoon title="Our Services" />} />
+        <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<ComingSoon title="Contact Us" />} />
         <Route path="/privacy" element={<ComingSoon title="Privacy Policy" />} />
 
