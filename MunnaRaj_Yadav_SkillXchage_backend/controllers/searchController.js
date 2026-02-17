@@ -1,6 +1,5 @@
 const User = require("../models/User");
 
-// Search
 const searchUsersAndSkills = async (req, res) => {
   try {
     const { query } = req.query;
@@ -28,7 +27,6 @@ const searchUsersAndSkills = async (req, res) => {
   }
 };
 
-// Public profile
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
@@ -54,7 +52,50 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+const getFeaturedUsers = async (req, res) => {
+  try {
+    const users = await User.find({ "skillsToTeach.0": { $exists: true } })
+      .select("fullName username profilePic bio skillsToTeach skillsToLearn createdAt")
+      .sort({ createdAt: -1 })
+      .limit(9);
+
+    const featured = users.map((user) => {
+      const skillsOffered = (user.skillsToTeach || [])
+        .map((s) => s.name)
+        .filter(Boolean);
+      const skillsWanted = (user.skillsToLearn || [])
+        .map((s) => s.name)
+        .filter(Boolean);
+
+      const baseScore = 60;
+      const scoreFromTeach = skillsOffered.length * 4;
+      const scoreFromLearn = skillsWanted.length * 2;
+      const matchScore = Math.max(
+        70,
+        Math.min(98, baseScore + scoreFromTeach + scoreFromLearn)
+      );
+
+      return {
+        _id: user._id,
+        fullName: user.fullName,
+        username: user.username,
+        profilePic: user.profilePic,
+        bio: user.bio,
+        skillsOffered,
+        skillsWanted,
+        matchScore,
+      };
+    });
+
+    res.status(200).json(featured);
+  } catch (error) {
+    console.error("Get featured users error:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 module.exports = {
   searchUsersAndSkills,
-  getUserProfile
+  getUserProfile,
+  getFeaturedUsers
 };

@@ -1,8 +1,42 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getFeaturedUsersApi } from "../services/searchService";
+import { searchSkillsApi } from "../services/skillService";
 
 export default function Home() {
   const token = localStorage.getItem("token");
   const matchesLink = token ? "/matches" : "/login";
+  const [featuredUsers, setFeaturedUsers] = useState([]);
+  const [sampleSkills, setSampleSkills] = useState([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [users, skills] = await Promise.all([
+          getFeaturedUsersApi(),
+          searchSkillsApi({})
+        ]);
+
+        setFeaturedUsers(users || []);
+
+        const uniqueSkillNames = [];
+        const seen = new Set();
+        (skills || []).forEach((item) => {
+          if (item.skillName && !seen.has(item.skillName.toLowerCase())) {
+            seen.add(item.skillName.toLowerCase());
+            uniqueSkillNames.push(item.skillName);
+          }
+        });
+
+        setSampleSkills(uniqueSkillNames.slice(0, 20));
+      } catch {
+        setFeaturedUsers([]);
+        setSampleSkills([]);
+      }
+    };
+
+    loadData();
+  }, []);
 
   return (
     <div className="home-page min-h-screen bg-white text-gray-900 flex items-center justify-center px-4 relative overflow-hidden">
@@ -15,9 +49,9 @@ export default function Home() {
       <div className="home-content-container relative z-10 max-w-5xl w-full">
         <div className="home-header text-center mb-12">
           <div className="brand-logo-container inline-flex items-center gap-3 mb-6 justify-center">
-            <img 
-              src="/src/Image/logo skillxChange.jpeg" 
-              alt="SkillXchange Logo" 
+            <img
+              src="/src/Image/logo skillxChange.jpeg"
+              alt="SkillXchange Logo"
               className="logo-image w-16 h-16 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-300 object-cover"
             />
             <div className="text-left">
@@ -29,7 +63,7 @@ export default function Home() {
               </p>
             </div>
           </div>
-          
+
           <p className="home-tagline text-xl md:text-2xl text-gray-700 mb-6 max-w-2xl mx-auto leading-relaxed">
             Learn what you want and teach what you know in one simple system.
           </p>
@@ -70,27 +104,50 @@ export default function Home() {
             Preview how SkillXchange recommends people you can learn from and teach.
           </p>
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
-              <p className="text-sm font-semibold text-gray-900 mb-1">Aarav • Frontend</p>
-              <p className="text-xs text-gray-600 mb-2">Can teach React • Wants to learn Node.js</p>
-              <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
-                92% Match
-              </span>
-            </div>
-            <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
-              <p className="text-sm font-semibold text-gray-900 mb-1">Sara • Design</p>
-              <p className="text-xs text-gray-600 mb-2">Can teach UI/UX • Wants to learn JavaScript</p>
-              <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
-                88% Match
-              </span>
-            </div>
-            <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
-              <p className="text-sm font-semibold text-gray-900 mb-1">Rahul • Data</p>
-              <p className="text-xs text-gray-600 mb-2">Can teach Python • Wants to learn Public Speaking</p>
-              <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
-                85% Match
-              </span>
-            </div>
+            {featuredUsers.length === 0 ? (
+              <>
+                <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">Aarav • Frontend</p>
+                  <p className="text-xs text-gray-600 mb-2">Can teach React • Wants to learn Node.js</p>
+                  <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
+                    92% Match
+                  </span>
+                </div>
+                <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">Sara • Design</p>
+                  <p className="text-xs text-gray-600 mb-2">Can teach UI/UX • Wants to learn JavaScript</p>
+                  <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
+                    88% Match
+                  </span>
+                </div>
+                <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">Rahul • Data</p>
+                  <p className="text-xs text-gray-600 mb-2">Can teach Python • Wants to learn Public Speaking</p>
+                  <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
+                    85% Match
+                  </span>
+                </div>
+              </>
+            ) : (
+              featuredUsers.slice(0, 3).map((user) => (
+                <div key={user._id} className="rounded-xl bg-gray-50 p-4 border border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">
+                    {user.fullName} {user.username ? `• @${user.username}` : ""}
+                  </p>
+                  <p className="text-xs text-gray-600 mb-2">
+                    {user.skillsOffered && user.skillsOffered.length > 0
+                      ? `Can teach ${user.skillsOffered.slice(0, 2).join(", ")}`
+                      : "Can teach skills from the community"}
+                    {user.skillsWanted && user.skillsWanted.length > 0
+                      ? ` • Wants to learn ${user.skillsWanted.slice(0, 2).join(", ")}`
+                      : ""}
+                  </p>
+                  <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
+                    {Math.round(user.matchScore)}% Match
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </section>
 
@@ -100,14 +157,43 @@ export default function Home() {
             A sample of skills learners and mentors are already exchanging:
           </p>
           <div className="flex flex-wrap gap-2">
-            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">React & Frontend</span>
-            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">Node.js & APIs</span>
-            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">Data Structures & Algorithms</span>
-            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">UI/UX Design</span>
-            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">Graphic Design</span>
-            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">Public Speaking</span>
-            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">English Communication</span>
-            <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">Career & Resume</span>
+            {sampleSkills.length === 0 ? (
+              <>
+                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                  React & Frontend
+                </span>
+                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                  Node.js & APIs
+                </span>
+                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                  Data Structures & Algorithms
+                </span>
+                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                  UI/UX Design
+                </span>
+                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                  Graphic Design
+                </span>
+                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                  Public Speaking
+                </span>
+                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                  English Communication
+                </span>
+                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                  Career & Resume
+                </span>
+              </>
+            ) : (
+              sampleSkills.map((name) => (
+                <span
+                  key={name}
+                  className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800"
+                >
+                  {name}
+                </span>
+              ))
+            )}
           </div>
         </section>
 
