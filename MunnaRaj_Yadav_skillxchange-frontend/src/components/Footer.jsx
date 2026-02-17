@@ -57,10 +57,13 @@ const Footer = () => {
               <span className="footerIcon">📍</span> 
               <span>Inaruwa-3, Sunsari, Nepal</span>
             </div>
-            <div className="footerContactItem">
+            <a
+              href="mailto:munnarajyad@gmail.com"
+              className="footerContactItem"
+            >
               <span className="footerIcon">✉️</span> 
               <span>munnarajyad@gmail.com</span>
-            </div>
+            </a>
           </div>
         </div>
       </div>
