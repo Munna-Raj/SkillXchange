@@ -48,6 +48,14 @@ const userSchema = new mongoose.Schema({
     level: { type: String, enum: ["Beginner", "Intermediate", "Advanced"], required: true },
     description: { type: String }
   }],
+  followers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  }],
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  }],
   resetToken: String,
   resetTokenExpire: Date
 }, { timestamps: true });

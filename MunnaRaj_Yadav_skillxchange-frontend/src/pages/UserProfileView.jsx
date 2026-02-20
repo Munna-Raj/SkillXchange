@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getUserProfileApi } from '../services/searchService';
-import { getProfileApi } from '../services/profileService';
+import { getProfileApi, followUserApi, unfollowUserApi } from '../services/profileService';
 import { getFeedbackForUser, createFeedback } from '../services/feedbackService';
 import SendRequestModal from '../components/SendRequestModal';
 import FeedbackModal from '../components/FeedbackModal';
 import NotificationBell from '../components/NotificationBell';
+import ChatBox from '../components/ChatBox';
+import { getSentRequestsApi, getReceivedRequestsApi } from '../services/requestService';
 
 const UserProfileView = () => {
   const { id } = useParams();
@@ -17,8 +19,14 @@ const UserProfileView = () => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [activeChat, setActiveChat] = useState(null);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState("");
+  const [followLoading, setFollowLoading] = useState(false);
+  const [followError, setFollowError] = useState("");
 
-  // Admin check
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+
   const role = localStorage.getItem("role");
   const email = localStorage.getItem("email");
   const isAdmin = role === "admin" || email === "rajyadavproject@gmail.com";
@@ -61,17 +69,117 @@ const UserProfileView = () => {
   const handleFeedbackSubmit = async (feedbackData) => {
     try {
       const newFeedback = await createFeedback(feedbackData);
-      // Refresh feedbacks
       const feedbackWithUser = {
         ...newFeedback,
         reviewer: {
-          // Refetch for simplicity
         }
       };
       const updatedFeedbacks = await getFeedbackForUser(id);
       setFeedbacks(updatedFeedbacks);
     } catch (error) {
       throw error; // Handle in modal
+    }
+  };
+
+  const refreshUserProfile = async () => {
+    try {
+      const updated = await getUserProfileApi(id);
+      setUser(updated);
+    } catch (err) {
+    }
+  };
+
+  const handleToggleFollow = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    if (!user || !user._id) {
+      return;
+    }
+
+    const currentUserId = currentUser.id || currentUser._id;
+    if (!currentUserId || currentUserId === user._id) {
+      return;
+    }
+
+    setFollowError("");
+    setFollowLoading(true);
+
+    try {
+      const isFollowing = Array.isArray(user.followers)
+        && user.followers.some((f) => f.toString() === currentUserId);
+
+      if (isFollowing) {
+        await unfollowUserApi(user._id);
+      } else {
+        await followUserApi(user._id);
+      }
+
+      await refreshUserProfile();
+    } catch (err) {
+      setFollowError("Failed to update follow status. Please try again.");
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  const handleOpenChat = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    if (!user || !user._id) {
+      return;
+    }
+
+    const myId = currentUser.id || currentUser._id;
+    if (!myId) {
+      return;
+    }
+
+    setChatError("");
+    setChatLoading(true);
+
+    try {
+      const [sent, received] = await Promise.all([
+        getSentRequestsApi(),
+        getReceivedRequestsApi()
+      ]);
+
+      const acceptedSent = sent.find(
+        (req) =>
+          req.status === "accepted" &&
+          req.receiverId &&
+          req.receiverId._id === user._id
+      );
+
+      const acceptedReceived = received.find(
+        (req) =>
+          req.status === "accepted" &&
+          req.senderId &&
+          req.senderId._id === user._id
+      );
+
+      const activeRequest = acceptedSent || acceptedReceived;
+
+      if (!activeRequest) {
+        setChatError("You can start messaging after your skill exchange request is accepted.");
+        return;
+      }
+
+      setActiveChat({
+        requestId: activeRequest._id,
+        otherUser: user
+      });
+    } catch (err) {
+      setChatError("Failed to open chat. Please try again.");
+    } finally {
+      setChatLoading(false);
     }
   };
 
@@ -125,6 +233,12 @@ const UserProfileView = () => {
                  <div className="mt-4 flex gap-4 text-sm text-gray-500">
                     {user.location && <span>📍 {user.location}</span>}
                     <span>📅 Joined {new Date(user.createdAt).toLocaleDateString()}</span>
+                   {Array.isArray(user.followers) && (
+                     <span>👥 {user.followers.length} Followers</span>
+                   )}
+                   {Array.isArray(user.following) && (
+                     <span>➡️ {user.following.length} Following</span>
+                   )}
                  </div>
                </div>
 
@@ -136,9 +250,37 @@ const UserProfileView = () => {
                    >
                      Send Request
                    </button>
-                   <button className="action-btn-secondary w-full py-2.5 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all">
-                     Message
+                   <button 
+                     onClick={handleToggleFollow}
+                     disabled={followLoading}
+                     className="action-btn-secondary w-full py-2.5 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                   >
+                     <span>
+                       {Array.isArray(user.followers) && (currentUser.id || currentUser._id) &&
+                        user.followers.some((f) => f.toString() === (currentUser.id || currentUser._id))
+                          ? "Following"
+                          : (Array.isArray(user.following) && (currentUser.id || currentUser._id) &&
+                             user.following.some((u) => u.toString() === (currentUser.id || currentUser._id))
+                                ? "Follow Back"
+                                : "Follow")}
+                     </span>
                    </button>
+                   <button 
+                     onClick={handleOpenChat}
+                     disabled={chatLoading}
+                     className="action-btn-secondary w-full py-2.5 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                   >
+                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 10c0 3.866-3.582 7-8 7a8.96 8.96 0 01-3.917-.885L5 18l1.2-3.2A6.99 6.99 0 013 10c0-3.866 3.582-7 8-7s8 3.134 8 7z" />
+                     </svg>
+                     <span>{chatLoading ? "Opening..." : "Message"}</span>
+                   </button>
+                   {chatError && (
+                     <p className="text-xs text-red-500 text-center">{chatError}</p>
+                   )}
+                   {followError && (
+                     <p className="text-xs text-red-500 text-center">{followError}</p>
+                   )}
                    <button 
                      onClick={() => setIsFeedbackModalOpen(true)}
                      className="action-btn-secondary w-full py-2.5 bg-yellow-50 border border-yellow-200 text-yellow-700 font-semibold rounded-xl hover:bg-yellow-100 transition-all"
@@ -265,6 +407,14 @@ const UserProfileView = () => {
         recipientId={id}
         onFeedbackSubmit={handleFeedbackSubmit}
       />
+      {activeChat && (
+        <ChatBox
+          requestId={activeChat.requestId}
+          currentUser={currentUser}
+          otherUser={activeChat.otherUser}
+          onClose={() => setActiveChat(null)}
+        />
+      )}
     </div>
   );
 };

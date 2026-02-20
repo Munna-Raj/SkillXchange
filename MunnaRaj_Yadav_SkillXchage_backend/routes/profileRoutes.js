@@ -5,7 +5,9 @@ const {
   updateProfilePicture,
   addSkill,
   deleteSkill,
-  updateSkill
+  updateSkill,
+  followUser,
+  unfollowUser
 } = require("../controllers/profileController");
 const authMiddleware = require("../middleware/authMiddleware");
 const upload = require("../middleware/upload");
@@ -23,5 +25,8 @@ router.post("/picture", upload.single("profilePic"), updateProfilePicture);
 router.post("/skills", addSkill);
 router.delete("/skills/:type/:skillId", deleteSkill);
 router.put("/skills/:type/:skillId", updateSkill);
+
+router.post("/follow/:id", followUser);
+router.post("/unfollow/:id", unfollowUser);
 
 module.exports = router;

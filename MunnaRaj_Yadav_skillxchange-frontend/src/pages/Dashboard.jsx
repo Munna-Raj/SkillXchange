@@ -183,6 +183,26 @@ export default function Dashboard() {
           </form>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate("/conversations")}
+              className="hidden sm:inline-flex items-center gap-1 rounded-xl bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200 hover:bg-indigo-100"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 10h.01M12 10h.01M16 10h.01M21 10c0 3.866-3.582 7-8 7a8.96 8.96 0 01-3.917-.885L5 18l1.2-3.2A6.99 6.99 0 013 10c0-3.866 3.582-7 8-7s8 3.134 8 7z"
+                />
+              </svg>
+              <span></span>
+            </button>
             <NotificationBell />
             <div className="hidden sm:block text-right">
               <p className="text-sm font-semibold text-gray-900">{userProfile?.username || data.username || "User"}</p>

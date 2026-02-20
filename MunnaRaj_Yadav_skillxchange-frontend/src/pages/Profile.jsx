@@ -309,6 +309,20 @@ export default function Profile() {
             </div>
             <h2 className="section-title text-center mb-0">{profile.fullName}</h2>
             <p className="text-sm text-gray-500">@{profile.username}</p>
+            <div className="mt-3 flex items-center justify-center gap-4 text-xs text-gray-600">
+              <span>
+                <span className="font-semibold">
+                  {Array.isArray(profile.followers) ? profile.followers.length : 0}
+                </span>{" "}
+                Followers
+              </span>
+              <span>
+                <span className="font-semibold">
+                  {Array.isArray(profile.following) ? profile.following.length : 0}
+                </span>{" "}
+                Following
+              </span>
+            </div>
           </div>
           
           <div className="profile-card">

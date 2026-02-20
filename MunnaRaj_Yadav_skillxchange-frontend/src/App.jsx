@@ -9,6 +9,7 @@ import SearchResults from "./pages/SearchResults";
 import SkillMatches from "./pages/SkillMatches";
 import UserProfileView from "./pages/UserProfileView";
 import MyRequests from "./pages/MyRequests";
+import Conversations from "./pages/Conversations";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import { AdminSkills, AdminRequests, AdminReports } from "./pages/admin/AdminPages";
@@ -113,6 +114,14 @@ function Layout() {
           element={
             <ProtectedRoute>
               <MyRequests />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/conversations"
+          element={
+            <ProtectedRoute>
+              <Conversations />
             </ProtectedRoute>
           }
         />

@@ -21,3 +21,9 @@ export const deleteSkillApi = (type, skillId) =>
 export const updateSkillApi = (type, skillId, skillData) =>
   api.put(`/profile/skills/${type}/${skillId}`, skillData, { headers: getAuthHeader() });
 
+export const followUserApi = (userId) =>
+  api.post(`/profile/follow/${userId}`, {}, { headers: getAuthHeader() });
+
+export const unfollowUserApi = (userId) =>
+  api.post(`/profile/unfollow/${userId}`, {}, { headers: getAuthHeader() });
+

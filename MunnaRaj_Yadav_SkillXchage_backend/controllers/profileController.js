@@ -156,6 +156,64 @@ exports.updateSkill = async (req, res) => {
   }
 };
 
+exports.followUser = async (req, res) => {
+  try {
+    const targetId = req.params.id;
+    const currentUserId = req.user.id;
+
+    if (targetId === currentUserId) {
+      return res.status(400).json({ msg: "You cannot follow yourself" });
+    }
+
+    const targetUser = await User.findById(targetId);
+    if (!targetUser) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    await User.findByIdAndUpdate(currentUserId, {
+      $addToSet: { following: targetId }
+    });
+
+    await User.findByIdAndUpdate(targetId, {
+      $addToSet: { followers: currentUserId }
+    });
+
+    res.json({ msg: "Followed successfully" });
+  } catch (error) {
+    console.error("FOLLOW USER ERROR:", error);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
+exports.unfollowUser = async (req, res) => {
+  try {
+    const targetId = req.params.id;
+    const currentUserId = req.user.id;
+
+    if (targetId === currentUserId) {
+      return res.status(400).json({ msg: "You cannot unfollow yourself" });
+    }
+
+    const targetUser = await User.findById(targetId);
+    if (!targetUser) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    await User.findByIdAndUpdate(currentUserId, {
+      $pull: { following: targetId }
+    });
+
+    await User.findByIdAndUpdate(targetId, {
+      $pull: { followers: currentUserId }
+    });
+
+    res.json({ msg: "Unfollowed successfully" });
+  } catch (error) {
+    console.error("UNFOLLOW USER ERROR:", error);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
 // UPDATE PROFILE PICTURE 
 exports.updateProfilePicture = async (req, res) => {
   try {
