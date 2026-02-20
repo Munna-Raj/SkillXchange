@@ -8,7 +8,7 @@ const NotificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["request_received", "request_accepted", "request_rejected", "feedback_received"],
+    enum: ["request_received", "request_accepted", "request_rejected", "feedback_received", "follow"],
     required: true,
   },
   message: {
@@ -17,7 +17,6 @@ const NotificationSchema = new mongoose.Schema({
   },
   relatedId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "SkillExchangeRequest",
   },
   isRead: {
     type: Boolean,

@@ -326,6 +326,60 @@ export default function Profile() {
           </div>
           
           <div className="profile-card">
+            <h3 className="card-title">Followers</h3>
+            {Array.isArray(profile.followers) && profile.followers.length > 0 ? (
+              <div className="space-y-3 mt-3">
+                {profile.followers.map((follower) => (
+                  <button
+                    key={follower._id}
+                    onClick={() => navigate(`/user/${follower._id}`)}
+                    className="w-full flex items-center gap-3 text-left p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <img
+                      src={follower.profilePic ? `http://localhost:5000/uploads/${follower.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(follower.fullName || follower.username)}&background=random`}
+                      alt={follower.fullName}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{follower.fullName}</p>
+                      <p className="text-xs text-gray-500">@{follower.username}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400 mt-2">No followers yet.</p>
+            )}
+          </div>
+
+          <div className="profile-card">
+            <h3 className="card-title">Following</h3>
+            {Array.isArray(profile.following) && profile.following.length > 0 ? (
+              <div className="space-y-3 mt-3">
+                {profile.following.map((followed) => (
+                  <button
+                    key={followed._id}
+                    onClick={() => navigate(`/user/${followed._id}`)}
+                    className="w-full flex items-center gap-3 text-left p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <img
+                      src={followed.profilePic ? `http://localhost:5000/uploads/${followed.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(followed.fullName || followed.username)}&background=random`}
+                      alt={followed.fullName}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{followed.fullName}</p>
+                      <p className="text-xs text-gray-500">@{followed.username}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400 mt-2">Not following anyone yet.</p>
+            )}
+          </div>
+
+          <div className="profile-card">
              <h3 className="card-title">Contact Info</h3>
              <div className="space-y-3 text-sm">
                <div>

@@ -58,6 +58,8 @@ const NotificationBell = () => {
       navigate("/requests");
     } else if (notification.type === "feedback_received") {
       navigate("/profile");
+    } else if (notification.type === "follow" && notification.relatedId) {
+      navigate(`/user/${notification.relatedId}`);
     }
   };
 

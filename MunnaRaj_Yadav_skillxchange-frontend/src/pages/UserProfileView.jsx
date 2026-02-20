@@ -109,8 +109,15 @@ const UserProfileView = () => {
     setFollowLoading(true);
 
     try {
+      const normalizeId = (entry) => {
+        if (!entry) return null;
+        if (typeof entry === "string") return entry;
+        if (typeof entry === "object" && entry._id) return entry._id.toString();
+        return null;
+      };
+
       const isFollowing = Array.isArray(user.followers)
-        && user.followers.some((f) => f.toString() === currentUserId);
+        && user.followers.some((f) => normalizeId(f) === currentUserId);
 
       if (isFollowing) {
         await unfollowUserApi(user._id);
@@ -256,13 +263,29 @@ const UserProfileView = () => {
                      className="action-btn-secondary w-full py-2.5 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                    >
                      <span>
-                       {Array.isArray(user.followers) && (currentUser.id || currentUser._id) &&
-                        user.followers.some((f) => f.toString() === (currentUser.id || currentUser._id))
-                          ? "Following"
-                          : (Array.isArray(user.following) && (currentUser.id || currentUser._id) &&
-                             user.following.some((u) => u.toString() === (currentUser.id || currentUser._id))
-                                ? "Follow Back"
-                                : "Follow")}
+                       {(() => {
+                         const viewerId = currentUser.id || currentUser._id;
+                         const normalizeId = (entry) => {
+                           if (!entry) return null;
+                           if (typeof entry === "string") return entry;
+                           if (typeof entry === "object" && entry._id) return entry._id.toString();
+                           return null;
+                         };
+
+                         if (Array.isArray(user.followers) && viewerId &&
+                           user.followers.some((f) => normalizeId(f) === viewerId)
+                         ) {
+                           return "Following";
+                         }
+
+                         if (Array.isArray(user.following) && viewerId &&
+                           user.following.some((u) => normalizeId(u) === viewerId)
+                         ) {
+                           return "Follow Back";
+                         }
+
+                         return "Follow";
+                       })()}
                      </span>
                    </button>
                    <button 

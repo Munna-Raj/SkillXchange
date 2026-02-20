@@ -5,7 +5,10 @@ const path = require("path");
 // GET PROFILE 
 exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpire");
+    const user = await User.findById(req.user.id)
+      .select("-password -resetToken -resetTokenExpire")
+      .populate("followers", "fullName username profilePic")
+      .populate("following", "fullName username profilePic");
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
@@ -177,6 +180,16 @@ exports.followUser = async (req, res) => {
     await User.findByIdAndUpdate(targetId, {
       $addToSet: { followers: currentUserId }
     });
+
+    const follower = await User.findById(currentUserId).select("fullName");
+
+    const { createNotification } = require("./notificationController");
+    await createNotification(
+      targetId,
+      "follow",
+      `${follower.fullName} started following you.`,
+      currentUserId
+    );
 
     res.json({ msg: "Followed successfully" });
   } catch (error) {

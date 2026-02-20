@@ -30,7 +30,9 @@ const searchUsersAndSkills = async (req, res) => {
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
-      .select("-password -resetToken -resetTokenExpire");
+      .select("-password -resetToken -resetTokenExpire")
+      .populate("followers", "fullName username profilePic")
+      .populate("following", "fullName username profilePic");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
