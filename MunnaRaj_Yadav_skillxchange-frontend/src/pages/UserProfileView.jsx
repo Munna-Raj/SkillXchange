@@ -24,6 +24,8 @@ const UserProfileView = () => {
   const [chatError, setChatError] = useState("");
   const [followLoading, setFollowLoading] = useState(false);
   const [followError, setFollowError] = useState("");
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -237,16 +239,36 @@ const UserProfileView = () => {
                  <p className="text-indigo-600 font-medium">@{user.username}</p>
                  <p className="public-profile-bio mt-4 text-gray-700 max-w-2xl leading-relaxed">{user.bio || "No bio provided."}</p>
                  
-                 <div className="mt-4 flex gap-4 text-sm text-gray-500">
-                    {user.location && <span>📍 {user.location}</span>}
-                    <span>📅 Joined {new Date(user.createdAt).toLocaleDateString()}</span>
-                   {Array.isArray(user.followers) && (
-                     <span>👥 {user.followers.length} Followers</span>
-                   )}
-                   {Array.isArray(user.following) && (
-                     <span>➡️ {user.following.length} Following</span>
-                   )}
-                 </div>
+                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                  {user.location && <span>📍 {user.location}</span>}
+                  <span>📅 Joined {new Date(user.createdAt).toLocaleDateString()}</span>
+                  {Array.isArray(user.followers) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowFollowers((prev) => !prev);
+                        if (!showFollowers) setShowFollowing(false);
+                      }}
+                      className="inline-flex items-center gap-1 hover:text-indigo-600"
+                    >
+                      <span>👥</span>
+                      <span>{user.followers.length} Followers</span>
+                    </button>
+                  )}
+                  {Array.isArray(user.following) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowFollowing((prev) => !prev);
+                        if (!showFollowing) setShowFollowers(false);
+                      }}
+                      className="inline-flex items-center gap-1 hover:text-indigo-600"
+                    >
+                      <span>➡️</span>
+                      <span>{user.following.length} Following</span>
+                    </button>
+                  )}
+                </div>
                </div>
 
                {!isAdmin && (
@@ -316,8 +338,82 @@ const UserProfileView = () => {
           </div>
         </div>
 
+        {showFollowers && Array.isArray(user.followers) && user.followers.length > 0 && (
+          <div className="mt-6 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h2 className="section-title text-xl font-bold text-gray-900 mb-4">
+              Followers
+            </h2>
+            <div className="space-y-3">
+              {user.followers.map((follower) => (
+                <button
+                  key={typeof follower === "string" ? follower : follower._id}
+                  onClick={() =>
+                    navigate(`/user/${typeof follower === "string" ? follower : follower._id}`)
+                  }
+                  className="w-full flex items-center gap-3 text-left p-3 rounded-xl hover:bg-gray-50 border border-gray-100 transition-colors"
+                >
+                  <img
+                    src={
+                      follower.profilePic
+                        ? `http://localhost:5000/uploads/${follower.profilePic}`
+                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                            follower.fullName || follower.username || "User"
+                          )}&background=random`
+                    }
+                    alt={follower.fullName}
+                    className="w-9 h-9 rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {follower.fullName}
+                    </p>
+                    <p className="text-xs text-gray-500">@{follower.username}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {showFollowing && Array.isArray(user.following) && user.following.length > 0 && (
+          <div className="mt-6 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h2 className="section-title text-xl font-bold text-gray-900 mb-4">
+              Following
+            </h2>
+            <div className="space-y-3">
+              {user.following.map((followed) => (
+                <button
+                  key={typeof followed === "string" ? followed : followed._id}
+                  onClick={() =>
+                    navigate(`/user/${typeof followed === "string" ? followed : followed._id}`)
+                  }
+                  className="w-full flex items-center gap-3 text-left p-3 rounded-xl hover:bg-gray-50 border border-gray-100 transition-colors"
+                >
+                  <img
+                    src={
+                      followed.profilePic
+                        ? `http://localhost:5000/uploads/${followed.profilePic}`
+                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                            followed.fullName || followed.username || "User"
+                          )}&background=random`
+                    }
+                    alt={followed.fullName}
+                    className="w-9 h-9 rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {followed.fullName}
+                    </p>
+                    <p className="text-xs text-gray-500">@{followed.username}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Skills Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Skills To Teach */}
           <div className="skill-category-container bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-full">
             <h2 className="section-title text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">

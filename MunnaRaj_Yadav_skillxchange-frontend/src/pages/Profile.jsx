@@ -7,6 +7,8 @@ import NotificationBell from "../components/NotificationBell";
 export default function Profile() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const followersRef = useRef(null);
+  const followingRef = useRef(null);
   
   const [profile, setProfile] = useState({
     fullName: "",
@@ -310,22 +312,30 @@ export default function Profile() {
             <h2 className="section-title text-center mb-0">{profile.fullName}</h2>
             <p className="text-sm text-gray-500">@{profile.username}</p>
             <div className="mt-3 flex items-center justify-center gap-4 text-xs text-gray-600">
-              <span>
+              <button
+                type="button"
+                onClick={() => followersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                className="flex items-center gap-1 hover:text-indigo-600"
+              >
                 <span className="font-semibold">
                   {Array.isArray(profile.followers) ? profile.followers.length : 0}
-                </span>{" "}
-                Followers
-              </span>
-              <span>
+                </span>
+                <span>Followers</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => followingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                className="flex items-center gap-1 hover:text-indigo-600"
+              >
                 <span className="font-semibold">
                   {Array.isArray(profile.following) ? profile.following.length : 0}
-                </span>{" "}
-                Following
-              </span>
+                </span>
+                <span>Following</span>
+              </button>
             </div>
           </div>
           
-          <div className="profile-card">
+          <div className="profile-card" ref={followersRef}>
             <h3 className="card-title">Followers</h3>
             {Array.isArray(profile.followers) && profile.followers.length > 0 ? (
               <div className="space-y-3 mt-3">
@@ -352,7 +362,7 @@ export default function Profile() {
             )}
           </div>
 
-          <div className="profile-card">
+          <div className="profile-card" ref={followingRef}>
             <h3 className="card-title">Following</h3>
             {Array.isArray(profile.following) && profile.following.length > 0 ? (
               <div className="space-y-3 mt-3">
