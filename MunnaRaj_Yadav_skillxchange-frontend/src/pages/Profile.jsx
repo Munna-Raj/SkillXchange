@@ -7,8 +7,6 @@ import NotificationBell from "../components/NotificationBell";
 export default function Profile() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  const followersRef = useRef(null);
-  const followingRef = useRef(null);
   
   const [profile, setProfile] = useState({
     fullName: "",
@@ -44,6 +42,8 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
+  const [followModalType, setFollowModalType] = useState("followers");
 
   useEffect(() => {
     // Admin check
@@ -314,7 +314,10 @@ export default function Profile() {
             <div className="mt-3 flex items-center justify-center gap-4 text-xs text-gray-600">
               <button
                 type="button"
-                onClick={() => followersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                onClick={() => {
+                  setFollowModalType("followers");
+                  setIsFollowModalOpen(true);
+                }}
                 className="flex items-center gap-1 hover:text-indigo-600"
               >
                 <span className="font-semibold">
@@ -324,7 +327,10 @@ export default function Profile() {
               </button>
               <button
                 type="button"
-                onClick={() => followingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                onClick={() => {
+                  setFollowModalType("following");
+                  setIsFollowModalOpen(true);
+                }}
                 className="flex items-center gap-1 hover:text-indigo-600"
               >
                 <span className="font-semibold">
@@ -333,60 +339,6 @@ export default function Profile() {
                 <span>Following</span>
               </button>
             </div>
-          </div>
-          
-          <div className="profile-card" ref={followersRef}>
-            <h3 className="card-title">Followers</h3>
-            {Array.isArray(profile.followers) && profile.followers.length > 0 ? (
-              <div className="space-y-3 mt-3">
-                {profile.followers.map((follower) => (
-                  <button
-                    key={follower._id}
-                    onClick={() => navigate(`/user/${follower._id}`)}
-                    className="w-full flex items-center gap-3 text-left p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <img
-                      src={follower.profilePic ? `http://localhost:5000/uploads/${follower.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(follower.fullName || follower.username)}&background=random`}
-                      alt={follower.fullName}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{follower.fullName}</p>
-                      <p className="text-xs text-gray-500">@{follower.username}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-400 mt-2">No followers yet.</p>
-            )}
-          </div>
-
-          <div className="profile-card" ref={followingRef}>
-            <h3 className="card-title">Following</h3>
-            {Array.isArray(profile.following) && profile.following.length > 0 ? (
-              <div className="space-y-3 mt-3">
-                {profile.following.map((followed) => (
-                  <button
-                    key={followed._id}
-                    onClick={() => navigate(`/user/${followed._id}`)}
-                    className="w-full flex items-center gap-3 text-left p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <img
-                      src={followed.profilePic ? `http://localhost:5000/uploads/${followed.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(followed.fullName || followed.username)}&background=random`}
-                      alt={followed.fullName}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{followed.fullName}</p>
-                      <p className="text-xs text-gray-500">@{followed.username}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-400 mt-2">Not following anyone yet.</p>
-            )}
           </div>
 
           <div className="profile-card">
@@ -685,6 +637,99 @@ export default function Profile() {
 
         </div>
       </main>
+
+      {isFollowModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-900">
+                {followModalType === "followers" ? "Followers" : "Following"}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsFollowModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1"
+              >
+                ×
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 py-3">
+              {followModalType === "followers" && Array.isArray(profile.followers) && profile.followers.length > 0 && (
+                <div className="space-y-3">
+                  {profile.followers.map((follower) => (
+                    <button
+                      key={follower._id}
+                      onClick={() => {
+                        setIsFollowModalOpen(false);
+                        navigate(`/user/${follower._id}`);
+                      }}
+                      className="w-full flex items-center gap-3 text-left p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <img
+                        src={
+                          follower.profilePic
+                            ? `http://localhost:5000/uploads/${follower.profilePic}`
+                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                follower.fullName || follower.username
+                              )}&background=random`
+                        }
+                        alt={follower.fullName}
+                        className="w-9 h-9 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {follower.fullName}
+                        </p>
+                        <p className="text-xs text-gray-500">@{follower.username}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {followModalType === "following" && Array.isArray(profile.following) && profile.following.length > 0 && (
+                <div className="space-y-3">
+                  {profile.following.map((followed) => (
+                    <button
+                      key={followed._id}
+                      onClick={() => {
+                        setIsFollowModalOpen(false);
+                        navigate(`/user/${followed._id}`);
+                      }}
+                      className="w-full flex items-center gap-3 text-left p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <img
+                        src={
+                          followed.profilePic
+                            ? `http://localhost:5000/uploads/${followed.profilePic}`
+                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                followed.fullName || followed.username
+                              )}&background=random`
+                        }
+                        alt={followed.fullName}
+                        className="w-9 h-9 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {followed.fullName}
+                        </p>
+                        <p className="text-xs text-gray-500">@{followed.username}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {((followModalType === "followers" && (!Array.isArray(profile.followers) || profile.followers.length === 0)) ||
+                (followModalType === "following" && (!Array.isArray(profile.following) || profile.following.length === 0))) && (
+                <p className="text-sm text-gray-400 text-center mt-4">
+                  {followModalType === "followers" ? "No followers yet." : "Not following anyone yet."}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

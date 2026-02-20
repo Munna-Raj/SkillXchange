@@ -24,8 +24,8 @@ const UserProfileView = () => {
   const [chatError, setChatError] = useState("");
   const [followLoading, setFollowLoading] = useState(false);
   const [followError, setFollowError] = useState("");
-  const [showFollowers, setShowFollowers] = useState(false);
-  const [showFollowing, setShowFollowing] = useState(false);
+  const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
+  const [followModalType, setFollowModalType] = useState("followers");
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -246,8 +246,8 @@ const UserProfileView = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        setShowFollowers((prev) => !prev);
-                        if (!showFollowers) setShowFollowing(false);
+                        setFollowModalType("followers");
+                        setIsFollowModalOpen(true);
                       }}
                       className="inline-flex items-center gap-1 hover:text-indigo-600"
                     >
@@ -259,8 +259,8 @@ const UserProfileView = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        setShowFollowing((prev) => !prev);
-                        if (!showFollowing) setShowFollowers(false);
+                        setFollowModalType("following");
+                        setIsFollowModalOpen(true);
                       }}
                       className="inline-flex items-center gap-1 hover:text-indigo-600"
                     >
@@ -337,80 +337,6 @@ const UserProfileView = () => {
             </div>
           </div>
         </div>
-
-        {showFollowers && Array.isArray(user.followers) && user.followers.length > 0 && (
-          <div className="mt-6 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-            <h2 className="section-title text-xl font-bold text-gray-900 mb-4">
-              Followers
-            </h2>
-            <div className="space-y-3">
-              {user.followers.map((follower) => (
-                <button
-                  key={typeof follower === "string" ? follower : follower._id}
-                  onClick={() =>
-                    navigate(`/user/${typeof follower === "string" ? follower : follower._id}`)
-                  }
-                  className="w-full flex items-center gap-3 text-left p-3 rounded-xl hover:bg-gray-50 border border-gray-100 transition-colors"
-                >
-                  <img
-                    src={
-                      follower.profilePic
-                        ? `http://localhost:5000/uploads/${follower.profilePic}`
-                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                            follower.fullName || follower.username || "User"
-                          )}&background=random`
-                    }
-                    alt={follower.fullName}
-                    className="w-9 h-9 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {follower.fullName}
-                    </p>
-                    <p className="text-xs text-gray-500">@{follower.username}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {showFollowing && Array.isArray(user.following) && user.following.length > 0 && (
-          <div className="mt-6 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-            <h2 className="section-title text-xl font-bold text-gray-900 mb-4">
-              Following
-            </h2>
-            <div className="space-y-3">
-              {user.following.map((followed) => (
-                <button
-                  key={typeof followed === "string" ? followed : followed._id}
-                  onClick={() =>
-                    navigate(`/user/${typeof followed === "string" ? followed : followed._id}`)
-                  }
-                  className="w-full flex items-center gap-3 text-left p-3 rounded-xl hover:bg-gray-50 border border-gray-100 transition-colors"
-                >
-                  <img
-                    src={
-                      followed.profilePic
-                        ? `http://localhost:5000/uploads/${followed.profilePic}`
-                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                            followed.fullName || followed.username || "User"
-                          )}&background=random`
-                    }
-                    alt={followed.fullName}
-                    className="w-9 h-9 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {followed.fullName}
-                    </p>
-                    <p className="text-xs text-gray-500">@{followed.username}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Skills Grid */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -533,6 +459,99 @@ const UserProfileView = () => {
           otherUser={activeChat.otherUser}
           onClose={() => setActiveChat(null)}
         />
+      )}
+
+      {isFollowModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-900">
+                {followModalType === "followers" ? "Followers" : "Following"}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsFollowModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1"
+              >
+                ×
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 py-3">
+              {followModalType === "followers" && Array.isArray(user.followers) && user.followers.length > 0 && (
+                <div className="space-y-3">
+                  {user.followers.map((follower) => (
+                    <button
+                      key={typeof follower === "string" ? follower : follower._id}
+                      onClick={() => {
+                        setIsFollowModalOpen(false);
+                        navigate(`/user/${typeof follower === "string" ? follower : follower._id}`);
+                      }}
+                      className="w-full flex items-center gap-3 text-left p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <img
+                        src={
+                          follower.profilePic
+                            ? `http://localhost:5000/uploads/${follower.profilePic}`
+                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                follower.fullName || follower.username || "User"
+                              )}&background=random`
+                        }
+                        alt={follower.fullName}
+                        className="w-9 h-9 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {follower.fullName}
+                        </p>
+                        <p className="text-xs text-gray-500">@{follower.username}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {followModalType === "following" && Array.isArray(user.following) && user.following.length > 0 && (
+                <div className="space-y-3">
+                  {user.following.map((followed) => (
+                    <button
+                      key={typeof followed === "string" ? followed : followed._id}
+                      onClick={() => {
+                        setIsFollowModalOpen(false);
+                        navigate(`/user/${typeof followed === "string" ? followed : followed._id}`);
+                      }}
+                      className="w-full flex items-center gap-3 text-left p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <img
+                        src={
+                          followed.profilePic
+                            ? `http://localhost:5000/uploads/${followed.profilePic}`
+                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                followed.fullName || followed.username || "User"
+                              )}&background=random`
+                        }
+                        alt={followed.fullName}
+                        className="w-9 h-9 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {followed.fullName}
+                        </p>
+                        <p className="text-xs text-gray-500">@{followed.username}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {((followModalType === "followers" && (!Array.isArray(user.followers) || user.followers.length === 0)) ||
+                (followModalType === "following" && (!Array.isArray(user.following) || user.following.length === 0))) && (
+                <p className="text-sm text-gray-400 text-center mt-4">
+                  {followModalType === "followers" ? "No followers yet." : "Not following anyone yet."}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
