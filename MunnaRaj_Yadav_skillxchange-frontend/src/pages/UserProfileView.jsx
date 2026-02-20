@@ -24,8 +24,7 @@ const UserProfileView = () => {
   const [chatError, setChatError] = useState("");
   const [followLoading, setFollowLoading] = useState(false);
   const [followError, setFollowError] = useState("");
-  const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
-  const [followModalType, setFollowModalType] = useState("followers");
+  const [followListType, setFollowListType] = useState(null);
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
