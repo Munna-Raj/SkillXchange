@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import NotificationBell from "../components/NotificationBell";
+import ChatBox from "../components/ChatBox";
 import { getMatchesApi } from "../services/matchService";
 import { getReceivedRequestsApi } from "../services/requestService";
 
@@ -52,6 +53,29 @@ export default function Dashboard() {
   const [loadingMatches, setLoadingMatches] = useState(true);
   const [recentRequests, setRecentRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
+   const [activeChat, setActiveChat] = useState(null);
+
+  const isAdminAccount = (user) => {
+    if (!user) return false;
+    const role = (user.role || "").toLowerCase();
+    const email = (user.email || "").toLowerCase();
+    const fullName = (user.fullName || user.name || "").toLowerCase();
+    const username = (user.username || "").toLowerCase();
+    return (
+      role === "admin" ||
+      email === "rajyadavproject@gmail.com" ||
+      fullName.includes("system admin") ||
+      username === "admin"
+    );
+  };
+
+  const openChatFromRequest = (request) => {
+    if (!request || request.status !== "accepted") return;
+    setActiveChat({
+      requestId: request._id,
+      otherUser: request.senderId,
+    });
+  };
 
   // Initial user data from storage
   const data = useMemo(() => {
@@ -268,7 +292,7 @@ export default function Dashboard() {
           />
           <StatCard 
             title="Matches Found" 
-            value={recommendedMatches.length} 
+            value={recommendedMatches.filter((m) => !isAdminAccount(m)).length} 
             sub="Recommended connections" 
           />
           <StatCard 
@@ -352,8 +376,11 @@ export default function Dashboard() {
                 <div className="col-span-full py-10 text-center text-gray-400 text-sm italic">
                   Finding best matches for you...
                 </div>
-              ) : recommendedMatches.length > 0 ? (
-                recommendedMatches.slice(0, 3).map((m) => (
+              ) : recommendedMatches.filter((m) => !isAdminAccount(m)).length > 0 ? (
+                recommendedMatches
+                  .filter((m) => !isAdminAccount(m))
+                  .slice(0, 3)
+                  .map((m) => (
                   <div
                     key={m._id}
                     className="match-card rounded-2xl bg-gray-50 p-5 ring-1 ring-gray-200 hover:shadow-md transition-shadow"
@@ -482,6 +509,14 @@ export default function Dashboard() {
                           Respond
                         </button>
                       )}
+                      {r.status === "accepted" && (
+                        <button 
+                          onClick={() => openChatFromRequest(r)}
+                          className="flex-1 rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm"
+                        >
+                          Chat
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))
@@ -494,7 +529,14 @@ export default function Dashboard() {
           </section>
         </div>
 
-
+        {activeChat && (
+          <ChatBox
+            requestId={activeChat.requestId}
+            currentUser={data}
+            otherUser={activeChat.otherUser}
+            onClose={() => setActiveChat(null)}
+          />
+        )}
       </main>
     </div>
   );

@@ -11,6 +11,20 @@ const SearchResults = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState(query);
 
+  const isAdminAccount = (user) => {
+    if (!user) return false;
+    const role = (user.role || "").toLowerCase();
+    const email = (user.email || "").toLowerCase();
+    const fullName = (user.fullName || user.name || "").toLowerCase();
+    const username = (user.username || "").toLowerCase();
+    return (
+      role === "admin" ||
+      email === "rajyadavproject@gmail.com" ||
+      fullName.includes("system admin") ||
+      username === "admin"
+    );
+  };
+
   useEffect(() => {
     if (query) {
       performSearch(query);
@@ -69,7 +83,9 @@ const SearchResults = () => {
           </div>
         ) : (
           <div className="results-grid-users">
-            {results.map((user) => (
+            {results
+              .filter((user) => !isAdminAccount(user))
+              .map((user) => (
               <div key={user._id} className="user-result-card">
                 <div className="user-card-header">
                   <img 

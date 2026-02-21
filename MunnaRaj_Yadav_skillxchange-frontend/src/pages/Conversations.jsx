@@ -59,16 +59,8 @@ const Conversations = () => {
     fetchConversations();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-xl text-gray-500 font-medium">Loading conversations...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="page-container my-requests-page">
+    <div className="page-container my-requests-page min-h-screen bg-white">
       <div className="profile-bg-wrapper">
         <div className="profile-bg-blob-1" />
         <div className="profile-bg-blob-2" />
@@ -92,7 +84,7 @@ const Conversations = () => {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 pb-24 relative z-10">
         <h1 className="my-requests-title text-3xl font-bold text-gray-900 mb-6">
           Conversations
         </h1>
@@ -103,93 +95,87 @@ const Conversations = () => {
           </div>
         )}
 
-        {conversations.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-12 text-gray-500">
+            Loading conversations...
+          </div>
+        ) : conversations.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
             No conversations yet. Start by accepting a skill exchange request.
           </p>
         ) : (
-          <div className="grid gap-4">
-            {conversations.map((conv) => (
-              <div
-                key={conv.id}
-                className="request-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between gap-4"
-              >
-                <div className="flex items-center gap-4">
-                  <img
-                    src={
-                      conv.otherUser?.profilePic
-                        ? `http://localhost:5000/uploads/${conv.otherUser.profilePic}`
-                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                            conv.otherUser?.fullName || "User"
-                          )}&background=random`
-                    }
-                    alt={conv.otherUser?.fullName}
-                    className="w-14 h-14 rounded-full object-cover border border-gray-200"
-                  />
-                  <div>
-                    <h3 className="font-bold text-gray-900">
-                      {conv.otherUser?.fullName || "User"}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      You {conv.role === "sent" ? "want to learn" : "teach"}{" "}
-                      <span className="font-semibold text-indigo-600">
-                        {conv.learnSkill}
-                      </span>{" "}
-                      and {conv.role === "sent" ? "teach" : "learn"}{" "}
-                      <span className="font-semibold text-green-600">
-                        {conv.teachSkill}
-                      </span>
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Started on{" "}
-                      {new Date(conv.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() =>
-                      setActiveChat({
-                        requestId: conv.id,
-                        otherUser: conv.otherUser
-                      })
-                    }
-                    className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors flex items-center gap-2"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 10h.01M12 10h.01M16 10h.01M21 10c0 3.866-3.582 7-8 7a8.96 8.96 0 01-3.917-.885L5 18l1.2-3.2A6.99 6.99 0 013 10c0-3.866 3.582-7 8-7s8 3.134 8 7z"
-                      />
-                    </svg>
-                    <span>Open Chat</span>
-                  </button>
-                </div>
+          <>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-700">Chats</span>
+                <span className="text-xs text-gray-400">{conversations.length} active</span>
               </div>
-            ))}
-          </div>
+              <div className="max-h-[60vh] overflow-y-auto">
+                {conversations.map((conv) => {
+                  const isActive = activeChat && activeChat.requestId === conv.id;
+                  return (
+                    <button
+                      key={conv.id}
+                      onClick={() =>
+                        setActiveChat({
+                          requestId: conv.id,
+                          otherUser: conv.otherUser
+                        })
+                      }
+                      className={`w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-indigo-50 transition-colors ${
+                        isActive ? "bg-indigo-50 border-l-4 border-indigo-500" : ""
+                      }`}
+                    >
+                      <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold">
+                        {conv.otherUser?.profilePic ? (
+                          <img
+                            src={`http://localhost:5000/uploads/${conv.otherUser.profilePic}`}
+                            alt={conv.otherUser?.fullName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          (conv.otherUser?.fullName || "U").charAt(0)
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-gray-900">
+                            {conv.otherUser?.fullName || "User"}
+                          </span>
+                          <span className="text-[10px] text-gray-400">
+                            {new Date(conv.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                          You {conv.role === "sent" ? "want to learn" : "teach"}{" "}
+                          <span className="font-semibold text-indigo-600">
+                            {conv.learnSkill}
+                          </span>{" "}
+                          and {conv.role === "sent" ? "teach" : "learn"}{" "}
+                          <span className="font-semibold text-green-600">
+                            {conv.teachSkill}
+                          </span>
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {activeChat && (
+              <ChatBox
+                requestId={activeChat.requestId}
+                currentUser={currentUser}
+                otherUser={activeChat.otherUser}
+                onClose={() => setActiveChat(null)}
+              />
+            )}
+          </>
         )}
       </div>
-
-      {activeChat && (
-        <ChatBox
-          requestId={activeChat.requestId}
-          currentUser={currentUser}
-          otherUser={activeChat.otherUser}
-          onClose={() => setActiveChat(null)}
-        />
-      )}
     </div>
   );
 };
 
 export default Conversations;
-

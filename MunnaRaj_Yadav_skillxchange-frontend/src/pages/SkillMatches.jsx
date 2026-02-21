@@ -10,6 +10,20 @@ const SkillMatches = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const isAdminAccount = (user) => {
+    if (!user) return false;
+    const role = (user.role || "").toLowerCase();
+    const email = (user.email || "").toLowerCase();
+    const fullName = (user.fullName || user.name || "").toLowerCase();
+    const username = (user.username || "").toLowerCase();
+    return (
+      role === "admin" ||
+      email === "rajyadavproject@gmail.com" ||
+      fullName.includes("system admin") ||
+      username === "admin"
+    );
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -123,8 +137,10 @@ const SkillMatches = () => {
             </div>
           )}
 
-          {/* Matches */}
-          {matches.map((user) => (
+          {/* Matches (hide admin account) */}
+          {matches
+            .filter((user) => !isAdminAccount(user))
+            .map((user) => (
             <div key={user._id} className="user-match-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
               <div className="p-6">
                 <div className="flex items-center space-x-4 mb-4">
