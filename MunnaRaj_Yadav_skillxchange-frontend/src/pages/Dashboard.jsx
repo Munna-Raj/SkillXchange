@@ -1,9 +1,9 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import NotificationBell from "../components/NotificationBell";
-import ChatBox from "../components/ChatBox";
 import { getMatchesApi } from "../services/matchService";
 import { getReceivedRequestsApi } from "../services/requestService";
+import { useChat } from "../context/ChatContext";
 
 function StatCard({ title, value, sub }) {
   return (
@@ -47,13 +47,13 @@ function SecondaryButton({ children, to }) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { openChat } = useChat();
   const [userProfile, setUserProfile] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [recommendedMatches, setRecommendedMatches] = useState([]);
   const [loadingMatches, setLoadingMatches] = useState(true);
   const [recentRequests, setRecentRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
-   const [activeChat, setActiveChat] = useState(null);
 
   const isAdminAccount = (user) => {
     if (!user) return false;
@@ -71,7 +71,7 @@ export default function Dashboard() {
 
   const openChatFromRequest = (request) => {
     if (!request || request.status !== "accepted") return;
-    setActiveChat({
+    openChat({
       requestId: request._id,
       otherUser: request.senderId,
     });
@@ -528,15 +528,6 @@ export default function Dashboard() {
             </div>
           </section>
         </div>
-
-        {activeChat && (
-          <ChatBox
-            requestId={activeChat.requestId}
-            currentUser={data}
-            otherUser={activeChat.otherUser}
-            onClose={() => setActiveChat(null)}
-          />
-        )}
       </main>
     </div>
   );

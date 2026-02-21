@@ -40,6 +40,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
@@ -57,7 +58,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
 
   const containerClass =
     variant === "floating"
-      ? "fixed bottom-6 left-6 w-80 md:w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col z-50 overflow-hidden animate-slide-up"
+      ? "fixed bottom-4 right-4 w-80 md:w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col z-50 overflow-hidden animate-slide-up"
       : "flex-1 h-full bg-white rounded-2xl shadow-lg border border-gray-100 flex flex-col overflow-hidden";
 
   return (

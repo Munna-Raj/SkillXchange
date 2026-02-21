@@ -20,6 +20,7 @@ import ComingSoon from "./pages/ComingSoon";
 import Services from "./pages/Services";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ChatProvider } from "./context/ChatContext";
 
 function Layout() {
   const location = useLocation();
@@ -146,7 +147,9 @@ function Layout() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Layout />
+      <ChatProvider>
+        <Layout />
+      </ChatProvider>
     </BrowserRouter>
   );
 }
