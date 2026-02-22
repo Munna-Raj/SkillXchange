@@ -39,11 +39,11 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="home-page min-h-screen bg-white text-gray-900 flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="home-page min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
       <div className="home-bg-elements absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
       <header className="fixed top-0 inset-x-0 z-20 bg-white/95 backdrop-blur border-b border-gray-100">
@@ -111,21 +111,21 @@ export default function Home() {
           </p>
 
           <div className="grid gap-6 md:grid-cols-3 mb-10">
-            <div className="feature-card bg-white rounded-2xl p-6 border border-gray-200 shadow-lg">
+            <div className="feature-card bg-gradient-to-br from-indigo-50 via-sky-50 to-emerald-50 border-indigo-100">
               <div className="text-3xl mb-3">🎯</div>
               <h3 className="feature-title text-lg font-semibold mb-2 text-gray-900">Smart Matching</h3>
               <p className="feature-desc text-sm text-gray-600">
                 Our matching engine connects you with people who want to learn the skills you can teach.
               </p>
             </div>
-            <div className="feature-card bg-white rounded-2xl p-6 border border-gray-200 shadow-lg">
+            <div className="feature-card bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 border-amber-100">
               <div className="text-3xl mb-3">🤝</div>
               <h3 className="feature-title text-lg font-semibold mb-2 text-gray-900">Request & Exchange</h3>
               <p className="feature-desc text-sm text-gray-600">
                 Send and receive requests, chat, and plan sessions directly from the dashboard.
               </p>
             </div>
-            <div className="feature-card bg-white rounded-2xl p-6 border border-gray-200 shadow-lg">
+            <div className="feature-card bg-gradient-to-br from-purple-50 via-fuchsia-50 to-sky-50 border-purple-100">
               <div className="text-3xl mb-3">📊</div>
               <h3 className="feature-title text-lg font-semibold mb-2 text-gray-900">Feedback & Growth</h3>
               <p className="feature-desc text-sm text-gray-600">
@@ -148,21 +148,21 @@ export default function Home() {
           <div className="grid gap-4 md:grid-cols-3">
             {featuredUsers.length === 0 ? (
               <>
-                <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
+                <div className="rounded-xl bg-gradient-to-br from-indigo-50/90 via-sky-50/90 to-emerald-50/90 p-4 border border-indigo-100 shadow-sm hover:shadow-md hover:-translate-y-1 transform transition-all duration-300">
                   <p className="text-sm font-semibold text-gray-900 mb-1">Aarav • Frontend</p>
                   <p className="text-xs text-gray-600 mb-2">Can teach React • Wants to learn Node.js</p>
                   <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
                     92% Match
                   </span>
                 </div>
-                <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
+                <div className="rounded-xl bg-gradient-to-br from-pink-50/90 via-rose-50/90 to-amber-50/90 p-4 border border-pink-100 shadow-sm hover:shadow-md hover:-translate-y-1 transform transition-all duration-300">
                   <p className="text-sm font-semibold text-gray-900 mb-1">Sara • Design</p>
                   <p className="text-xs text-gray-600 mb-2">Can teach UI/UX • Wants to learn JavaScript</p>
                   <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
                     88% Match
                   </span>
                 </div>
-                <div className="rounded-xl bg-gray-50 p-4 border border-gray-200">
+                <div className="rounded-xl bg-gradient-to-br from-emerald-50/90 via-teal-50/90 to-blue-50/90 p-4 border border-emerald-100 shadow-sm hover:shadow-md hover:-translate-y-1 transform transition-all duration-300">
                   <p className="text-sm font-semibold text-gray-900 mb-1">Rahul • Data</p>
                   <p className="text-xs text-gray-600 mb-2">Can teach Python • Wants to learn Public Speaking</p>
                   <span className="inline-block text-[11px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
@@ -172,7 +172,10 @@ export default function Home() {
               </>
             ) : (
               featuredUsers.slice(0, 3).map((user) => (
-                <div key={user._id} className="rounded-xl bg-gray-50 p-4 border border-gray-200">
+                <div
+                  key={user._id}
+                  className="rounded-xl bg-gradient-to-br from-white/90 via-indigo-50/90 to-sky-50/90 p-4 border border-indigo-100 shadow-sm hover:shadow-md hover:-translate-y-1 transform transition-all duration-300"
+                >
                   <p className="text-sm font-semibold text-gray-900 mb-1">
                     {user.fullName} {user.username ? `• @${user.username}` : ""}
                   </p>
@@ -193,7 +196,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="homeSectionCard bg-gray-50">
+        <section className="homeSectionCard">
           <h2 className="text-lg font-semibold text-gray-900 mb-3">Skills available in the system</h2>
           <p className="text-sm text-gray-600 mb-3">
             A sample of skills learners and mentors are already exchanging:
@@ -201,28 +204,28 @@ export default function Home() {
           <div className="flex flex-wrap gap-2">
             {sampleSkills.length === 0 ? (
               <>
-                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                <span className="px-3 py-1 text-xs rounded-full bg-indigo-50 border border-indigo-100 text-indigo-800 hover:bg-indigo-100 hover:-translate-y-0.5 transform transition-all duration-200">
                   React & Frontend
                 </span>
-                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                <span className="px-3 py-1 text-xs rounded-full bg-sky-50 border border-sky-100 text-sky-800 hover:bg-sky-100 hover:-translate-y-0.5 transform transition-all duration-200">
                   Node.js & APIs
                 </span>
-                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                <span className="px-3 py-1 text-xs rounded-full bg-emerald-50 border border-emerald-100 text-emerald-800 hover:bg-emerald-100 hover:-translate-y-0.5 transform transition-all duration-200">
                   Data Structures & Algorithms
                 </span>
-                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                <span className="px-3 py-1 text-xs rounded-full bg-purple-50 border border-purple-100 text-purple-800 hover:bg-purple-100 hover:-translate-y-0.5 transform transition-all duration-200">
                   UI/UX Design
                 </span>
-                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                <span className="px-3 py-1 text-xs rounded-full bg-pink-50 border border-pink-100 text-pink-800 hover:bg-pink-100 hover:-translate-y-0.5 transform transition-all duration-200">
                   Graphic Design
                 </span>
-                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                <span className="px-3 py-1 text-xs rounded-full bg-amber-50 border border-amber-100 text-amber-800 hover:bg-amber-100 hover:-translate-y-0.5 transform transition-all duration-200">
                   Public Speaking
                 </span>
-                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                <span className="px-3 py-1 text-xs rounded-full bg-teal-50 border border-teal-100 text-teal-800 hover:bg-teal-100 hover:-translate-y-0.5 transform transition-all duration-200">
                   English Communication
                 </span>
-                <span className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800">
+                <span className="px-3 py-1 text-xs rounded-full bg-blue-50 border border-blue-100 text-blue-800 hover:bg-blue-100 hover:-translate-y-0.5 transform transition-all duration-200">
                   Career & Resume
                 </span>
               </>
@@ -230,7 +233,7 @@ export default function Home() {
               sampleSkills.map((name) => (
                 <span
                   key={name}
-                  className="px-3 py-1 text-xs rounded-full bg-white border border-gray-200 text-gray-800"
+                  className="px-3 py-1 text-xs rounded-full bg-sky-50 border border-sky-100 text-sky-800 hover:bg-sky-100 hover:-translate-y-0.5 transform transition-all duration-200"
                 >
                   {name}
                 </span>
