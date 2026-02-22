@@ -118,7 +118,7 @@ export default function Home() {
                 Our matching engine connects you with people who want to learn the skills you can teach.
               </p>
             </div>
-            <div className="feature-card bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 border-rose-100">
+            <div className="feature-card bg-gradient-to-br from-amber-100 via-orange-100 to-rose-100 border-amber-200">
               <div className="text-3xl mb-3">🤝</div>
               <h3 className="feature-title text-lg font-semibold mb-2 text-gray-900">Request & Exchange</h3>
               <p className="feature-desc text-sm text-gray-600">

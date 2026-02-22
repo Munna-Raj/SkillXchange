@@ -54,6 +54,7 @@ export default function Dashboard() {
   const [recentRequests, setRecentRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [activeChat, setActiveChat] = useState(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const isAdminAccount = (user) => {
     if (!user) return false;
@@ -271,18 +272,50 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-            <button
-              onClick={() => navigate("/profile")}
-              className="rounded-xl bg-blue-100 px-3 py-2 text-sm font-semibold text-blue-800 ring-1 ring-blue-300 hover:bg-blue-200"
-            >
-              Profile
-            </button>
-            <button
-              onClick={logout}
-              className="rounded-xl bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 hover:bg-gray-200"
-            >
-              Logout
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen((prev) => !prev)}
+                className="rounded-xl bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 hover:bg-gray-200 flex items-center gap-1"
+              >
+                <span>⚙️</span>
+                <span className="hidden sm:inline">Settings</span>
+              </button>
+              {isSettingsOpen && (
+                <div className="absolute right-0 mt-2 w-40 rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 py-1 text-sm z-10">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSettingsOpen(false);
+                      navigate("/profile");
+                    }}
+                    className="block w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-100"
+                  >
+                    Profile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSettingsOpen(false);
+                      navigate("/profile");
+                    }}
+                    className="block w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-100"
+                  >
+                    Account Settings
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSettingsOpen(false);
+                      logout();
+                    }}
+                    className="block w-full px-3 py-2 text-left text-red-600 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>

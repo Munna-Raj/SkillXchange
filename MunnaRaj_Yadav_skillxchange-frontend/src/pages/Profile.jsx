@@ -43,6 +43,7 @@ export default function Profile() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [followListType, setFollowListType] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     // Admin check
@@ -129,6 +130,7 @@ export default function Profile() {
       setProfile(data.user);
       setSuccess("Profile updated successfully!");
       setTimeout(() => setSuccess(""), 3000);
+      setIsEditing(false);
     } catch (err) {
       setError(err.message || "Update failed");
     } finally {
@@ -145,6 +147,7 @@ export default function Profile() {
     });
     setError("");
     setSuccess("");
+    setIsEditing(false);
   };
 
   // Profile Pic
@@ -453,6 +456,7 @@ export default function Profile() {
                     value={editForm.fullName}
                     onChange={handleChange}
                     className="input-field"
+                    disabled={!isEditing}
                     required
                   />
                 </div>
@@ -463,9 +467,8 @@ export default function Profile() {
                   type="email"
                   name="email"
                   value={editForm.email}
-                  onChange={handleChange}
-                  className="input-field"
-                  required
+                  className="input-field-disabled"
+                  disabled
                 />
               </div>
               <div>
@@ -476,6 +479,7 @@ export default function Profile() {
                   onChange={handleChange}
                   rows="3"
                   className="input-field"
+                  disabled={!isEditing}
                   placeholder="Tell us about yourself..."
                 />
               </div>
@@ -487,15 +491,36 @@ export default function Profile() {
                   value={editForm.contactNumber}
                   onChange={handleChange}
                   className="input-field"
+                  disabled={!isEditing}
                   placeholder="+977 9812345678"
                 />
               </div>
-              <div className="flex gap-3 justify-end">
-                <button type="button" onClick={handleCancel} disabled={updating} className="btn-secondary">Cancel</button>
-                <button type="submit" disabled={updating} className="btn-primary">
-                  {updating ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
+              {isEditing ? (
+                <div className="flex gap-3 justify-end">
+                  <button type="button" onClick={handleCancel} disabled={updating} className="btn-secondary">Cancel</button>
+                  <button type="submit" disabled={updating} className="btn-primary">
+                    {updating ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditForm({
+                        fullName: profile.fullName,
+                        email: profile.email,
+                        bio: profile.bio || "",
+                        contactNumber: profile.contactNumber || ""
+                      });
+                      setIsEditing(true);
+                    }}
+                    className="btn-primary"
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
             </form>
           </div>
 
