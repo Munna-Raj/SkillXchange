@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const User = require("../models/User");
 const fs = require("fs");
 const path = require("path");
@@ -5,6 +6,10 @@ const path = require("path");
 // GET PROFILE 
 exports.getProfile = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+      return res.status(401).json({ msg: "Invalid user" });
+    }
+
     const user = await User.findById(req.user.id)
       .select("-password -resetToken -resetTokenExpire")
       .populate("followers", "fullName username profilePic")

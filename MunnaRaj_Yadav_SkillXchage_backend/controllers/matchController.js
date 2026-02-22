@@ -1,8 +1,12 @@
+const mongoose = require("mongoose");
 const User = require("../models/User");
 
 // Matches
 const getMatches = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+      return res.status(401).json({ message: "Invalid user" });
+    }
     // User skills
     const currentUser = await User.findById(req.user.id);
     if (!currentUser) {

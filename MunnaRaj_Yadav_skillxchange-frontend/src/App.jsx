@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import AccountSettings from "./pages/AccountSettings";
 import SkillSearch from "./pages/SkillSearch";
 import SearchResults from "./pages/SearchResults";
 import SkillMatches from "./pages/SkillMatches";
@@ -130,6 +131,14 @@ function Layout() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <AccountSettings />
             </ProtectedRoute>
           }
         />

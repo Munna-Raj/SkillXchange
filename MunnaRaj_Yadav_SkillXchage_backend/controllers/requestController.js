@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const SkillExchangeRequest = require("../models/SkillExchangeRequest");
 const User = require("../models/User");
 const { createNotification } = require("./notificationController");
@@ -5,6 +6,9 @@ const { createNotification } = require("./notificationController");
 // Send skill exchange request
 exports.sendRequest = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+      return res.status(401).json({ msg: "Invalid user" });
+    }
     const { receiverId, teachSkill, learnSkill } = req.body;
     const senderId = req.user.id;
 
@@ -53,6 +57,10 @@ exports.sendRequest = async (req, res) => {
 // Get sent requests
 exports.getSentRequests = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+      return res.status(401).json({ msg: "Invalid user" });
+    }
+
     const requests = await SkillExchangeRequest.find({ senderId: req.user.id })
       .populate("receiverId", "fullName username profilePic")
       .sort({ createdAt: -1 });
@@ -66,6 +74,10 @@ exports.getSentRequests = async (req, res) => {
 // Get received requests
 exports.getReceivedRequests = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+      return res.status(401).json({ msg: "Invalid user" });
+    }
+
     const requests = await SkillExchangeRequest.find({ receiverId: req.user.id })
       .populate("senderId", "fullName username profilePic")
       .sort({ createdAt: -1 });

@@ -1,8 +1,12 @@
+const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
 
 // User notifications
 exports.getNotifications = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+      return res.status(401).json({ msg: "Invalid user" });
+    }
     const notifications = await Notification.find({ userId: req.user.id })
       .sort({ createdAt: -1 })
       .limit(20);

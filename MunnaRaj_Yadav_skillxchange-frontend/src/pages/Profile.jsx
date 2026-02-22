@@ -4,6 +4,24 @@ import { addSkillApi, deleteSkillApi } from "../services/profileService";
 import { getFeedbackForUser } from "../services/feedbackService";
 import NotificationBell from "../components/NotificationBell";
 
+const contributionWeeks = [
+  [0, 1, 2, 3, 4, 2, 1],
+  [0, 0, 1, 2, 3, 4, 2],
+  [1, 2, 3, 4, 3, 2, 1],
+  [0, 1, 0, 2, 1, 3, 4],
+  [2, 3, 4, 3, 2, 1, 0],
+  [0, 1, 2, 1, 0, 2, 3],
+  [1, 2, 3, 2, 1, 3, 4],
+];
+
+const getContributionClass = (value) => {
+  if (value === 0) return "bg-gray-100";
+  if (value === 1) return "bg-emerald-100";
+  if (value === 2) return "bg-emerald-300";
+  if (value === 3) return "bg-emerald-500";
+  return "bg-emerald-700";
+};
+
 export default function Profile() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -684,6 +702,47 @@ export default function Profile() {
                     ))}
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+
+          <div className="profile-card">
+            <h3 className="card-title mb-2">Contribution Graph</h3>
+            <p className="text-xs text-gray-500 mb-4">
+              Activity heatmap preview. This will show your SkillXchange activity in future.
+            </p>
+            <div className="flex items-start gap-3">
+              <div className="flex flex-col text-[10px] text-gray-400 gap-1 pt-4">
+                <span>Sun</span>
+                <span>Mon</span>
+                <span>Tue</span>
+                <span>Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+              </div>
+              <div className="flex-1 overflow-x-auto">
+                <div className="grid grid-flow-col auto-cols-max gap-[3px]">
+                  {contributionWeeks.map((week, weekIndex) => (
+                    <div key={weekIndex} className="grid grid-rows-7 gap-[3px]">
+                      {week.map((value, dayIndex) => (
+                        <div
+                          key={dayIndex}
+                          className={`h-3 w-3 rounded-[3px] ${getContributionClass(value)}`}
+                        />
+                      ))}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 flex justify-between text-[10px] text-gray-400 max-w-xs">
+                  <span>Jan</span>
+                  <span>Feb</span>
+                  <span>Mar</span>
+                  <span>Apr</span>
+                  <span>May</span>
+                  <span>Jun</span>
+                  <span>Jul</span>
+                </div>
               </div>
             </div>
           </div>

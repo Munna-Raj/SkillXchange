@@ -297,7 +297,7 @@ export default function Dashboard() {
                     type="button"
                     onClick={() => {
                       setIsSettingsOpen(false);
-                      navigate("/profile");
+                      navigate("/settings");
                     }}
                     className="block w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-100"
                   >
