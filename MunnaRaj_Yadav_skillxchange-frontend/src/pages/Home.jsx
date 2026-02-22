@@ -118,14 +118,14 @@ export default function Home() {
                 Our matching engine connects you with people who want to learn the skills you can teach.
               </p>
             </div>
-            <div className="feature-card bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 border-amber-100">
+            <div className="feature-card bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 border-rose-100">
               <div className="text-3xl mb-3">🤝</div>
               <h3 className="feature-title text-lg font-semibold mb-2 text-gray-900">Request & Exchange</h3>
               <p className="feature-desc text-sm text-gray-600">
                 Send and receive requests, chat, and plan sessions directly from the dashboard.
               </p>
             </div>
-            <div className="feature-card bg-gradient-to-br from-purple-50 via-fuchsia-50 to-sky-50 border-purple-100">
+            <div className="feature-card bg-gradient-to-br from-sky-50 via-indigo-50 to-purple-50 border-sky-100">
               <div className="text-3xl mb-3">📊</div>
               <h3 className="feature-title text-lg font-semibold mb-2 text-gray-900">Feedback & Growth</h3>
               <p className="feature-desc text-sm text-gray-600">
