@@ -57,6 +57,18 @@ const Conversations = () => {
     };
 
     fetchConversations();
+
+    try {
+      const stored = localStorage.getItem("activeChat");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.requestId && parsed.otherUser) {
+          setActiveChat(parsed);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to restore active chat", err);
+    }
   }, []);
 
   return (
@@ -116,12 +128,18 @@ const Conversations = () => {
                   return (
                     <button
                       key={conv.id}
-                      onClick={() =>
-                        setActiveChat({
+                      onClick={() => {
+                        const chatData = {
                           requestId: conv.id,
-                          otherUser: conv.otherUser
-                        })
-                      }
+                          otherUser: conv.otherUser,
+                        };
+                        setActiveChat(chatData);
+                        try {
+                          localStorage.setItem("activeChat", JSON.stringify(chatData));
+                        } catch (err) {
+                          console.error("Failed to persist active chat", err);
+                        }
+                      }}
                       className={`w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-indigo-50 transition-colors ${
                         isActive ? "bg-indigo-50 border-l-4 border-indigo-500" : ""
                       }`}
@@ -168,7 +186,14 @@ const Conversations = () => {
                 requestId={activeChat.requestId}
                 currentUser={currentUser}
                 otherUser={activeChat.otherUser}
-                onClose={() => setActiveChat(null)}
+                onClose={() => {
+                  setActiveChat(null);
+                  try {
+                    localStorage.removeItem("activeChat");
+                  } catch (err) {
+                    console.error("Failed to clear active chat", err);
+                  }
+                }}
               />
             )}
           </>

@@ -1,9 +1,9 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import NotificationBell from "../components/NotificationBell";
+import ChatBox from "../components/ChatBox";
 import { getMatchesApi } from "../services/matchService";
 import { getReceivedRequestsApi } from "../services/requestService";
-import { useChat } from "../context/ChatContext";
 
 function StatCard({ title, value, sub }) {
   return (
@@ -47,13 +47,13 @@ function SecondaryButton({ children, to }) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { openChat } = useChat();
   const [userProfile, setUserProfile] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [recommendedMatches, setRecommendedMatches] = useState([]);
   const [loadingMatches, setLoadingMatches] = useState(true);
   const [recentRequests, setRecentRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
+  const [activeChat, setActiveChat] = useState(null);
 
   const isAdminAccount = (user) => {
     if (!user) return false;
@@ -71,10 +71,20 @@ export default function Dashboard() {
 
   const openChatFromRequest = (request) => {
     if (!request || request.status !== "accepted") return;
-    openChat({
+    const chatData = {
       requestId: request._id,
-      otherUser: request.senderId,
-    });
+      otherUser: {
+        _id: request.senderId._id,
+        fullName: request.senderId.fullName,
+        profilePic: request.senderId.profilePic,
+      },
+    };
+    setActiveChat(chatData);
+    try {
+      localStorage.setItem("activeChat", JSON.stringify(chatData));
+    } catch (err) {
+      console.error("Failed to persist active chat", err);
+    }
   };
 
   // Initial user data from storage
@@ -84,6 +94,20 @@ export default function Dashboard() {
       return user ? JSON.parse(user) : {};
     } catch (e) {
       return {};
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("activeChat");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.requestId && parsed.otherUser) {
+          setActiveChat(parsed);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to restore active chat", err);
     }
   }, []);
 
@@ -528,6 +552,22 @@ export default function Dashboard() {
             </div>
           </section>
         </div>
+
+        {activeChat && (
+          <ChatBox
+            requestId={activeChat.requestId}
+            currentUser={data}
+            otherUser={activeChat.otherUser}
+            onClose={() => {
+              setActiveChat(null);
+              try {
+                localStorage.removeItem("activeChat");
+              } catch (err) {
+                console.error("Failed to clear active chat", err);
+              }
+            }}
+          />
+        )}
       </main>
     </div>
   );
