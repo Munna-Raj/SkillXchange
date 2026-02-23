@@ -191,7 +191,7 @@ export default function Register() {
                     focusedField === "username" 
                       ? "ring-indigo-500 dark:ring-indigo-400 bg-white/10 dark:bg-gray-700/70" 
                       : "ring-white/20 dark:ring-gray-600/50"
-                  }`} placeholder="johndoe"}
+                  }`} placeholder="Your-Name"}
                   required
                 />
               </div>
