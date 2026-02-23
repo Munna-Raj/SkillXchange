@@ -17,7 +17,8 @@ function StatCard({ title, value, sub }) {
 
 function Pill({ children }) {
   return (
-    <span className="pill-badge inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-700 font-medium">
+    <span className="pill-badge inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+      style={{ backgroundColor: "#E6E6FA", color: "#4b0082" }}>
       {children}
     </span>
   );
@@ -27,7 +28,8 @@ function PrimaryButton({ children, to }) {
   return (
     <Link
       to={to}
-      className="btn-primary inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+      className="btn-primary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-colors"
+      style={{ backgroundImage: "linear-gradient(to right, #4b0082, #E6E6FA)" }}
     >
       {children}
     </Link>
@@ -196,19 +198,29 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard-page min-h-screen bg-white text-gray-900 transition-colors duration-200">
+    <div className="dashboard-page min-h-screen text-gray-900 transition-colors duration-200">
       {/* Background glow */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute top-40 right-[-8rem] h-72 w-72 rounded-full bg-indigo-500/5 blur-3xl" />
-        <div className="absolute bottom-[-8rem] left-[-8rem] h-72 w-72 rounded-full bg-purple-500/5 blur-3xl" />
-      </div>
+        <div className="pointer-events-none fixed inset-0 overflow-hidden">
+          <div
+            className="absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full blur-3xl"
+            style={{ backgroundColor: "rgba(75, 0, 130, 0.25)" }}
+          />
+          <div
+            className="absolute top-40 right-[-8rem] h-72 w-72 rounded-full blur-3xl"
+            style={{ backgroundColor: "rgba(230, 230, 250, 0.9)" }}
+          />
+          <div
+            className="absolute bottom-[-8rem] left-[-8rem] h-72 w-72 rounded-full blur-3xl"
+            style={{ backgroundColor: "rgba(75, 0, 130, 0.15)" }}
+          />
+        </div>
 
       {/* Navbar */}
-      <header className="navbar-container sticky top-0 z-20 border-b border-gray-200 bg-white backdrop-blur">
+      <header className="navbar-container sticky top-0 z-20 border-b border-gray-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="logo-box grid h-10 w-10 place-items-center rounded-xl ring-1 ring-blue-500/30 overflow-hidden">
+            <div className="logo-box grid h-10 w-10 place-items-center rounded-xl ring-1 overflow-hidden"
+                 style={{ boxShadow: "0 10px 30px rgba(75, 0, 130, 0.25)" }}>
               <img 
                 src="/src/Image/logo skillxChange.jpeg" 
                 alt="SkillXchange Logo" 
@@ -234,7 +246,8 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/conversations")}
-              className="hidden sm:inline-flex items-center gap-1 rounded-xl bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200 hover:bg-indigo-100"
+              className="hidden sm:inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-semibold ring-1 hover:bg-[rgba(230,230,250,0.9)]"
+              style={{ backgroundColor: "#E6E6FA", color: "#4b0082", borderColor: "#4b0082" }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -323,7 +336,7 @@ export default function Dashboard() {
       {/* Content */}
       <main className="dashboard-main relative mx-auto max-w-6xl px-4 py-8">
         {/* Hero */}
-        <div className="hero-section rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
+        <div className="hero-section rounded-3xl bg-white/90 p-6 ring-1 ring-gray-200 shadow-lg">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
@@ -378,50 +391,59 @@ export default function Dashboard() {
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               {/* Login User Card (First in list) */}
               {userProfile && (
-                <div className="match-card rounded-2xl bg-blue-50/50 p-5 ring-1 ring-blue-200 shadow-sm relative overflow-hidden">
-                  <div className="absolute top-0 right-0">
-                    <span className="bg-blue-600 text-white text-[10px] px-3 py-1 font-bold uppercase tracking-widest rounded-bl-xl shadow-sm">
+                <div className="match-card rounded-2xl p-5 ring-1 shadow-sm relative overflow-hidden"
+                     style={{ backgroundColor: "rgba(230, 230, 250, 0.6)", borderColor: "#E6E6FA" }}>
+                    <div className="absolute top-0 right-0">
+                      <span className="text-white text-[10px] px-3 py-1 font-bold uppercase tracking-widest rounded-bl-xl shadow-sm"
+                            style={{ backgroundColor: "#4b0082" }}>
                       Me
                     </span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-blue-200">
+                      <div
+                        className="w-12 h-12 rounded-full overflow-hidden border-2"
+                        style={{ borderColor: "#E6E6FA" }}
+                      >
                         {getProfilePictureUrl() ? (
                           <img src={getProfilePictureUrl()} alt="Me" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                          <div className="w-full h-full flex items-center justify-center font-bold"
+                               style={{ backgroundColor: "#E6E6FA", color: "#4b0082" }}>
                             {userProfile.fullName?.charAt(0)}
                           </div>
                         )}
                       </div>
                       <div>
                         <p className="text-base font-bold text-gray-900">{userProfile.fullName}</p>
-                        <p className="text-xs text-blue-600 font-medium">Your Profile Details</p>
+                        <p className="text-xs font-medium" style={{ color: "#4b0082" }}>Your Profile Details</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-2 gap-3">
-                    <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-blue-100">
-                      <p className="text-[10px] uppercase font-bold text-blue-500 tracking-tight">I Teach</p>
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="rounded-xl bg-white p-3 shadow-sm ring-1"
+                           style={{ borderColor: "#E6E6FA" }}>
+                        <p className="text-[10px] uppercase font-bold tracking-tight" style={{ color: "#4b0082" }}>I Teach</p>
                       <p className="mt-1 text-sm font-semibold text-gray-800">
                         {userProfile.skillsToTeach?.[0]?.name || "Not set"}
                       </p>
                     </div>
-                    <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-purple-100">
-                      <p className="text-[10px] uppercase font-bold text-purple-500 tracking-tight">I Want to Learn</p>
+                      <div className="rounded-xl bg-white p-3 shadow-sm ring-1"
+                           style={{ borderColor: "#E6E6FA" }}>
+                        <p className="text-[10px] uppercase font-bold tracking-tight" style={{ color: "#4b0082" }}>I Want to Learn</p>
                       <p className="mt-1 text-sm font-semibold text-gray-800">
                         {userProfile.skillsToLearn?.[0]?.name || "Not set"}
                       </p>
                     </div>
                   </div>
 
-                  <div className="mt-4 flex gap-3">
-                    <button 
-                      onClick={() => navigate("/profile")}
-                      className="flex-1 rounded-xl bg-white border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 transition-colors"
-                    >
+                    <div className="mt-4 flex gap-3">
+                      <button 
+                        onClick={() => navigate("/profile")}
+                        className="flex-1 rounded-xl bg-white border px-4 py-2 text-sm font-semibold hover:bg-[rgba(230,230,250,0.9)] transition-colors"
+                        style={{ borderColor: "#4b0082", color: "#4b0082" }}
+                      >
                       Update My Skills
                     </button>
                   </div>

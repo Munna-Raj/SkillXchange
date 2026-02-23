@@ -155,7 +155,7 @@ export default function Register() {
                       ? "auth-input-focus"
                       : "auth-input-default"
                   }`}
-                  placeholder="johndoe"
+                  placeholder="UserName"
                   required
                 />
               </div>

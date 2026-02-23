@@ -153,7 +153,8 @@ html.dark .bg-gray-800\/50 {
 @layer components {
   /* Layout & Containers */
   .page-container {
-    @apply min-h-screen bg-gray-50 text-gray-900 transition-colors duration-200 pb-12;
+    @apply min-h-screen text-gray-900 transition-colors duration-200 pb-12;
+    background: radial-gradient(circle at top left, #E6E6FA 0%, #E6E6FA 40%, #4b0082 100%);
   }
   
   .auth-container {
@@ -337,15 +338,18 @@ html.dark .bg-gray-800\/50 {
   }
   
   .profile-bg-blob-1 {
-    @apply absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-indigo-600/20 blur-3xl;
+    @apply absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full blur-3xl;
+    background-color: rgba(75, 0, 130, 0.25);
   }
   
   .profile-bg-blob-2 {
-    @apply absolute top-40 right-[-8rem] h-72 w-72 rounded-full bg-fuchsia-500/10 blur-3xl;
+    @apply absolute top-40 right-[-8rem] h-72 w-72 rounded-full blur-3xl;
+    background-color: rgba(230, 230, 250, 0.9);
   }
 
   .nav-logo-container {
-    @apply grid h-10 w-10 place-items-center rounded-xl ring-1 ring-indigo-500/30 overflow-hidden;
+    @apply grid h-10 w-10 place-items-center rounded-xl ring-1 overflow-hidden;
+    box-shadow: 0 10px 30px rgba(75, 0, 130, 0.25);
   }
 
   .profile-pic-wrapper {
@@ -357,11 +361,13 @@ html.dark .bg-gray-800\/50 {
   }
   
   .profile-pic-placeholder {
-    @apply h-full w-full flex items-center justify-center bg-indigo-100;
+    @apply h-full w-full flex items-center justify-center;
+    background-color: #E6E6FA;
   }
   
   .profile-pic-initial {
-    @apply text-4xl font-bold text-indigo-600;
+    @apply text-4xl font-bold;
+    color: #4b0082;
   }
 
   .form-grid-2 {
