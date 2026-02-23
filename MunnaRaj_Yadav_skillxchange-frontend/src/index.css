@@ -2,8 +2,7 @@
 
 @font-face {
   font-family: "Moho Condensed";
-  src: url("/fonts/moho-condensed-regular.woff2") format("woff2"),
-       url("/fonts/moho-condensed-regular.woff") format("woff");
+  src: local("Moho Condensed"), local("MohoCondensed-Regular");
   font-weight: 400;
   font-style: normal;
   font-display: swap;

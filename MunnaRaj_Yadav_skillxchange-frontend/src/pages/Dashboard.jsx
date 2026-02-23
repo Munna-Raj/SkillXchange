@@ -383,7 +383,11 @@ export default function Dashboard() {
           <section className="recommended-section lg:col-span-2 rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">Recommended Matches</h2>
-              <Link className="text-sm text-blue-700 hover:text-blue-800" to="/matches">
+              <Link
+                className="text-sm font-semibold hover:underline"
+                style={{ color: "#4b0082" }}
+                to="/matches"
+              >
                 View all →
               </Link>
             </div>
@@ -488,14 +492,30 @@ export default function Dashboard() {
                     </div>
 
                     <div className="mt-4 grid grid-cols-2 gap-3">
-                      <div className="rounded-xl bg-blue-50 p-3 ring-1 ring-blue-100">
-                        <p className="text-[10px] uppercase font-bold text-blue-800 tracking-tight">Can Teach</p>
+                      <div
+                        className="rounded-xl p-3 ring-1"
+                        style={{ backgroundColor: "#E6E6FA", borderColor: "#4b0082" }}
+                      >
+                        <p
+                          className="text-[10px] uppercase font-bold tracking-tight"
+                          style={{ color: "#4b0082" }}
+                        >
+                          Can Teach
+                        </p>
                         <p className="mt-1 text-sm font-semibold text-gray-900">
                           {m.skillsToTeach?.[0]?.name || "Skill"}
                         </p>
                       </div>
-                      <div className="rounded-xl bg-purple-50 p-3 ring-1 ring-purple-100">
-                        <p className="text-[10px] uppercase font-bold text-purple-800 tracking-tight">Wants to Learn</p>
+                      <div
+                        className="rounded-xl bg-white p-3 ring-1"
+                        style={{ borderColor: "#E6E6FA" }}
+                      >
+                        <p
+                          className="text-[10px] uppercase font-bold tracking-tight"
+                          style={{ color: "#4b0082" }}
+                        >
+                          Wants to Learn
+                        </p>
                         <p className="mt-1 text-sm font-semibold text-gray-900">
                           {m.skillsToLearn?.[0]?.name || "Skill"}
                         </p>
@@ -503,9 +523,12 @@ export default function Dashboard() {
                     </div>
 
                     <div className="mt-4 flex gap-3">
-                      <button 
+                      <button
                         onClick={() => navigate(`/user/${m._id}`)}
-                        className="flex-1 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 shadow-sm"
+                        className="flex-1 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors"
+                        style={{
+                          backgroundImage: "linear-gradient(to right, #4b0082, #E6E6FA)",
+                        }}
                       >
                         Send Request
                       </button>
