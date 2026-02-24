@@ -19,6 +19,7 @@ import AdminRoute from "./components/AdminRoute";
 import Footer from "./components/Footer";
 import ComingSoon from "./pages/ComingSoon";
 import Services from "./pages/Services";
+import About from "./pages/About";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -46,7 +47,7 @@ function Layout() {
         <Route path="/user/:id" element={<UserProfileView />} />
         
         {/* Footer Pages */}
-        <Route path="/about" element={<ComingSoon title="About Us" />} />
+        <Route path="/about" element={<About />} />
         <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<ComingSoon title="Contact Us" />} />
         <Route path="/privacy" element={<ComingSoon title="Privacy Policy" />} />
