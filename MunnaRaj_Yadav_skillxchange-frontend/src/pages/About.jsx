@@ -48,7 +48,18 @@ export default function About() {
         </div>
       </header>
 
+      <main className="max-w-4xl mx-auto">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+            About <span style={{ color: "#4b0082" }}>SkillXchange</span>
+          </h1>
+          <p className="text-lg md:text-xl text-gray-700 leading-relaxed max-w-3xl mx-auto">
+            SkillXchange is a platform built on the belief that everyone has something to teach and everyone has something to learn. We're here to make knowledge sharing accessible, direct, and community-driven.
+          </p>
+        </div>
 
+
+      </main>
     </div>
   );
 }
