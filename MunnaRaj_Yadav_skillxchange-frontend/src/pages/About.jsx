@@ -58,7 +58,36 @@ export default function About() {
           </p>
         </div>
 
+        <div className="grid md:grid-cols-2 gap-8 mb-16">
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-white/50">
+            <h2 className="text-2xl font-bold mb-4" style={{ color: "#4b0082" }}>Our Mission</h2>
+            <p className="text-gray-700 leading-relaxed">
+              To democratize learning by enabling people to exchange skills directly with one another. We want to remove the barriers of traditional education and create a global network of peer-to-peer mentors.
+            </p>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-white/50">
+            <h2 className="text-2xl font-bold mb-4" style={{ color: "#4b0082" }}>How it Works</h2>
+            <p className="text-gray-700 leading-relaxed">
+              It's simple: you list the skills you can teach and the skills you want to learn. Our platform matches you with others who have complementary needs, allowing you to connect and start exchanging knowledge.
+            </p>
+          </div>
+        </div>
 
+        <div className="bg-white/40 backdrop-blur-md p-10 rounded-3xl border border-white/20 text-center shadow-2xl">
+          <h2 className="text-3xl font-bold mb-6">Join our community today</h2>
+          <p className="text-gray-700 mb-8 max-w-xl mx-auto">
+            Ready to share your expertise or master a new craft? Join thousands of learners and teachers on SkillXchange.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link
+              to="/register"
+              className="px-8 py-4 rounded-full text-white font-bold text-lg shadow-xl hover:scale-105 transition-transform"
+              style={{ backgroundImage: "linear-gradient(to right, #4b0082, #6a0dad)" }}
+            >
+              Get Started for Free
+            </Link>
+          </div>
+        </div>
       </main>
     </div>
   );
