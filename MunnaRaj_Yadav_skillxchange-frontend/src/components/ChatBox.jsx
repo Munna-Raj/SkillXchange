@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
-import { getChatHistoryApi } from "../services/chatService";
+import { getChatHistoryApi, uploadChatFileApi } from "../services/chatService";
 
 const socket = io("http://localhost:5000");
 
 const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floating" }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -54,6 +56,35 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
 
     socket.emit("send_message", messageData);
     setNewMessage("");
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("requestId", requestId);
+    formData.append("receiverId", otherUser.id || otherUser._id);
+
+    try {
+      setUploading(true);
+      const uploadedMsg = await uploadChatFileApi(formData);
+      
+      // Emit the uploaded message via socket to other user
+      socket.emit("send_message", {
+        ...uploadedMsg,
+        fromUpload: true // Flag to prevent duplicate saving on server if handled differently
+      });
+      
+      setMessages((prev) => [...prev, uploadedMsg]);
+    } catch (err) {
+      console.error("Upload failed", err);
+      alert("Failed to upload file. Please try again.");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const containerClass =
@@ -124,7 +155,38 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
                     ? "bg-indigo-600 text-white rounded-tr-none" 
                     : "bg-white text-gray-800 border border-gray-100 rounded-tl-none"
                 }`}>
-                  {msg.text}
+                  {msg.fileUrl && (
+                    <div className="mb-2">
+                      {msg.fileType === "image" ? (
+                        <a href={`http://localhost:5000/uploads/${msg.fileUrl}`} target="_blank" rel="noopener noreferrer">
+                          <img 
+                            src={`http://localhost:5000/uploads/${msg.fileUrl}`} 
+                            alt={msg.fileName} 
+                            className="max-w-full rounded-lg border border-white/20 hover:opacity-90 transition-opacity"
+                            style={{ maxHeight: "200px" }}
+                          />
+                        </a>
+                      ) : (
+                        <a 
+                          href={`http://localhost:5000/uploads/${msg.fileUrl}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={`flex items-center gap-2 p-2 rounded-xl border ${
+                            isMe ? "bg-white/10 border-white/20 text-white" : "bg-gray-50 border-gray-100 text-gray-700"
+                          } hover:opacity-80 transition-opacity`}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          <div className="overflow-hidden">
+                            <p className="text-xs font-bold truncate">{msg.fileName}</p>
+                            <p className="text-[10px] opacity-70">Download File</p>
+                          </div>
+                        </a>
+                      )}
+                    </div>
+                  )}
+                  {msg.text && <p>{msg.text}</p>}
                   <div className={`text-[10px] mt-1 ${isMe ? "text-indigo-100" : "text-gray-400"}`}>
                     {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
@@ -137,6 +199,27 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
       </div>
 
       <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-100 flex gap-2">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileUpload}
+          className="hidden"
+          accept="image/*, .pdf, .doc, .docx, .ppt, .pptx, .xls, .xlsx, .txt"
+        />
+        <button
+          type="button"
+          disabled={uploading}
+          onClick={() => fileInputRef.current?.click()}
+          className="p-2 text-gray-500 hover:text-indigo-600 transition-colors disabled:opacity-50"
+        >
+          {uploading ? (
+            <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+            </svg>
+          )}
+        </button>
         <input
           type="text"
           value={newMessage}
