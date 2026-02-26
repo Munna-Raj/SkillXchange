@@ -14,3 +14,13 @@ export const markChatAsReadApi = async (requestId) => {
   const response = await api.put(`/chat/read/${requestId}`, {}, { headers: getAuthHeader() });
   return response.data;
 };
+
+export const uploadChatFileApi = async (formData) => {
+  const response = await api.post("/chat/upload", formData, {
+    headers: {
+      ...getAuthHeader(),
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};

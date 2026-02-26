@@ -9,17 +9,29 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     // Unique filename
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
-    cb(null, "profile-" + uniqueSuffix + path.extname(file.originalname));
+    const prefix = file.mimetype.startsWith("image/") ? "chat-img-" : "chat-doc-";
+    cb(null, prefix + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
 // File filter
 const fileFilter = (req, file, cb) => {
-  // Images only
-  if (file.mimetype.startsWith("image/")) {
+  // Allow images and common documents
+  const allowedMimetypes = [
+    "image/jpeg", "image/png", "image/gif", "image/webp",
+    "application/pdf", "application/msword", 
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "text/plain"
+  ];
+
+  if (allowedMimetypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Only image files are allowed"), false);
+    cb(new Error("File type not supported. Please upload an image or a document."), false);
   }
 };
 
