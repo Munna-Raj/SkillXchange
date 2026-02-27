@@ -130,3 +130,76 @@ exports.getDashboardStats = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
+
+// All skills (extracted from User models)
+exports.getAllSkills = async (req, res) => {
+  try {
+    const users = await User.find().select("fullName skillsToTeach skillsToLearn");
+    
+    let allSkills = [];
+    
+    users.forEach(user => {
+      // Teaching skills
+      if (user.skillsToTeach && user.skillsToTeach.length > 0) {
+        user.skillsToTeach.forEach(skill => {
+          allSkills.push({
+            id: skill._id,
+            name: skill.name,
+            category: skill.category,
+            level: skill.level,
+            type: 'teach',
+            ownerName: user.fullName,
+            ownerId: user._id
+          });
+        });
+      }
+      
+      // Learning skills
+      if (user.skillsToLearn && user.skillsToLearn.length > 0) {
+        user.skillsToLearn.forEach(skill => {
+          allSkills.push({
+            id: skill._id,
+            name: skill.name,
+            category: skill.category,
+            level: skill.level,
+            type: 'learn',
+            ownerName: user.fullName,
+            ownerId: user._id
+          });
+        });
+      }
+    });
+
+    // Sort by name
+    allSkills.sort((a, b) => a.name.localeCompare(b.name));
+
+    res.json(allSkills);
+  } catch (err) {
+    console.error("GET ALL SKILLS ERROR:", err);
+    res.status(500).send("Server Error");
+  }
+};
+
+// Delete skill
+exports.deleteSkill = async (req, res) => {
+  try {
+    const { skillId, ownerId, type } = req.params;
+
+    const user = await User.findById(ownerId);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    if (type === 'teach') {
+      user.skillsToTeach = user.skillsToTeach.filter(s => s._id.toString() !== skillId);
+    } else {
+      user.skillsToLearn = user.skillsToLearn.filter(s => s._id.toString() !== skillId);
+    }
+
+    await user.save();
+    res.json({ msg: "Skill removed successfully" });
+  } catch (err) {
+    console.error("DELETE SKILL ERROR:", err);
+    res.status(500).send("Server Error");
+  }
+};

@@ -1,6 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { adminLogin, getAllUsers, deleteUser, getDashboardStats } = require("../controllers/adminController");
+const { 
+    adminLogin, 
+    getAllUsers, 
+    deleteUser, 
+    getDashboardStats,
+    getAllSkills,
+    deleteSkill
+} = require("../controllers/adminController");
 const adminAuth = require("../middleware/adminAuth");
 
 // @route   POST /api/admin/login
@@ -29,5 +36,15 @@ router.get("/dashboard", adminAuth, (req, res) => {
 // @desc    Get dashboard statistics
 // @access  Private (Admin only)
 router.get("/stats", adminAuth, getDashboardStats);
+
+// @route   GET /api/admin/skills
+// @desc    Get all skills
+// @access  Private (Admin only)
+router.get("/skills", adminAuth, getAllSkills);
+
+// @route   DELETE /api/admin/skills/:skillId/:ownerId/:type
+// @desc    Delete a skill
+// @access  Private (Admin only)
+router.delete("/skills/:skillId/:ownerId/:type", adminAuth, deleteSkill);
 
 module.exports = router;

@@ -47,7 +47,18 @@ const Conversations = () => {
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
 
-        setConversations(merged);
+        // Group by otherUser._id to ensure only one conversation per user
+        const uniqueConversations = [];
+        const seenUserIds = new Set();
+
+        merged.forEach((conv) => {
+          if (conv.otherUser && conv.otherUser._id && !seenUserIds.has(conv.otherUser._id)) {
+            uniqueConversations.push(conv);
+            seenUserIds.add(conv.otherUser._id);
+          }
+        });
+
+        setConversations(uniqueConversations);
       } catch (err) {
         console.error("Failed to load conversations:", err);
         setError("Failed to load conversations.");

@@ -15,10 +15,22 @@ const getDashboardStats = async () => {
   return response.data;
 };
 
+const getSkills = async () => {
+  const response = await api.get('/admin/skills');
+  return response.data;
+};
+
+const deleteSkill = async (skillId, ownerId, type) => {
+  const response = await api.delete(`/admin/skills/${skillId}/${ownerId}/${type}`);
+  return response.data;
+};
+
 const adminService = {
   getUsers,
   deleteUser,
   getDashboardStats,
+  getSkills,
+  deleteSkill,
 };
 
 export default adminService;
