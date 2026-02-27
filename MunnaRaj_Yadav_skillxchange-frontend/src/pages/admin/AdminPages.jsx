@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import adminService from '../../services/adminService';
 
 const AdminPlaceholder = ({ title }) => {
@@ -15,6 +16,7 @@ const AdminPlaceholder = ({ title }) => {
 };
 
 export const AdminSkills = () => {
+  const navigate = useNavigate();
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -98,12 +100,23 @@ export const AdminSkills = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {skill.ownerName}
+                        <button
+                          onClick={() => navigate(`/user/${skill.ownerId}`)}
+                          className="text-indigo-600 hover:text-indigo-900 font-medium hover:underline"
+                        >
+                          {skill.ownerName}
+                        </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {skill.level}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                        <button 
+                          onClick={() => navigate(`/user/${skill.ownerId}`)}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          View Profile
+                        </button>
                         <button 
                           onClick={() => handleDelete(skill.id, skill.ownerId, skill.type)}
                           className="text-red-600 hover:text-red-900"
