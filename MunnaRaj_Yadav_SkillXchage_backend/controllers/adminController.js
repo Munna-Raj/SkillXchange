@@ -106,6 +106,45 @@ exports.getDashboardStats = async (req, res) => {
     // Reports
     const pendingReports = 0;
 
+    // Skill Category Distribution
+    const allUsers = await User.find().select("skillsToTeach skillsToLearn");
+    const categoryCounts = {};
+    
+    allUsers.forEach(user => {
+      const allUserSkills = [...(user.skillsToTeach || []), ...(user.skillsToLearn || [])];
+      allUserSkills.forEach(skill => {
+        const cat = skill.category || "Uncategorized";
+        categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+      });
+    });
+
+    const categoryDistribution = Object.keys(categoryCounts).map(cat => ({
+      name: cat,
+      count: categoryCounts[cat]
+    })).sort((a, b) => b.count - a.count).slice(0, 5); // Top 5 categories
+
+    // Registration Trend (Last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const registrationTrend = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+      
+      // Reset hours for accurate date comparison if needed, 
+      // but here we can just count users created on that specific day
+      const startOfDay = new Date(d.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(d.setHours(23, 59, 59, 999));
+      
+      const count = await User.countDocuments({
+        createdAt: { $gte: startOfDay, $lte: endOfDay }
+      });
+      
+      registrationTrend.push({ day: dayName, count });
+    }
+
     // Activity
     const recentUsers = await User.find()
       .select("fullName email createdAt")
@@ -123,7 +162,9 @@ exports.getDashboardStats = async (req, res) => {
       activeRequests,
       pendingReports,
       totalSkills,
-      recentActivity
+      recentActivity,
+      categoryDistribution,
+      registrationTrend
     });
   } catch (err) {
     console.error("ADMIN STATS ERROR:", err);

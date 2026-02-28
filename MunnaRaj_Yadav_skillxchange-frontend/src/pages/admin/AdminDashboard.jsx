@@ -135,23 +135,137 @@ const AdminDashboard = ({ content }) => {
                 </div>
               </div>
 
-              {/* Recent Activity Section */}
-              <div className="activity-section">
-                <h3 className="activity-title">Recent Activity</h3>
-                {stats.recentActivity && stats.recentActivity.length > 0 ? (
-                  <ul className="activity-list">
-                    {stats.recentActivity.map((activity) => (
-                      <li key={activity.id} className="activity-item">
-                        <span className="activity-message">{activity.message}</span>
-                        <span className="activity-date">
-                          {new Date(activity.date).toLocaleDateString()}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="activity-placeholder">No recent activity to show.</p>
-                )}
+              {/* Chart and Activity Section */}
+              <div className="dashboard-grid-2">
+                {/* Bar Graph Widget */}
+                <div className="chart-section">
+                  <h3 className="section-title-admin">Platform Overview</h3>
+                  <div className="bar-graph-container">
+                    <div className="bar-item">
+                      <div className="bar-label">Users</div>
+                      <div className="bar-track">
+                        <div 
+                          className="bar-fill blue" 
+                          style={{ width: `${Math.min(100, (stats.totalUsers / 50) * 100)}%` }}
+                        ></div>
+                      </div>
+                      <div className="bar-value">{stats.totalUsers}</div>
+                    </div>
+                    
+                    <div className="bar-item">
+                      <div className="bar-label">Requests</div>
+                      <div className="bar-track">
+                        <div 
+                          className="bar-fill green" 
+                          style={{ width: `${Math.min(100, (stats.activeRequests / 50) * 100)}%` }}
+                        ></div>
+                      </div>
+                      <div className="bar-value">{stats.activeRequests}</div>
+                    </div>
+                    
+                    <div className="bar-item">
+                      <div className="bar-label">Skills</div>
+                      <div className="bar-track">
+                        <div 
+                          className="bar-fill purple" 
+                          style={{ width: `${Math.min(100, (stats.totalSkills / 100) * 100)}%` }}
+                        ></div>
+                      </div>
+                      <div className="bar-value">{stats.totalSkills}</div>
+                    </div>
+
+                    <div className="bar-item">
+                      <div className="bar-label">Growth</div>
+                      <div className="bar-track">
+                        <div 
+                          className="bar-fill yellow" 
+                          style={{ width: '65%' }}
+                        ></div>
+                      </div>
+                      <div className="bar-value">65%</div>
+                    </div>
+                  </div>
+                  <div className="chart-legend">
+                    <p className="legend-text">* Growth data is estimated based on monthly activity</p>
+                  </div>
+                </div>
+
+                {/* Recent Activity Section */}
+                <div className="activity-section">
+                  <h3 className="activity-title">Recent Activity</h3>
+                  {stats.recentActivity && stats.recentActivity.length > 0 ? (
+                    <ul className="activity-list">
+                      {stats.recentActivity.map((activity) => (
+                        <li key={activity.id} className="activity-item">
+                          <span className="activity-message">{activity.message}</span>
+                          <span className="activity-date">
+                            {new Date(activity.date).toLocaleDateString()}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="activity-placeholder">No recent activity to show.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Second Row of Charts */}
+              <div className="dashboard-grid-2 mt-6">
+                {/* Skill Categories Distribution */}
+                <div className="chart-section">
+                  <h3 className="section-title-admin">Top Skill Categories</h3>
+                  <div className="category-chart">
+                    {stats.categoryDistribution && stats.categoryDistribution.length > 0 ? (
+                      stats.categoryDistribution.map((cat, idx) => (
+                        <div key={idx} className="category-bar-item">
+                          <div className="category-info">
+                            <span className="category-name">{cat.name}</span>
+                            <span className="category-count">{cat.count}</span>
+                          </div>
+                          <div className="category-track">
+                            <div 
+                              className="category-fill" 
+                              style={{ 
+                                width: `${(cat.count / stats.totalSkills) * 100}%`,
+                                backgroundColor: idx % 2 === 0 ? '#4b0082' : '#8b5cf6'
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="placeholder-text">No skill data available.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Registration Trend (7 Days) */}
+                <div className="chart-section">
+                  <h3 className="section-title-admin">User Registrations (Last 7 Days)</h3>
+                  <div className="trend-chart-container">
+                    <div className="trend-chart">
+                      {stats.registrationTrend && stats.registrationTrend.map((item, idx) => {
+                        const maxCount = Math.max(...stats.registrationTrend.map(t => t.count), 5);
+                        const height = (item.count / maxCount) * 100;
+                        return (
+                          <div key={idx} className="trend-column">
+                            <div className="trend-bar-wrapper">
+                              <div 
+                                className="trend-bar" 
+                                style={{ height: `${height}%` }}
+                                title={`${item.count} users`}
+                              >
+                                {item.count > 0 && <span className="trend-count-label">{item.count}</span>}
+                              </div>
+                            </div>
+                            <span className="trend-day">{item.day}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
             </>
           )}

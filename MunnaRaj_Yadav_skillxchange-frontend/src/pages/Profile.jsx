@@ -748,7 +748,7 @@ export default function Profile() {
           <div className="profile-card">
             <h3 className="card-title mb-2">Contribution Graph</h3>
             <p className="text-xs text-gray-500 mb-4">
-              Activity heatmap preview. This will show your SkillXchange activity in future.
+              Activity graph workw is pending noww
             </p>
             <div className="flex items-start gap-3">
               <div className="flex flex-col text-[10px] text-gray-400 gap-1 pt-4">
