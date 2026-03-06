@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NotificationBell from "../components/NotificationBell";
 import { changePasswordApi } from "../services/authService";
+import { toast } from "react-toastify";
 
 export default function AccountSettings() {
   const navigate = useNavigate();
@@ -35,9 +36,17 @@ export default function AccountSettings() {
     e.preventDefault();
     setMessage("");
 
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      toast.error("Please fill in all fields.");
+      setMessage("Please fill in all fields.");
       setMessageType("error");
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error("New passwords do not match.");
       setMessage("New passwords do not match.");
+      setMessageType("error");
       return;
     }
 
@@ -47,12 +56,15 @@ export default function AccountSettings() {
         newPassword: passwordForm.newPassword,
         confirmPassword: passwordForm.confirmPassword,
       });
+      toast.success(res.msg || "Password changed successfully!");
+      setMessage(res.msg || "Password changed successfully!");
       setMessageType("success");
-      setMessage(res.msg);
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (error) {
+      const errorMsg = error.response?.data?.msg || "Failed to change password.";
+      toast.error(errorMsg);
+      setMessage(errorMsg);
       setMessageType("error");
-      setMessage(error.response?.data?.msg || "An error occurred.");
     }
   };
 
@@ -158,17 +170,17 @@ export default function AccountSettings() {
                   />
                 </div>
               </div>
+              
               {message && (
-                <div
-                  className={
-                    messageType === "error"
-                      ? "alert-error"
-                      : "alert-success"
-                  }
-                >
+                <div className={`text-sm mt-2 p-2 rounded-lg text-center ${
+                  messageType === "error" 
+                    ? "text-red-600 bg-red-50 border border-red-100" 
+                    : "text-green-600 bg-green-50 border border-green-100"
+                }`}>
                   {message}
                 </div>
               )}
+
               <div className="flex justify-end">
                 <button type="submit" className="btn-primary">
                   Save Changes
