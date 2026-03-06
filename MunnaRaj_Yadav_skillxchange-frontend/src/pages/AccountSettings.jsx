@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NotificationBell from "../components/NotificationBell";
+import { changePasswordApi } from "../services/authService";
 
 export default function AccountSettings() {
   const navigate = useNavigate();
@@ -30,24 +31,29 @@ export default function AccountSettings() {
     setPasswordForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
 
-    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
-      setMessageType("error");
-      setMessage("Please fill in all fields.");
-      return;
-    }
-
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       setMessageType("error");
-      setMessage("New password and confirm password do not match.");
+      setMessage("New passwords do not match.");
       return;
     }
 
-    setMessageType("info");
-    setMessage("Change password functionality will be connected soon.");
+    try {
+      const res = await changePasswordApi({
+        oldPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+        confirmPassword: passwordForm.confirmPassword,
+      });
+      setMessageType("success");
+      setMessage(res.msg);
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (error) {
+      setMessageType("error");
+      setMessage(error.response?.data?.msg || "An error occurred.");
+    }
   };
 
   return (

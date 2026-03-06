@@ -40,6 +40,36 @@ exports.signup = async (req, res) => {
   }
 };
 
+// CHANGE PASSWORD
+exports.changePassword = async (req, res) => {
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+  const userId = req.user.id; // From auth middleware
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ msg: "New passwords do not match" });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Incorrect old password" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ msg: "Password changed successfully" });
+  } catch (error) {
+    console.error("CHANGE PASSWORD ERROR:", error);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
 // VERIFY EMAIL 
 exports.verifyEmail = async (req, res) => {
   const { email, code } = req.body;
