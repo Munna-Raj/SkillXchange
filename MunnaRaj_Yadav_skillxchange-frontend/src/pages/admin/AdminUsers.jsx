@@ -61,14 +61,14 @@ const AdminUsers = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <header className="flex justify-between items-center py-4 px-6 bg-white shadow-sm">
-        <h1 className="text-2xl font-semibold text-gray-800">Manage Users</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold text-gray-700">All Registered Users</h2>
         <div className="flex items-center gap-4">
           <div className="relative">
             <input
               type="text"
               placeholder="Search users..."
-              className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -85,9 +85,9 @@ const AdminUsers = () => {
             Total: {filteredUsers.length}
           </span>
         </div>
-      </header>
+      </div>
       
-      <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto">
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">

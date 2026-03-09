@@ -42,16 +42,16 @@ export default function Home() {
     <div className="home-page font-moho min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
       <div className="home-bg-elements absolute inset-0 overflow-hidden">
         <div
-          className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl animate-pulse"
-          style={{ backgroundColor: "rgba(75, 0, 130, 0.25)" }}
+          className="absolute -top-40 -right-40 w-[40rem] h-[40rem] rounded-full blur-[100px] animate-pulse opacity-30"
+          style={{ backgroundColor: "rgba(0, 95, 115, 0.3)" }}
         ></div>
         <div
-          className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl animate-pulse delay-1000"
-          style={{ backgroundColor: "rgba(230, 230, 250, 0.9)" }}
+          className="absolute -bottom-40 -left-40 w-[40rem] h-[40rem] rounded-full blur-[100px] animate-pulse delay-1000 opacity-40"
+          style={{ backgroundColor: "rgba(148, 210, 189, 0.4)" }}
         ></div>
         <div
-          className="absolute top-1/2 left-1/2 w-80 h-80 rounded-full blur-3xl animate-pulse delay-500"
-          style={{ backgroundColor: "rgba(75, 0, 130, 0.15)" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50rem] h-[50rem] rounded-full blur-[120px] animate-pulse delay-500 opacity-20"
+          style={{ backgroundColor: "rgba(10, 147, 150, 0.2)" }}
         ></div>
       </div>
 
@@ -83,14 +83,14 @@ export default function Home() {
                 <Link
                   to="/login"
                   className="px-5 py-2.5 text-sm md:text-base font-semibold rounded-full text-white transition-colors"
-                  style={{ backgroundColor: "#4b0082" }}
+                  style={{ backgroundColor: "#005f73" }}
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
                   className="px-5 py-2.5 text-sm md:text-base font-semibold rounded-full border transition-colors"
-                  style={{ borderColor: "#4b0082", color: "#4b0082", backgroundColor: "#E6E6FA" }}
+                  style={{ borderColor: "#005f73", color: "#005f73", backgroundColor: "#e9f5f2" }}
                 >
                   Sign up
                 </Link>
@@ -110,9 +110,11 @@ export default function Home() {
             />
             <div className="text-left">
               <h1
-                className="brand-title text-5xl md:text-6xl font-bold bg-clip-text text-transparent"
+                className="brand-title text-6xl md:text-8xl font-bold bg-clip-text text-transparent tracking-tight leading-none"
                 style={{
-                  backgroundImage: "linear-gradient(to right, #4b0082, #E6E6FA)",
+                  backgroundImage: "linear-gradient(to right, #005f73, #94d2bd)",
+                  WebkitTextStroke: "1px white",
+                  filter: "drop-shadow(0 4px 12px rgba(0, 95, 115, 0.3))"
                 }}
               >
                 SkillXchange
@@ -127,25 +129,25 @@ export default function Home() {
             Learn what you want and teach what you know in one simple system.
           </p>
 
-          <div className="grid gap-6 md:grid-cols-3 mb-10">
-            <div className="feature-card bg-gradient-to-br from-indigo-50 via-sky-50 to-emerald-50 border-indigo-100">
-              <div className="text-3xl mb-3">🎯</div>
-              <h3 className="feature-title text-lg font-semibold mb-2 text-gray-900">Smart Matching</h3>
-              <p className="feature-desc text-sm text-gray-600">
+          <div className="grid gap-8 md:grid-cols-3 mb-16">
+            <div className="feature-card bg-gradient-to-br from-sky-100/60 to-blue-100/60 backdrop-blur-xl border border-sky-200/50 shadow-xl p-8 rounded-[2rem] hover:scale-105 hover:shadow-2xl transition-all duration-500 group">
+              <div className="text-4xl mb-4 group-hover:animate-bounce">🎯</div>
+              <h3 className="feature-title text-xl font-bold mb-3 text-gray-900">Smart Matching</h3>
+              <p className="feature-desc text-sm text-gray-600 leading-relaxed">
                 Our matching engine connects you with people who want to learn the skills you can teach.
               </p>
             </div>
-            <div className="feature-card bg-gradient-to-br from-amber-100 via-orange-100 to-rose-100 border-amber-200">
-              <div className="text-3xl mb-3">🤝</div>
-              <h3 className="feature-title text-lg font-semibold mb-2 text-gray-900">Request & Exchange</h3>
-              <p className="feature-desc text-sm text-gray-600">
+            <div className="feature-card bg-gradient-to-br from-emerald-100/60 to-teal-100/60 backdrop-blur-xl border border-emerald-200/50 shadow-xl p-8 rounded-[2rem] hover:scale-105 hover:shadow-2xl transition-all duration-500 group">
+              <div className="text-4xl mb-4 group-hover:animate-bounce">🤝</div>
+              <h3 className="feature-title text-xl font-bold mb-3 text-gray-900">Request & Exchange</h3>
+              <p className="feature-desc text-sm text-gray-600 leading-relaxed">
                 Send and receive requests, chat, and plan sessions directly from the dashboard.
               </p>
             </div>
-            <div className="feature-card bg-gradient-to-br from-sky-50 via-indigo-50 to-purple-50 border-sky-100">
-              <div className="text-3xl mb-3">📊</div>
-              <h3 className="feature-title text-lg font-semibold mb-2 text-gray-900">Feedback & Growth</h3>
-              <p className="feature-desc text-sm text-gray-600">
+            <div className="feature-card bg-gradient-to-br from-teal-100/60 to-green-100/60 backdrop-blur-xl border border-teal-200/50 shadow-xl p-8 rounded-[2rem] hover:scale-105 hover:shadow-2xl transition-all duration-500 group">
+              <div className="text-4xl mb-4 group-hover:animate-bounce">📊</div>
+              <h3 className="feature-title text-xl font-bold mb-3 text-gray-900">Feedback & Growth</h3>
+              <p className="feature-desc text-sm text-gray-600 leading-relaxed">
                 Collect feedback after each exchange and track how your skills improve over time.
               </p>
             </div>

@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const SkillExchangeRequest = require("../models/SkillExchangeRequest");
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "my2056875@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "rajyadavproject@gmail.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin123";
 
 // Login
@@ -241,6 +241,35 @@ exports.deleteSkill = async (req, res) => {
     res.json({ msg: "Skill removed successfully" });
   } catch (err) {
     console.error("DELETE SKILL ERROR:", err);
+    res.status(500).send("Server Error");
+  }
+};
+
+// All requests
+exports.getAllRequests = async (req, res) => {
+  try {
+    const requests = await SkillExchangeRequest.find()
+      .populate("senderId", "fullName email")
+      .populate("receiverId", "fullName email")
+      .sort({ createdAt: -1 });
+    res.json(requests);
+  } catch (err) {
+    console.error("GET ALL REQUESTS ERROR:", err);
+    res.status(500).send("Server Error");
+  }
+};
+
+// Delete request
+exports.deleteRequest = async (req, res) => {
+  try {
+    const request = await SkillExchangeRequest.findById(req.params.id);
+    if (!request) {
+      return res.status(404).json({ msg: "Request not found" });
+    }
+    await SkillExchangeRequest.findByIdAndDelete(req.params.id);
+    res.json({ msg: "Request removed" });
+  } catch (err) {
+    console.error("DELETE REQUEST ERROR:", err);
     res.status(500).send("Server Error");
   }
 };

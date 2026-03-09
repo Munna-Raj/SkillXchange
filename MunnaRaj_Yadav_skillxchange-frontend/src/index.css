@@ -11,6 +11,17 @@
  :root {
   --sx-primary: #4b0082;
   --sx-primary-light: #E6E6FA;
+  --background: #f3f4f6;
+  --text-primary: #1f2937;
+  --card-background: #ffffff;
+}
+
+html.dark {
+  --sx-primary: #8b5cf6;
+  --sx-primary-light: #3730a3;
+  --background: #111827;
+  --text-primary: #f9fafb;
+  --card-background: #1f2937;
 }
 
 /* Optional: keep a few sensible defaults */
@@ -21,6 +32,8 @@ html, body {
 body {
   margin: 0;
   font-family: "Moho Condensed", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: var(--background);
+  color: var(--text-primary);
 }
 
 /* Explicit dark mode styles to ensure they work */
@@ -46,50 +59,6 @@ html.dark .text-white {
 
 html.dark .text-gray-900 {
   color: rgb(17 24 39) !important;
-}
-
-/* More specific background overrides */
-html.dark body {
-  background-color: rgb(17 24 39) !important;
-}
-
-html:not(.dark) body {
-  background-color: rgb(243 244 246) !important;
-}
-
-/* Direct body background override - highest specificity */
-body.dark {
-  background-color: rgb(17 24 39) !important;
-}
-
-body:not(.dark) {
-  background-color: rgb(243 244 246) !important;
-}
-
-/* Main container background override */
-html.dark .min-h-screen {
-  background-color: rgb(17 24 39) !important;
-}
-
-html:not(.dark) .min-h-screen {
-  background-color: rgb(243 244 246) !important;
-}
-
-/* Specific dashboard background override */
-html.dark .bg-gray-950 {
-  background-color: rgb(17 24 39) !important;
-}
-
-html:not(.dark) .bg-gray-950 {
-  background-color: rgb(243 244 246) !important;
-}
-
-html.dark .bg-white {
-  background-color: rgb(17 24 39) !important;
-}
-
-html:not(.dark) .bg-white {
-  background-color: rgb(243 244 246) !important;
 }
 
 /* Dashboard specific dark mode overrides */
@@ -152,8 +121,9 @@ html.dark .bg-gray-800\/50 {
 @layer components {
   /* Layout & Containers */
   .page-container {
-    @apply min-h-screen text-gray-900 transition-colors duration-200 pb-12;
-    background: radial-gradient(circle at top left, #E6E6FA 0%, #E6E6FA 40%, #4b0082 100%);
+    @apply min-h-screen transition-colors duration-200 pb-12;
+    background-color: var(--background);
+    color: var(--text-primary);
   }
   
   .auth-container {
@@ -169,11 +139,13 @@ html.dark .bg-gray-800\/50 {
   }
   
   .profile-card {
-    @apply rounded-3xl bg-gray-50 p-6 ring-1 ring-gray-200;
+    @apply rounded-3xl p-6 ring-1 ring-gray-200;
+    background-color: var(--card-background);
   }
 
   .auth-card {
-    @apply bg-white rounded-3xl p-8 shadow-2xl border border-gray-200 w-full max-w-md relative z-10;
+    @apply rounded-3xl p-8 shadow-2xl border border-gray-200 w-full max-w-md relative z-10;
+    background-color: var(--card-background);
   }
 
   .home-page {
@@ -227,7 +199,8 @@ html.dark .bg-gray-800\/50 {
   }
 
   .navbar {
-    @apply sticky top-0 z-20 border-b border-gray-200 bg-white/70 backdrop-blur-md;
+    @apply sticky top-0 z-20 border-b border-gray-200 backdrop-blur-md;
+    background-color: var(--card-background);
   }
   
   .navbar-inner {
@@ -236,28 +209,35 @@ html.dark .bg-gray-800\/50 {
 
   /* Typography */
   .section-title {
-    @apply text-xl font-bold text-gray-900 mb-4;
+    @apply text-xl font-bold mb-4;
+    color: var(--text-primary);
   }
   
   .card-title {
     @apply text-lg font-bold mb-4;
+    color: var(--text-primary);
   }
 
   .label-text {
-    @apply text-sm text-gray-600 block mb-1;
+    @apply text-sm block mb-1;
+    color: var(--text-primary);
   }
 
   .label-text-bold {
-    @apply block text-sm font-medium text-gray-700 mb-2;
+    @apply block text-sm font-medium mb-2;
+    color: var(--text-primary);
   }
   
   .label-uppercase {
-    @apply text-xs text-gray-500 uppercase font-bold;
+    @apply text-xs uppercase font-bold;
+    color: var(--text-primary);
   }
 
   /* Forms & Inputs */
   .input-field {
-    @apply mt-1 w-full rounded-lg bg-white px-3 py-2 outline-none ring-1 ring-gray-300 focus:ring-2 focus:ring-indigo-500 transition-all duration-200;
+    @apply mt-1 w-full rounded-lg px-3 py-2 outline-none ring-1 ring-gray-300 focus:ring-2 focus:ring-indigo-500 transition-all duration-200;
+    background-color: var(--background);
+    color: var(--text-primary);
   }
   
   .input-field-disabled {
@@ -265,15 +245,20 @@ html.dark .bg-gray-800\/50 {
   }
 
   .auth-input {
-    @apply w-full px-4 py-3 rounded-xl bg-white text-gray-900 outline-none ring-2 ring-gray-300 focus:ring-blue-500 transition-all duration-200 placeholder-gray-400;
+    @apply w-full px-4 py-3 rounded-xl text-gray-900 outline-none ring-2 ring-gray-300 focus:ring-blue-500 transition-all duration-200 placeholder-gray-400;
+    background-color: var(--background);
+    color: var(--text-primary);
   }
   
   .auth-input-focus {
-    @apply ring-blue-500 bg-white;
+    @apply ring-blue-500;
+    background-color: var(--card-background);
   }
   
   .select-field {
-    @apply mt-1 w-full rounded-lg bg-gray-50 px-3 py-2 outline-none ring-1 ring-gray-300;
+    @apply mt-1 w-full rounded-lg px-3 py-2 outline-none ring-1 ring-gray-300;
+    background-color: var(--background);
+    color: var(--text-primary);
   }
 
   /* Buttons */

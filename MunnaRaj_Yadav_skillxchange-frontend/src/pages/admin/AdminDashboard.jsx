@@ -58,6 +58,15 @@ const AdminDashboard = ({ content }) => {
   // Auth guard
   if (!adminEmail) return null;
 
+  const getPageTitle = () => {
+    const path = window.location.pathname;
+    if (path.includes("/admin/users")) return "Users Management";
+    if (path.includes("/admin/skills")) return "Skills Management";
+    if (path.includes("/admin/requests")) return "Requests Management";
+    if (path.includes("/admin/reports")) return "Reports Management";
+    return "Dashboard Overview";
+  };
+
   return (
     <div className="admin-container">
       {/* Sidebar */}
@@ -93,9 +102,8 @@ const AdminDashboard = ({ content }) => {
 
       {/* Main content */}
       <main className="main-content">
-        {/* Header */}
         <header className="dashboard-header">
-          <h1 className="header-title">Dashboard</h1>
+          <h1 className="header-title">{getPageTitle()}</h1>
           <div className="user-info">
             <span className="user-email">Welcome, {adminEmail}</span>
             <div className="user-avatar">

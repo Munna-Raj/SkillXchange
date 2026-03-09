@@ -12,8 +12,10 @@ module.exports = function (req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Check role
-    if (decoded.user.role !== "admin") {
+    // Check role or specific admin email
+    const isAdmin = decoded.user.role === "admin" || decoded.user.email === "rajyadavproject@gmail.com";
+    
+    if (!isAdmin) {
         return res.status(403).json({ msg: "Access denied. Admins only." });
     }
 
