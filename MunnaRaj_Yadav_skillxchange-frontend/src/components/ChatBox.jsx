@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { getChatHistoryApi, uploadChatFileApi } from "../services/chatService";
+ 
+import { createSessionApi, getSessionsByRequestApi, updateSessionApi } from "../services/sessionService";
 
 const socket = io("http://localhost:5000");
 
@@ -10,10 +12,19 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
+ 
+  const [sessions, setSessions] = useState([]);
+  const [creatingSession, setCreatingSession] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [timeSlot, setTimeSlot] = useState("10:00");
 
   useEffect(() => {
-    // Join room
     socket.emit("join_room", requestId);
+    socket.emit("register", { userId: currentUser.id || currentUser._id });
+    const onConnect = () => {
+      socket.emit("register", { userId: currentUser.id || currentUser._id });
+    };
+    socket.on("connect", onConnect);
 
     // History
     const fetchHistory = async () => {
@@ -26,26 +37,73 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
     };
 
     fetchHistory();
+    const fetchSessions = async () => {
+      try {
+        const s = await getSessionsByRequestApi(requestId);
+        setSessions(s);
+      } catch (e) {
+        console.error("Failed to load sessions", e);
+      }
+    };
+    fetchSessions();
 
     // Listen
     socket.on("receive_message", (data) => {
       setMessages((prev) => [...prev, data]);
     });
 
+ 
+
     return () => {
       socket.off("receive_message");
+ 
+      socket.off("connect", onConnect);
     };
   }, [requestId]);
+
+ 
 
   useEffect(() => {
     // Scroll
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const handleCreateSession = async (e) => {
+    e.preventDefault();
+    if (!startDate || !timeSlot) return;
+    try {
+      setCreatingSession(true);
+      const payload = {
+        requestId,
+        startDate,
+        timeSlot,
+      };
+      const s = await createSessionApi(payload);
+      setSessions((prev) => [s, ...prev]);
+      setStartDate("");
+      setTimeSlot("10:00");
+    } catch (e) {
+      alert("Failed to create session");
+    } finally {
+      setCreatingSession(false);
+    }
+  };
+
+  const handleUpdateSession = async (sessionId) => {
+    if (!startDate || !timeSlot) return;
+    try {
+      const updated = await updateSessionApi(sessionId, { startDate, timeSlot });
+      setSessions((prev) => prev.map((s) => (s._id === sessionId ? updated : s)));
+      setStartDate("");
+      setTimeSlot("10:00");
+    } catch {
+      alert("Failed to update session");
+    }
+  };
+
+ 
 
   const handleSendMessage = (e) => {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
 
     const messageData = {
       requestId,
@@ -133,14 +191,89 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
             </svg>
           </button>
         )}
+ 
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
+        <div className="mb-3 p-3 rounded-xl bg-indigo-50 border border-indigo-100">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-semibold text-indigo-700">Session (max 2 users)</span>
+            <a href="https://meet.google.com/new" target="_blank" rel="noreferrer" className="text-xs text-indigo-600 underline">Generate Meet (manual)</a>
+          </div>
+          <form onSubmit={handleCreateSession} className="flex items-center gap-2 mb-2">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="px-2 py-1 text-sm border rounded"
+              required
+            />
+            <input
+              type="time"
+              value={timeSlot}
+              onChange={(e) => setTimeSlot(e.target.value)}
+              className="px-2 py-1 text-sm border rounded"
+              required
+            />
+            <button
+              type="submit"
+              disabled={creatingSession}
+              className="px-3 py-1 bg-indigo-600 text-white rounded text-sm disabled:opacity-50"
+            >
+              Create Session
+            </button>
+          </form>
+          {sessions.length === 0 ? (
+            <div className="text-xs text-indigo-700">No sessions yet. Create one to schedule 7 classes.</div>
+          ) : (
+            <div className="space-y-2">
+              {sessions.map((s) => (
+                <div key={s._id} className="p-2 rounded bg-white border text-xs">
+                  <div className="flex justify-between">
+                    <span>Meet: <a className="text-indigo-600 underline" href={s.meetLink} target="_blank" rel="noreferrer">Join Session</a></span>
+                    <span>Time: {s.timeSlot}</span>
+                  </div>
+                  <div className="mt-1">
+                    Upcoming (7 days):
+                    <div className="grid grid-cols-2 gap-1 mt-1">
+                      {(s.schedule || []).slice(0, 7).map((item, idx) => (
+                        <div key={idx} className="px-2 py-1 rounded border">
+                          {new Date(item.date).toLocaleDateString()} {item.timeSlot}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="px-2 py-1 border rounded"
+                    />
+                    <input
+                      type="time"
+                      value={timeSlot}
+                      onChange={(e) => setTimeSlot(e.target.value)}
+                      className="px-2 py-1 border rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateSession(s._id)}
+                      className="px-3 py-1 bg-gray-800 text-white rounded"
+                    >
+                      Update Time
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+ 
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6">
             <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-3">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
             </div>
             <p className="text-gray-500 text-sm">No messages yet. Start the conversation!</p>
@@ -199,6 +332,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
       </div>
 
       <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-100 flex gap-2">
+ 
         <input
           type="file"
           ref={fileInputRef}

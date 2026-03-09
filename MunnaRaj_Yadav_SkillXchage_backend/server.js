@@ -16,6 +16,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const sessionRoutes = require("./routes/sessionRoutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -45,11 +46,22 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes); 
 app.use("/api/feedback", feedbackRoutes); 
 app.use("/api/chat", chatRoutes);
+app.use("/api/sessions", sessionRoutes);
 app.use("/api", searchRoutes); 
 
 // Socket.io logic
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
+  const userSockets = io.userSockets || new Map();
+  io.userSockets = userSockets;
+
+  socket.on("register", (data) => {
+    const { userId } = data || {};
+    if (userId) {
+      socket.userId = userId;
+      userSockets.set(String(userId), socket.id);
+    }
+  });
 
   socket.on("join_room", (requestId) => {
     socket.join(requestId);
@@ -70,13 +82,28 @@ io.on("connection", (socket) => {
       
       // Emit to everyone in the room
       io.to(requestId).emit("receive_message", newMessage);
+
+      const userSockets = io.userSockets || new Map();
+      const recvSocket = userSockets.get(String(receiverId));
+      const sndSocket = userSockets.get(String(senderId));
+      if (recvSocket) {
+        io.to(recvSocket).emit("message_notification", { requestId, message: newMessage });
+      }
+      if (sndSocket) {
+        io.to(sndSocket).emit("message_notification", { requestId, message: newMessage });
+      }
     } catch (err) {
       console.error("Socket error:", err);
     }
   });
 
+  // Call features removed
+
   socket.on("disconnect", () => {
     console.log("User disconnected");
+    if (socket.userId) {
+      userSockets.delete(String(socket.userId));
+    }
   });
 });
 

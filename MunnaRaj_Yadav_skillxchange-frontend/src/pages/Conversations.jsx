@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSentRequestsApi, getReceivedRequestsApi } from "../services/requestService";
 import ChatBox from "../components/ChatBox";
+import { io } from "socket.io-client";
+import { toast } from "react-toastify";
 
 const Conversations = () => {
   const navigate = useNavigate();
@@ -9,6 +11,7 @@ const Conversations = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeChat, setActiveChat] = useState(null);
+  const socketRef = useRef(null);
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -80,6 +83,29 @@ const Conversations = () => {
     } catch (err) {
       console.error("Failed to restore active chat", err);
     }
+  }, []);
+
+  useEffect(() => {
+    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+    socketRef.current = io("http://localhost:5000");
+    const socket = socketRef.current;
+    const register = () => {
+      socket.emit("register", { userId: currentUser.id || currentUser._id });
+    };
+    socket.on("connect", register);
+    register();
+    socket.on("message_notification", (payload) => {
+      const { requestId } = payload || {};
+      const activeId = activeChat?.requestId;
+      if (!activeId || activeId !== requestId) {
+        toast.info("New message received");
+      }
+    });
+    return () => {
+      socket.off("connect", register);
+      socket.off("message_notification");
+      socket.disconnect();
+    };
   }, []);
 
   return (
