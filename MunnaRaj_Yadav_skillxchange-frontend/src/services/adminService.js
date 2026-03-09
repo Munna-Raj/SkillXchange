@@ -35,6 +35,11 @@ const deleteRequest = async (id) => {
   return response.data;
 };
 
+const getReportsData = async () => {
+  const response = await api.get('/admin/reports');
+  return response.data;
+};
+
 const adminService = {
   getUsers,
   deleteUser,
@@ -43,6 +48,7 @@ const adminService = {
   deleteSkill,
   getRequests,
   deleteRequest,
+  getReportsData,
 };
 
 export default adminService;

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import adminService from '../../services/adminService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const AdminPlaceholder = ({ title }) => {
   return (
@@ -312,4 +314,170 @@ export const AdminRequests = () => {
     </div>
   );
 };
-export const AdminReports = () => <AdminPlaceholder title="Reports" />;
+export const AdminReports = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchReportData();
+  }, []);
+
+  const fetchReportData = async () => {
+    try {
+      setLoading(true);
+      const res = await adminService.getReportsData();
+      setData(res);
+    } catch (err) {
+      console.error("Failed to fetch report data:", err);
+      setError("Failed to load reports.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const downloadPDF = () => {
+    if (!data) return;
+
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString();
+
+    // Title
+    doc.setFontSize(22);
+    doc.text("SkillXchange Platform Report", 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Generated on: ${date}`, 14, 30);
+
+    // Summary Section
+    doc.setFontSize(16);
+    doc.text("Platform Summary", 14, 45);
+    
+    const summaryData = [
+      ["Metric", "Value"],
+      ["Total Users", data.summary.totalUsers],
+      ["Total Requests", data.summary.totalRequests],
+      ["Accepted Requests", data.summary.acceptedRequests],
+      ["Pending Requests", data.summary.pendingRequests],
+      ["Rejected Requests", data.summary.rejectedRequests],
+      ["Recent Signups (30 days)", data.summary.recentSignups],
+    ];
+
+    doc.autoTable({
+      startY: 50,
+      head: [summaryData[0]],
+      body: summaryData.slice(1),
+      theme: 'grid',
+      headStyles: { fillColor: [79, 70, 229] } // Indigo-600
+    });
+
+    // Popular Skills Section
+    const finalY = doc.lastAutoTable.finalY + 15;
+    doc.setFontSize(16);
+    doc.text("Most Popular Skills (Teaching)", 14, finalY);
+
+    const skillsData = data.popularSkills.map(s => [s.name, s.count]);
+    
+    doc.autoTable({
+      startY: finalY + 5,
+      head: [["Skill Name", "Count"]],
+      body: skillsData,
+      theme: 'striped',
+      headStyles: { fillColor: [16, 185, 129] } // Emerald-500
+    });
+
+    doc.save(`SkillXchange_Report_${date}.pdf`);
+  };
+
+  if (loading) return <div className="p-6 text-center">Loading report data...</div>;
+  if (error) return <div className="p-6 text-center text-red-500">{error}</div>;
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">Platform Analytics</h2>
+            <p className="text-gray-500">Comprehensive overview of platform activity and growth.</p>
+          </div>
+          <button
+            onClick={downloadPDF}
+            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/30"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download PDF Report
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <p className="text-sm font-medium text-gray-500 mb-1">Total Platform Users</p>
+            <h3 className="text-3xl font-bold text-gray-900">{data.summary.totalUsers}</h3>
+            <div className="mt-2 flex items-center text-xs text-green-600 font-medium">
+              <span>+{data.summary.recentSignups} in last 30 days</span>
+            </div>
+          </div>
+          
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <p className="text-sm font-medium text-gray-500 mb-1">Exchange Success Rate</p>
+            <h3 className="text-3xl font-bold text-gray-900">
+              {data.summary.totalRequests > 0 
+                ? Math.round((data.summary.acceptedRequests / data.summary.totalRequests) * 100) 
+                : 0}%
+            </h3>
+            <div className="mt-2 flex items-center text-xs text-gray-400">
+              <span>{data.summary.acceptedRequests} of {data.summary.totalRequests} requests accepted</span>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <p className="text-sm font-medium text-gray-500 mb-1">Active Exchanges</p>
+            <h3 className="text-3xl font-bold text-indigo-600">{data.summary.pendingRequests}</h3>
+            <div className="mt-2 flex items-center text-xs text-gray-400">
+              <span>Currently awaiting response</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-lg font-bold text-gray-800 mb-6">Popular Skills to Teach</h3>
+            <div className="space-y-4">
+              {data.popularSkills.map((skill, idx) => (
+                <div key={idx} className="flex flex-col gap-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="font-semibold text-gray-700">{skill.name}</span>
+                    <span className="text-gray-500">{skill.count} users</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-emerald-500 rounded-full" 
+                      style={{ width: `${(skill.count / data.summary.totalUsers) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+            <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Detailed Monthly Report</h3>
+            <p className="text-gray-500 mb-6 max-w-xs">Download a comprehensive PDF containing all platform metrics, user growth, and skill trends.</p>
+            <button
+              onClick={downloadPDF}
+              className="w-full py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-colors"
+            >
+              Export as PDF
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};

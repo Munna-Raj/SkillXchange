@@ -8,7 +8,8 @@ const {
     getAllSkills,
     deleteSkill,
     getAllRequests,
-    deleteRequest
+    deleteRequest,
+    getReportsData
 } = require("../controllers/adminController");
 const adminAuth = require("../middleware/adminAuth");
 
@@ -58,5 +59,10 @@ router.get("/requests", adminAuth, getAllRequests);
 // @desc    Delete an exchange request
 // @access  Private (Admin only)
 router.delete("/requests/:id", adminAuth, deleteRequest);
+
+// @route   GET /api/admin/reports
+// @desc    Get reports data
+// @access  Private (Admin only)
+router.get("/reports", adminAuth, getReportsData);
 
 module.exports = router;

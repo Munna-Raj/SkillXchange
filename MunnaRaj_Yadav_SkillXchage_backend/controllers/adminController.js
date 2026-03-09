@@ -273,3 +273,48 @@ exports.deleteRequest = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
+
+// Generate reports data
+exports.getReportsData = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalRequests = await SkillExchangeRequest.countDocuments();
+    const acceptedRequests = await SkillExchangeRequest.countDocuments({ status: "accepted" });
+    const pendingRequests = await SkillExchangeRequest.countDocuments({ status: "pending" });
+    const rejectedRequests = await SkillExchangeRequest.countDocuments({ status: "rejected" });
+
+    // Recent user signups (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recentSignups = await User.countDocuments({ createdAt: { $gte: thirtyDaysAgo } });
+
+    // Popular skills (Top 5)
+    const allUsers = await User.find().select("skillsToTeach");
+    const skillCounts = {};
+    allUsers.forEach(user => {
+      (user.skillsToTeach || []).forEach(skill => {
+        skillCounts[skill.name] = (skillCounts[skill.name] || 0) + 1;
+      });
+    });
+
+    const popularSkills = Object.keys(skillCounts)
+      .map(name => ({ name, count: skillCounts[name] }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    res.json({
+      summary: {
+        totalUsers,
+        totalRequests,
+        acceptedRequests,
+        pendingRequests,
+        rejectedRequests,
+        recentSignups
+      },
+      popularSkills
+    });
+  } catch (err) {
+    console.error("GET REPORTS DATA ERROR:", err);
+    res.status(500).send("Server Error");
+  }
+};
