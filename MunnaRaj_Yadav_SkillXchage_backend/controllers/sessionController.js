@@ -1,11 +1,9 @@
 const Session = require("../models/Session");
 const SkillExchangeRequest = require("../models/SkillExchangeRequest");
+const { createMeetEvent } = require("../utils/googleMeet");
 
 const makeMeetLink = () => {
-  const rand = Math.random().toString(36).substring(2, 6) + "-" +
-               Math.random().toString(36).substring(2, 6) + "-" +
-               Math.random().toString(36).substring(2, 6);
-  return `https://meet.google.com/${rand}`;
+  return "https://meet.google.com/new";
 };
 
 const buildSchedule = (startDate, timeSlot, daysCount = 7) => {
@@ -21,7 +19,7 @@ const buildSchedule = (startDate, timeSlot, daysCount = 7) => {
 
 exports.createSession = async (req, res) => {
   try {
-    const { requestId, startDate, timeSlot } = req.body;
+    const { requestId, startDate, timeSlot, meetLink: providedMeetLink } = req.body;
     const userId = req.user.id || req.user._id;
 
     const reqDoc = await SkillExchangeRequest.findById(requestId).populate(["senderId", "receiverId"]);
@@ -33,7 +31,10 @@ exports.createSession = async (req, res) => {
       return res.status(403).json({ msg: "Only matched users can create a session" });
     }
 
-    const meetLink = makeMeetLink();
+    const meetLink = providedMeetLink;
+    if (!meetLink || !String(meetLink).startsWith("https://meet.google.com/")) {
+      return res.status(400).json({ msg: "Valid Google Meet link is required" });
+    }
     const schedule = buildSchedule(startDate, timeSlot, 7);
 
     const session = await Session.create({
@@ -67,15 +68,21 @@ exports.getSessionsByRequest = async (req, res) => {
 exports.updateSessionSchedule = async (req, res) => {
   try {
     const { id } = req.params;
-    const { startDate, timeSlot } = req.body;
+    const { startDate, timeSlot, meetLink } = req.body;
     const userId = req.user.id || req.user._id;
     const session = await Session.findById(id);
     if (!session) return res.status(404).json({ msg: "Session not found" });
     const canEdit = session.users.map(String).includes(String(userId));
     if (!canEdit) return res.status(403).json({ msg: "Only participants can update the session" });
 
-    session.startDate = startDate;
-    session.timeSlot = timeSlot;
+    if (startDate) session.startDate = startDate;
+    if (timeSlot) session.timeSlot = timeSlot;
+    if (meetLink) {
+      if (!String(meetLink).startsWith("https://meet.google.com/")) {
+        return res.status(400).json({ msg: "Invalid Google Meet link" });
+      }
+      session.meetLink = meetLink;
+    }
     session.schedule = buildSchedule(startDate, timeSlot, session.daysCount || 7);
     session.updatedAt = new Date();
     await session.save();

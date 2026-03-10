@@ -4,7 +4,16 @@ const SessionSchema = new mongoose.Schema({
   requestId: { type: mongoose.Schema.Types.ObjectId, ref: "SkillExchangeRequest", required: true },
   users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }], // max 2
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  meetLink: { type: String, required: true },
+  meetLink: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function (v) {
+        return typeof v === "string" && v.startsWith("https://meet.google.com/");
+      },
+      message: "Invalid Google Meet link",
+    },
+  },
   startDate: { type: Date, required: true },
   timeSlot: { type: String, required: true }, // HH:mm
   daysCount: { type: Number, default: 7 },

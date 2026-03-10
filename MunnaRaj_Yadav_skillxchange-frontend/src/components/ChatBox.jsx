@@ -17,6 +17,16 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
   const [creatingSession, setCreatingSession] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [timeSlot, setTimeSlot] = useState("10:00");
+  const [meetLinkInput, setMeetLinkInput] = useState("");
+  const [linkError, setLinkError] = useState("");
+  const isValidMeetLink = (v) => typeof v === "string" && v.startsWith("https://meet.google.com/");
+  const pasteLink = async () => {
+    try {
+      const t = await navigator.clipboard.readText();
+      setMeetLinkInput(t || "");
+      setLinkError(t && !isValidMeetLink(t) ? "Invalid Google Meet link" : "");
+    } catch {}
+  };
 
   useEffect(() => {
     socket.emit("join_room", requestId);
@@ -71,17 +81,21 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
   const handleCreateSession = async (e) => {
     e.preventDefault();
     if (!startDate || !timeSlot) return;
+    if (!isValidMeetLink(meetLinkInput)) return setLinkError("Invalid Google Meet link");
     try {
       setCreatingSession(true);
       const payload = {
         requestId,
         startDate,
         timeSlot,
+        meetLink: meetLinkInput,
       };
       const s = await createSessionApi(payload);
       setSessions((prev) => [s, ...prev]);
       setStartDate("");
       setTimeSlot("10:00");
+      setMeetLinkInput("");
+      setLinkError("");
     } catch (e) {
       alert("Failed to create session");
     } finally {
@@ -90,12 +104,15 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
   };
 
   const handleUpdateSession = async (sessionId) => {
-    if (!startDate || !timeSlot) return;
+    if (!startDate && !timeSlot && !meetLinkInput) return;
+    if (meetLinkInput && !isValidMeetLink(meetLinkInput)) return setLinkError("Invalid Google Meet link");
     try {
-      const updated = await updateSessionApi(sessionId, { startDate, timeSlot });
+      const updated = await updateSessionApi(sessionId, { startDate, timeSlot, meetLink: meetLinkInput || undefined });
       setSessions((prev) => prev.map((s) => (s._id === sessionId ? updated : s)));
       setStartDate("");
       setTimeSlot("10:00");
+      setMeetLinkInput("");
+      setLinkError("");
     } catch {
       alert("Failed to update session");
     }
@@ -197,32 +214,19 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
         <div className="mb-3 p-3 rounded-xl bg-indigo-50 border border-indigo-100">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold text-indigo-700">Session (max 2 users)</span>
-            <a href="https://meet.google.com/new" target="_blank" rel="noreferrer" className="text-xs text-indigo-600 underline">Generate Meet (manual)</a>
+            <span className="text-sm font-semibold text-indigo-700">Session</span>
+            <a href="https://meet.google.com/new" target="_blank" rel="noreferrer" className="text-xs text-indigo-600 underline">Generate Meet</a>
           </div>
-          <form onSubmit={handleCreateSession} className="flex items-center gap-2 mb-2">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="px-2 py-1 text-sm border rounded"
-              required
-            />
-            <input
-              type="time"
-              value={timeSlot}
-              onChange={(e) => setTimeSlot(e.target.value)}
-              className="px-2 py-1 text-sm border rounded"
-              required
-            />
-            <button
-              type="submit"
-              disabled={creatingSession}
-              className="px-3 py-1 bg-indigo-600 text-white rounded text-sm disabled:opacity-50"
-            >
-              Create Session
-            </button>
+          <form onSubmit={handleCreateSession} className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-2">
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="px-2 py-1 text-sm border rounded" required />
+            <input type="time" value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)} className="px-2 py-1 text-sm border rounded" required />
+            <div className="md:col-span-2 flex gap-2">
+              <input type="url" value={meetLinkInput} onChange={(e) => setMeetLinkInput(e.target.value)} placeholder="https://meet.google.com/..." className="flex-1 px-2 py-1 text-sm border rounded" />
+              <button type="button" onClick={pasteLink} className="px-2 py-1 text-sm rounded border bg-white">Paste</button>
+            </div>
+            <button type="submit" disabled={creatingSession || !isValidMeetLink(meetLinkInput)} className="px-3 py-1 bg-indigo-600 text-white rounded text-sm disabled:opacity-50">Create</button>
           </form>
+          {linkError && <div className="text-xs text-red-600">{linkError}</div>}
           {sessions.length === 0 ? (
             <div className="text-xs text-indigo-700">No sessions yet. Create one to schedule 7 classes.</div>
           ) : (
@@ -230,11 +234,17 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
               {sessions.map((s) => (
                 <div key={s._id} className="p-2 rounded bg-white border text-xs">
                   <div className="flex justify-between">
-                    <span>Meet: <a className="text-indigo-600 underline" href={s.meetLink} target="_blank" rel="noreferrer">Join Session</a></span>
+                    <span className="font-semibold">
+                      Meet: {s.meetLink && s.meetLink.startsWith("https://meet.google.com/") ? (
+                        <a className="text-indigo-600 underline" href={s.meetLink} target="_blank" rel="noreferrer">Join Session</a>
+                      ) : (
+                        <span className="text-red-600">Set a valid Meet link</span>
+                      )}
+                    </span>
                     <span>Time: {s.timeSlot}</span>
                   </div>
                   <div className="mt-1">
-                    Upcoming (7 days):
+                    Upcoming:
                     <div className="grid grid-cols-2 gap-1 mt-1">
                       {(s.schedule || []).slice(0, 7).map((item, idx) => (
                         <div key={idx} className="px-2 py-1 rounded border">
@@ -244,25 +254,10 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
                     </div>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="px-2 py-1 border rounded"
-                    />
-                    <input
-                      type="time"
-                      value={timeSlot}
-                      onChange={(e) => setTimeSlot(e.target.value)}
-                      className="px-2 py-1 border rounded"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleUpdateSession(s._id)}
-                      className="px-3 py-1 bg-gray-800 text-white rounded"
-                    >
-                      Update Time
-                    </button>
+                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="px-2 py-1 border rounded" />
+                    <input type="time" value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)} className="px-2 py-1 border rounded" />
+                    <input type="url" value={meetLinkInput} onChange={(e) => setMeetLinkInput(e.target.value)} placeholder="Update Meet" className="flex-1 px-2 py-1 border rounded" />
+                    <button type="button" onClick={() => handleUpdateSession(s._id)} disabled={meetLinkInput && !isValidMeetLink(meetLinkInput)} className="px-3 py-1 bg-gray-800 text-white rounded disabled:opacity-50">Update</button>
                   </div>
                 </div>
               ))}

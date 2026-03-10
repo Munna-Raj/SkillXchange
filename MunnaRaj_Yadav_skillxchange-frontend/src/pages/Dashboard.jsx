@@ -161,6 +161,7 @@ export default function Dashboard() {
     }
   };
 
+
   // Get user profile data
   const fetchUserProfile = async () => {
     try {
@@ -265,6 +266,17 @@ export default function Dashboard() {
               </svg>
               <span></span>
             </button>
+            <button
+              onClick={() => navigate("/sessions")}
+              className="hidden sm:inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-semibold ring-1 hover:bg-gray-100"
+              style={{ backgroundColor: "#ffffff", color: "#4b0082", borderColor: "#4b0082" }}
+              title="Add or Join Sessions"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3M4 11h16M5 19h14a2 2 0 002-2v-6H3v6a2 2 0 002 2z"/>
+              </svg>
+              <span>Sessions</span>
+            </button>
             <NotificationBell />
             <div className="hidden sm:block text-right">
               <p className="text-sm font-semibold text-gray-900">{userProfile?.username || data.username || "User"}</p>
@@ -351,6 +363,17 @@ export default function Dashboard() {
               <PrimaryButton to="/matches">Find Matches ✨</PrimaryButton>
             </div>
           </div>
+        </div>
+
+        {/* Sessions quick link */}
+        <div className="mt-6 rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">Sessions</h2>
+            <button onClick={() => navigate('/sessions')} className="text-sm text-indigo-600 hover:underline">
+              Open Sessions →
+            </button>
+          </div>
+          <p className="mt-2 text-sm text-gray-600">Create, update, and join your upcoming sessions.</p>
         </div>
 
         {/* Stats */}
