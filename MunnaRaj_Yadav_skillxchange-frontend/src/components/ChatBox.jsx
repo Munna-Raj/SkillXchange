@@ -331,7 +331,11 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
           </div>
         ) : (
           messages.map((msg, index) => {
-            const isMe = msg.senderId._id === (currentUser.id || currentUser._id) || msg.senderId === (currentUser.id || currentUser._id);
+            if (!msg) return null;
+            const currentUserId = currentUser.id || currentUser._id;
+            const senderIdVal = msg.senderId?._id || msg.senderId;
+            const isMe = String(senderIdVal) === String(currentUserId);
+            
             return (
               <div key={msg._id || index} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[80%] p-3 rounded-2xl text-sm shadow-sm ${

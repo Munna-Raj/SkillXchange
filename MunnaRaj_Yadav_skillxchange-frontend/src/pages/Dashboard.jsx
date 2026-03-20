@@ -509,7 +509,7 @@ export default function Dashboard() {
                         <div>
                           <p className="text-base font-semibold text-gray-900">{m.fullName}</p>
                           <p className="text-xs text-gray-600">
-                            {m.matchScore}% Match • {m.skillsToTeach?.[0]?.level || "User"}
+                            {m.matchScore || 0}% Match • {m.skillsToTeach?.[0]?.level || "User"}
                           </p>
                         </div>
                       </div>
@@ -529,8 +529,8 @@ export default function Dashboard() {
                         >
                           Can Teach
                         </p>
-                        <p className="mt-1 text-sm font-semibold text-gray-900">
-                          {m.skillsToTeach?.[0]?.name || "Skill"}
+                        <p className="mt-1 text-sm font-semibold text-gray-800">
+                          {m.skillsToTeach?.[0]?.name || "Not set"}
                         </p>
                       </div>
                       <div
@@ -543,8 +543,8 @@ export default function Dashboard() {
                         >
                           Wants to Learn
                         </p>
-                        <p className="mt-1 text-sm font-semibold text-gray-900">
-                          {m.skillsToLearn?.[0]?.name || "Skill"}
+                        <p className="mt-1 text-sm font-semibold text-gray-800">
+                          {m.skillsToLearn?.[0]?.name || "Not set"}
                         </p>
                       </div>
                     </div>
