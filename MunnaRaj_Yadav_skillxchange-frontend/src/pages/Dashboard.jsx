@@ -140,7 +140,9 @@ export default function Dashboard() {
     try {
       setLoadingMatches(true);
       const matches = await getMatchesApi();
-      setRecommendedMatches(matches);
+      // Filter out invalid match entries
+      const validMatches = (matches || []).filter(m => m && m._id);
+      setRecommendedMatches(validMatches);
     } catch (error) {
       console.error("Failed to fetch matches:", error);
     } finally {
@@ -153,7 +155,9 @@ export default function Dashboard() {
     try {
       setLoadingRequests(true);
       const requests = await getReceivedRequestsApi();
-      setRecentRequests(requests.slice(0, 3));
+      // Filter out requests where senderId might be null (e.g. user deleted)
+      const validRequests = (requests || []).filter(r => r && r.senderId);
+      setRecentRequests(validRequests.slice(0, 3));
     } catch (error) {
       console.error("Failed to fetch requests:", error);
     } finally {
@@ -592,16 +596,16 @@ export default function Dashboard() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
-                          {r.senderId.profilePic ? (
+                          {r.senderId?.profilePic ? (
                             <img src={`http://localhost:5000/uploads/${r.senderId.profilePic}`} alt={r.senderId.fullName} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-[10px] font-bold">
-                              {r.senderId.fullName?.charAt(0)}
+                              {r.senderId?.fullName?.charAt(0) || "?"}
                             </div>
                           )}
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-gray-900">{r.senderId.fullName}</p>
+                          <p className="text-sm font-semibold text-gray-900">{r.senderId?.fullName || "Deleted User"}</p>
                           <p className="text-[10px] text-gray-600">Wants: {r.learnSkill}</p>
                         </div>
                       </div>
