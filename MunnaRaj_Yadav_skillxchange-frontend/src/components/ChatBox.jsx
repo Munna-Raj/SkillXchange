@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { getChatHistoryApi, uploadChatFileApi } from "../services/chatService";
+import { deleteMessageApi } from "../services/chatService";
  
 import { createSessionApi, getSessionsByRequestApi, updateSessionApi } from "../services/sessionService";
 
@@ -62,10 +63,15 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
       setMessages((prev) => [...prev, data]);
     });
 
+    socket.on("message_deleted", ({ messageId }) => {
+      if (!messageId) return;
+      setMessages((prev) => prev.filter((m) => (m._id || m.id) !== messageId));
+    });
  
 
     return () => {
       socket.off("receive_message");
+      socket.off("message_deleted");
  
       socket.off("connect", onConnect);
     };
@@ -118,6 +124,18 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
     }
   };
 
+  const handleDeleteMessage = async (msg) => {
+    const id = msg._id || msg.id;
+    if (!id) return;
+    try {
+      await deleteMessageApi(id);
+      setMessages((prev) => prev.filter((m) => (m._id || m.id) !== id));
+      socket.emit("delete_message", { requestId, messageId: id });
+    } catch (e) {
+      alert("Failed to delete message");
+    }
+  };
+
  
 
   const handleSendMessage = (e) => {
@@ -162,14 +180,17 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
     }
   };
 
+  const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const activeSession = sessions.find(s => s.status === "active");
+
   const containerClass =
     variant === "floating"
-      ? "fixed bottom-4 right-4 w-80 md:w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col z-50 overflow-hidden animate-slide-up"
+      ? "fixed bottom-4 right-4 w-80 md:w-[400px] h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col z-50 overflow-hidden animate-slide-up"
       : "flex-1 h-full bg-white rounded-2xl shadow-lg border border-gray-100 flex flex-col overflow-hidden";
 
   return (
     <div className={containerClass}>
-      <div className="p-4 bg-indigo-600 text-white flex justify-between items-center">
+      <div className="p-4 bg-indigo-600 text-white flex justify-between items-center shadow-md">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border border-white/30">
             {otherUser.profilePic ? (
@@ -184,83 +205,118 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
           </div>
           <div>
             <h3 className="font-semibold text-sm leading-none">{otherUser.fullName}</h3>
-            <span className="text-[10px] text-indigo-100">Active now</span>
+            <span className="text-[10px] text-indigo-100 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+              Active match
+            </span>
           </div>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="p-1 hover:bg-white/10 rounded-full transition-colors"
+            className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         )}
- 
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
-        <div className="mb-3 p-3 rounded-xl bg-indigo-50 border border-indigo-100">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold text-indigo-700">Session</span>
-            <a href="https://meet.google.com/new" target="_blank" rel="noreferrer" className="text-xs text-indigo-600 underline">Generate Meet</a>
-          </div>
-          <form onSubmit={handleCreateSession} className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-2">
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="px-2 py-1 text-sm border rounded" required />
-            <input type="time" value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)} className="px-2 py-1 text-sm border rounded" required />
-            <div className="md:col-span-2 flex gap-2">
-              <input type="url" value={meetLinkInput} onChange={(e) => setMeetLinkInput(e.target.value)} placeholder="https://meet.google.com/..." className="flex-1 px-2 py-1 text-sm border rounded" />
-              <button type="button" onClick={pasteLink} className="px-2 py-1 text-sm rounded border bg-white">Paste</button>
-            </div>
-            <button type="submit" disabled={creatingSession || !isValidMeetLink(meetLinkInput)} className="px-3 py-1 bg-indigo-600 text-white rounded text-sm disabled:opacity-50">Create</button>
-          </form>
-          {linkError && <div className="text-xs text-red-600">{linkError}</div>}
-          {sessions.length === 0 ? (
-            <div className="text-xs text-indigo-700">No sessions yet. Create one to schedule 7 classes.</div>
-          ) : (
-            <div className="space-y-2">
-              {sessions.map((s) => (
-                <div key={s._id} className="p-2 rounded bg-white border text-xs">
-                  <div className="flex justify-between">
-                    <span className="font-semibold">
-                      Meet: {s.meetLink && s.meetLink.startsWith("https://meet.google.com/") ? (
-                        <a className="text-indigo-600 underline" href={s.meetLink} target="_blank" rel="noreferrer">Join Session</a>
-                      ) : (
-                        <span className="text-red-600">Set a valid Meet link</span>
-                      )}
-                    </span>
-                    <span>Time: {s.timeSlot}</span>
+        {/* Session Section */}
+        <div className="mb-4">
+          {!activeSession ? (
+            <div className="bg-white rounded-2xl p-4 border border-indigo-100 shadow-sm">
+              {!showScheduleForm ? (
+                <div className="text-center py-2">
+                  <p className="text-xs text-gray-500 mb-3 font-medium">No sessions scheduled yet.</p>
+                  <button 
+                    onClick={() => setShowScheduleForm(true)}
+                    className="w-full py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3M4 11h16M5 19h14a2 2 0 002-2v-6H3v6a2 2 0 002 2z" />
+                    </svg>
+                    Schedule 7-Day Class
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-bold text-gray-900">Schedule Class</h4>
+                    <button onClick={() => setShowScheduleForm(false)} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
                   </div>
-                  <div className="mt-1">
-                    Upcoming:
-                    <div className="grid grid-cols-2 gap-1 mt-1">
-                      {(s.schedule || []).slice(0, 7).map((item, idx) => (
-                        <div key={idx} className="px-2 py-1 rounded border">
-                          {new Date(item.date).toLocaleDateString()} {item.timeSlot}
-                        </div>
-                      ))}
+                  <form onSubmit={handleCreateSession} className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase">Start Date</label>
+                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:ring-1 focus:ring-indigo-500 outline-none" required />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase">Fixed Time</label>
+                        <input type="time" value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)} className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:ring-1 focus:ring-indigo-500 outline-none" required />
+                      </div>
                     </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase flex justify-between">
+                        Google Meet Link
+                        <a href="https://meet.google.com/new" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">Generate Link</a>
+                      </label>
+                      <div className="flex gap-1">
+                        <input type="url" value={meetLinkInput} onChange={(e) => setMeetLinkInput(e.target.value)} placeholder="https://meet.google.com/..." className="flex-1 px-3 py-2 text-xs border border-gray-200 rounded-lg focus:ring-1 focus:ring-indigo-500 outline-none" required />
+                        <button type="button" onClick={pasteLink} className="px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors font-medium">Paste</button>
+                      </div>
+                      {linkError && <p className="text-[10px] text-red-500 mt-1 font-medium">{linkError}</p>}
+                    </div>
+                    <button 
+                      type="submit" 
+                      disabled={creatingSession || !isValidMeetLink(meetLinkInput)} 
+                      className="w-full py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-indigo-700 disabled:opacity-50 transition-all"
+                    >
+                      {creatingSession ? "Scheduling..." : "Create 7 Daily Sessions"}
+                    </button>
+                  </form>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-indigo-50 rounded-2xl p-4 border border-indigo-100 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3M4 11h16M5 19h14a2 2 0 002-2v-6H3v6a2 2 0 002 2z" />
+                    </svg>
                   </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="px-2 py-1 border rounded" />
-                    <input type="time" value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)} className="px-2 py-1 border rounded" />
-                    <input type="url" value={meetLinkInput} onChange={(e) => setMeetLinkInput(e.target.value)} placeholder="Update Meet" className="flex-1 px-2 py-1 border rounded" />
-                    <button type="button" onClick={() => handleUpdateSession(s._id)} disabled={meetLinkInput && !isValidMeetLink(meetLinkInput)} className="px-3 py-1 bg-gray-800 text-white rounded disabled:opacity-50">Update</button>
+                  <div>
+                    <h4 className="text-xs font-bold text-indigo-900">Class Cycle Active</h4>
+                    <p className="text-[10px] text-indigo-600 font-medium">7 sessions at {activeSession.timeSlot} daily</p>
                   </div>
                 </div>
-              ))}
+                <a 
+                  href={activeSession.meetLink} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="px-4 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-colors"
+                >
+                  Join Link
+                </a>
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1 bg-white/60 p-2 rounded-xl border border-indigo-100/50">
+                  <p className="text-[9px] font-bold text-gray-400 uppercase">Next Session</p>
+                  <p className="text-[11px] font-bold text-gray-700">
+                    {new Date(activeSession.schedule.find(s => s.status === "upcoming")?.date || activeSession.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => navigate("/sessions")}
+                  className="flex-1 px-3 py-2 bg-white border border-indigo-200 text-indigo-600 text-[11px] font-bold rounded-xl hover:bg-indigo-50 transition-colors"
+                >
+                  Full Schedule
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -277,7 +333,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
           messages.map((msg, index) => {
             const isMe = msg.senderId._id === (currentUser.id || currentUser._id) || msg.senderId === (currentUser.id || currentUser._id);
             return (
-              <div key={index} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+              <div key={msg._id || index} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[80%] p-3 rounded-2xl text-sm shadow-sm ${
                   isMe 
                     ? "bg-indigo-600 text-white rounded-tr-none" 
@@ -318,6 +374,17 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
                   <div className={`text-[10px] mt-1 ${isMe ? "text-indigo-100" : "text-gray-400"}`}>
                     {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
+                  {isMe && (
+                    <div className="mt-2 flex justify-end">
+                      <button
+                        onClick={() => handleDeleteMessage(msg)}
+                        className="text-[10px] px-2 py-1 rounded bg-white/10 hover:bg-white/20"
+                        title="Delete message"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );

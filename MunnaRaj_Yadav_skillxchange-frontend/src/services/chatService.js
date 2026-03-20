@@ -24,3 +24,8 @@ export const uploadChatFileApi = async (formData) => {
   });
   return response.data;
 };
+
+export const deleteMessageApi = async (id) => {
+  const response = await api.delete(`/chat/${id}`, { headers: getAuthHeader() });
+  return response.data;
+};

@@ -98,6 +98,11 @@ io.on("connection", (socket) => {
   });
 
   // Call features removed
+  socket.on("delete_message", (data) => {
+    const { requestId, messageId } = data || {};
+    if (!requestId || !messageId) return;
+    io.to(requestId).emit("message_deleted", { messageId });
+  });
 
   socket.on("disconnect", () => {
     console.log("User disconnected");

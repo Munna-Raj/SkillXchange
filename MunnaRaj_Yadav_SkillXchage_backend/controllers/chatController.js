@@ -1,5 +1,6 @@
 const Message = require("../models/Message");
 const path = require("path");
+const fs = require("fs");
 
 // Chat history
 exports.getChatHistory = async (req, res) => {
@@ -59,6 +60,28 @@ exports.markAsRead = async (req, res) => {
       { $set: { isRead: true } }
     );
     res.json({ msg: "Messages marked as read" });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+};
+
+// Delete message (sender only)
+exports.deleteMessage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id || req.user._id;
+    const msg = await Message.findById(id);
+    if (!msg) return res.status(404).json({ msg: "Message not found" });
+    if (String(msg.senderId) !== String(userId)) {
+      return res.status(403).json({ msg: "Not allowed to delete this message" });
+    }
+    if (msg.fileUrl) {
+      const filePath = path.join(process.cwd(), "uploads", msg.fileUrl);
+      fs.promises.unlink(filePath).catch(() => {});
+    }
+    await Message.deleteOne({ _id: id });
+    res.json({ ok: true, requestId: msg.requestId, messageId: id });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
