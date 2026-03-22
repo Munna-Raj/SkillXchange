@@ -6,6 +6,7 @@ const {
   addSkill,
   deleteSkill,
   updateSkill,
+  getCategories,
   followUser,
   unfollowUser
 } = require("../controllers/profileController");
@@ -25,6 +26,7 @@ router.post("/picture", upload.single("profilePic"), updateProfilePicture);
 router.post("/skills", addSkill);
 router.delete("/skills/:type/:skillId", deleteSkill);
 router.put("/skills/:type/:skillId", updateSkill);
+router.get("/categories", getCategories);
 
 router.post("/follow/:id", followUser);
 router.post("/unfollow/:id", unfollowUser);

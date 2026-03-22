@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { addSkillApi, deleteSkillApi } from "../services/profileService";
+import { addSkillApi, deleteSkillApi, getCategoriesApi } from "../services/profileService";
 import { getFeedbackForUser } from "../services/feedbackService";
 import NotificationBell from "../components/NotificationBell";
 import ContributionGraph from "../components/ContributionGraph";
@@ -37,6 +37,7 @@ export default function Profile() {
     description: ""
   });
 
+  const [categories, setCategories] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -56,7 +57,17 @@ export default function Profile() {
     }
 
     fetchProfile();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await getCategoriesApi();
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Failed to load categories", err);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -628,10 +639,16 @@ export default function Profile() {
                       name="category"
                       value={skillForm.category}
                       onChange={handleSkillChange}
+                      list="category-list"
                       className="select-field"
                       placeholder="e.g. Programming, Music"
                       required
                     />
+                    <datalist id="category-list">
+                      {categories.map((cat) => (
+                        <option key={cat._id} value={cat.name} />
+                      ))}
+                    </datalist>
                   </div>
                 </div>
                 <div>

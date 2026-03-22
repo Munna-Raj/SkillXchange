@@ -39,23 +39,8 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="home-page font-moho min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-      <div className="home-bg-elements absolute inset-0 overflow-hidden">
-        <div
-          className="absolute -top-40 -right-40 w-[40rem] h-[40rem] rounded-full blur-[100px] animate-pulse opacity-30"
-          style={{ backgroundColor: "rgba(0, 95, 115, 0.3)" }}
-        ></div>
-        <div
-          className="absolute -bottom-40 -left-40 w-[40rem] h-[40rem] rounded-full blur-[100px] animate-pulse delay-1000 opacity-40"
-          style={{ backgroundColor: "rgba(148, 210, 189, 0.4)" }}
-        ></div>
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50rem] h-[50rem] rounded-full blur-[120px] animate-pulse delay-500 opacity-20"
-          style={{ backgroundColor: "rgba(10, 147, 150, 0.2)" }}
-        ></div>
-      </div>
-
-      <header className="fixed top-0 inset-x-0 z-20 bg-white/95 backdrop-blur border-b border-gray-100">
+    <div className="home-page font-moho min-h-screen bg-white flex items-center justify-center px-4 relative overflow-hidden">
+      <header className="fixed top-0 inset-x-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-4 py-4 md:py-5 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <div className="h-11 w-11 md:h-12 md:w-12 rounded-2xl overflow-hidden shadow-lg border border-gray-200">
@@ -110,16 +95,11 @@ export default function Home() {
             />
             <div className="text-left">
               <h1
-                className="brand-title text-6xl md:text-8xl font-bold bg-clip-text text-transparent tracking-tight leading-none"
-                style={{
-                  backgroundImage: "linear-gradient(to right, #005f73, #94d2bd)",
-                  WebkitTextStroke: "1px white",
-                  filter: "drop-shadow(0 4px 12px rgba(0, 95, 115, 0.3))"
-                }}
+                className="brand-title text-6xl md:text-8xl font-black text-gray-900 tracking-tighter leading-none"
               >
                 SkillXchange
               </h1>
-              <p className="mt-2 text-sm md:text-base text-gray-500">
+              <p className="mt-2 text-sm md:text-base text-gray-500 font-medium">
                 A peer‑to‑peer platform to trade skills, time, and knowledge.
               </p>
             </div>
@@ -130,21 +110,21 @@ export default function Home() {
           </p>
 
           <div className="grid gap-8 md:grid-cols-3 mb-16">
-            <div className="feature-card bg-gradient-to-br from-sky-100/60 to-blue-100/60 backdrop-blur-xl border border-sky-200/50 shadow-xl p-8 rounded-[2rem] hover:scale-105 hover:shadow-2xl transition-all duration-500 group">
+            <div className="feature-card bg-white border border-gray-100 shadow-sm p-8 rounded-[2rem] hover:scale-105 hover:shadow-xl transition-all duration-500 group">
               <div className="text-4xl mb-4 group-hover:animate-bounce">🎯</div>
               <h3 className="feature-title text-xl font-bold mb-3 text-gray-900">Smart Matching</h3>
               <p className="feature-desc text-sm text-gray-600 leading-relaxed">
                 Our matching engine connects you with people who want to learn the skills you can teach.
               </p>
             </div>
-            <div className="feature-card bg-gradient-to-br from-emerald-100/60 to-teal-100/60 backdrop-blur-xl border border-emerald-200/50 shadow-xl p-8 rounded-[2rem] hover:scale-105 hover:shadow-2xl transition-all duration-500 group">
+            <div className="feature-card bg-white border border-gray-100 shadow-sm p-8 rounded-[2rem] hover:scale-105 hover:shadow-xl transition-all duration-500 group">
               <div className="text-4xl mb-4 group-hover:animate-bounce">🤝</div>
               <h3 className="feature-title text-xl font-bold mb-3 text-gray-900">Request & Exchange</h3>
               <p className="feature-desc text-sm text-gray-600 leading-relaxed">
                 Send and receive requests, chat, and plan sessions directly from the dashboard.
               </p>
             </div>
-            <div className="feature-card bg-gradient-to-br from-teal-100/60 to-green-100/60 backdrop-blur-xl border border-teal-200/50 shadow-xl p-8 rounded-[2rem] hover:scale-105 hover:shadow-2xl transition-all duration-500 group">
+            <div className="feature-card bg-white border border-gray-100 shadow-sm p-8 rounded-[2rem] hover:scale-105 hover:shadow-xl transition-all duration-500 group">
               <div className="text-4xl mb-4 group-hover:animate-bounce">📊</div>
               <h3 className="feature-title text-xl font-bold mb-3 text-gray-900">Feedback & Growth</h3>
               <p className="feature-desc text-sm text-gray-600 leading-relaxed">
@@ -192,15 +172,14 @@ export default function Home() {
         {/* Why SkillXchange Section */}
         <section className="mb-20 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="relative">
-            <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur-3xl opacity-20"></div>
             <img 
               src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
               alt="Community Learning" 
               className="relative rounded-[3rem] shadow-2xl border-8 border-white object-cover aspect-video md:aspect-square"
             />
             <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-3xl shadow-xl border border-gray-50 max-w-[200px]">
-              <p className="text-2xl font-bold text-indigo-600">500+</p>
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Active Mentors</p>
+              <p className="text-2xl font-bold text-indigo-600"></p>
+              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Active Users</p>
             </div>
           </div>
           <div className="space-y-6">
@@ -233,6 +212,71 @@ export default function Home() {
                 </div>
               </li>
             </ul>
+          </div>
+        </section>
+
+        {/* Testimonials Section */}
+        <section className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Success Stories</h2>
+            <p className="text-gray-600">See how SkillXchange is transforming the way people learn.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-8 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+              <div className="flex text-yellow-400 mb-4">★★★★★</div>
+              <p className="text-gray-600 italic mb-6 text-sm">"I traded my Python knowledge for UI/UX design lessons. It's much more engaging than watching online videos alone."</p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-600">SD</div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">Sonu Dev</p>
+                  <p className="text-[10px] text-gray-400 uppercase font-bold">Software Engineer</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-8 bg-indigo-600 rounded-[2.5rem] shadow-xl hover:scale-105 transition-all duration-300 text-white">
+              <div className="flex text-indigo-200 mb-4">★★★★★</div>
+              <p className="text-indigo-50 mb-6 text-sm italic">"The streak system keeps me motivated to join sessions every day. I've learned more Spanish in a month than I did in a year!"</p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-white">SB</div>
+                <div>
+                  <p className="text-sm font-bold">Suman Ban</p>
+                  <p className="text-[10px] text-indigo-200 uppercase font-bold">Language Learner</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-8 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+              <div className="flex text-yellow-400 mb-4">★★★★★</div>
+              <p className="text-gray-600 italic mb-6 text-sm">"The matching engine is spot on. I found a mentor for React within hours of creating my profile. Highly recommended!"</p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center font-bold text-emerald-600">AP</div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">Aanand poddar</p>
+                  <p className="text-[10px] text-gray-400 uppercase font-bold">Student</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Stats Section */}
+        <section className="mb-20 py-16 bg-white rounded-[3rem] border border-gray-100 shadow-sm relative overflow-hidden">
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center px-8">
+            <div>
+              <p className="text-4xl font-black mb-2 text-indigo-600">500+</p>
+              <p className="text-xs text-gray-400 uppercase font-bold tracking-widest">Members</p>
+            </div>
+            <div>
+              <p className="text-4xl font-black mb-2 text-indigo-600">120+</p>
+              <p className="text-xs text-gray-400 uppercase font-bold tracking-widest">Skills</p>
+            </div>
+            <div>
+              <p className="text-4xl font-black mb-2 text-indigo-600">1.5k+</p>
+              <p className="text-xs text-gray-400 uppercase font-bold tracking-widest">Exchanges</p>
+            </div>
+            <div>
+              <p className="text-4xl font-black mb-2 text-indigo-600">4.9/5</p>
+              <p className="text-xs text-gray-400 uppercase font-bold tracking-widest">Avg Rating</p>
+            </div>
           </div>
         </section>
 
@@ -380,22 +424,8 @@ export default function Home() {
             </Link>
           )}
         </div>
-
-        <div className="home-footer mt-4 text-center text-sm text-gray-500">
-          <p>Built to make real skill exchange simple, structured, and fun.</p>
-          <div className="mt-4 flex justify-center gap-6 flex-wrap">
-            <span className="flex items-center gap-1">
-              <span className="text-green-600">✓</span> Free to use
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="text-green-600">✓</span> No credit card required
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="text-green-600">✓</span> Manage matches, requests, and feedback in one system
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   );
 }
+

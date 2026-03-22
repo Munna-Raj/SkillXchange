@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const User = require("../models/User");
+const Category = require("../models/Category");
 const fs = require("fs");
 const path = require("path");
 
@@ -87,12 +88,34 @@ exports.addSkill = async (req, res) => {
       user.skillsToLearn.push(newSkill);
     }
 
+    // Save/Update Category globally
+    if (category) {
+      const existingCategory = await Category.findOne({ name: category.trim() });
+      if (existingCategory) {
+        existingCategory.usageCount += 1;
+        await existingCategory.save();
+      } else {
+        await Category.create({ name: category.trim(), usageCount: 1 });
+      }
+    }
+
     await user.save();
     
     const updatedUser = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpire");
     res.json(updatedUser);
   } catch (error) {
     console.error("ADD SKILL ERROR:", error);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
+// Get all categories
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ usageCount: -1, name: 1 });
+    res.json(categories);
+  } catch (error) {
+    console.error("GET CATEGORIES ERROR:", error);
     res.status(500).json({ msg: "Server error" });
   }
 };

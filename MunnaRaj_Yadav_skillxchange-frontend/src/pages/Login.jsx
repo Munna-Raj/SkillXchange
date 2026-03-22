@@ -71,31 +71,33 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page">
-      {/* Animated background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="login-bg-bubble-1"></div>
-        <div className="login-bg-bubble-2"></div>
+    <div className="login-page bg-white min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Subtle background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-50 rounded-full blur-3xl opacity-50"></div>
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-50 rounded-full blur-3xl opacity-50"></div>
       </div>
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo and header */}
-        <div className="login-header">
-          <div className="login-logo-container">
-            <img 
-              src="/src/Image/logo skillxChange.jpeg" 
-              alt="SkillXchange Logo" 
-              className="login-logo-img"
-            />
-            <h1 className="login-title">
+        <div className="login-header mb-10 text-center">
+          <Link to="/" className="inline-flex items-center gap-3 mb-6 hover:opacity-80 transition-opacity">
+            <div className="h-12 w-12 rounded-2xl overflow-hidden border border-gray-100 shadow-xl">
+              <img 
+                src="/src/Image/logo skillxChange.jpeg" 
+                alt="SkillXchange Logo" 
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <h1 className="text-2xl font-black text-gray-900 tracking-tighter">
               SkillXchange
             </h1>
-          </div>
-          <p className="login-subtitle">Welcome back! Sign in to continue</p>
+          </Link>
+          <p className="text-gray-500 font-medium">Welcome back! Sign in to continue</p>
         </div>
 
         {/* Login form */}
-        <div className="login-card">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-2xl">
           {error && (
             <div className="login-error-alert mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded relative" role="alert">
               <span className="block sm:inline">{error}</span>

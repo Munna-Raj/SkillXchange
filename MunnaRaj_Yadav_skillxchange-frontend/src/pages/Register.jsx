@@ -82,23 +82,33 @@ export default function Register() {
   };
 
   return (
-    <div className="register-page">
+    <div className="register-page bg-white min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Subtle background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-50 rounded-full blur-3xl opacity-50"></div>
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-50 rounded-full blur-3xl opacity-50"></div>
+      </div>
+
       <div className="w-full max-w-md relative z-10">
         {/* Logo Section */}
-        <div className="register-header">
-          <div className="register-logo-container">
-            <img 
-              src="/src/Image/logo skillxChange.jpeg" 
-              alt="SkillXchange Logo" 
-              className="register-logo-img-lg"
-            />
-          </div>
-          <h1 className="register-title">Create Account</h1>
-          <p className="register-subtitle">Join SkillXchange today</p>
+        <div className="register-header mb-10 text-center">
+          <Link to="/" className="inline-flex items-center gap-3 mb-6 hover:opacity-80 transition-opacity">
+            <div className="h-12 w-12 rounded-2xl overflow-hidden border border-gray-100 shadow-xl">
+              <img 
+                src="/src/Image/logo skillxChange.jpeg" 
+                alt="SkillXchange Logo" 
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <h1 className="text-2xl font-black text-gray-900 tracking-tighter">
+              SkillXchange
+            </h1>
+          </Link>
+          <p className="text-gray-500 font-medium">Join SkillXchange today</p>
         </div>
 
         {/* Registration Card */}
-        <div className="register-card">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-2xl">
           {error && (
             <div className="register-error-alert">
               <p className="text-sm">{error}</p>
