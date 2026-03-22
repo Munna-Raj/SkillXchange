@@ -8,7 +8,7 @@ const NotificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["request_received", "request_accepted", "request_rejected", "feedback_received", "follow"],
+    enum: ["request_received", "request_accepted", "request_rejected", "feedback_received", "follow", "session_start"],
     required: true,
   },
   message: {

@@ -18,6 +18,8 @@ const feedbackRoutes = require("./routes/feedbackRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
+const Session = require("./models/Session");
+const Notification = require("./models/Notification");
 
 const app = express();
 const server = http.createServer(app);
@@ -115,4 +117,60 @@ io.on("connection", (socket) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  
+  // Session Start Notification Logic (Checks every minute)
+  setInterval(async () => {
+    try {
+      const now = new Date();
+      const currentDay = now.toISOString().split('T')[0];
+      const currentHour = String(now.getHours()).padStart(2, '0');
+      const currentMinute = String(now.getMinutes()).padStart(2, '0');
+      const currentTimeSlot = `${currentHour}:${currentMinute}`;
+
+      // Find active sessions that have a slot matching current time
+      const activeSessions = await Session.find({ status: "active" });
+      
+      for (const session of activeSessions) {
+        // Check if today is one of the scheduled days
+        const todaySchedule = session.schedule.find(s => 
+          s.date.toISOString().split('T')[0] === currentDay && 
+          s.timeSlot === currentTimeSlot &&
+          s.status === "upcoming"
+        );
+
+        if (todaySchedule) {
+          // Notify both users
+          for (const userId of session.users) {
+            // Check if notification already sent for this specific slot to prevent duplicates
+            const existing = await Notification.findOne({
+              userId,
+              type: "session_start",
+              relatedId: session._id,
+              createdAt: { $gte: new Date(now.getTime() - 60000) } // Sent in the last minute
+            });
+
+            if (!existing) {
+              const notification = await Notification.create({
+                userId,
+                type: "session_start",
+                message: `Your session is starting now! Join here: ${session.meetLink}`,
+                relatedId: session._id
+              });
+
+              // Real-time emit
+              const userSockets = io.userSockets || new Map();
+              const targetSocket = userSockets.get(String(userId));
+              if (targetSocket) {
+                io.to(targetSocket).emit("notification", notification);
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error("SESSION NOTIFICATION CRON ERROR:", err);
+    }
+  }, 60000); // 1 minute interval
+});

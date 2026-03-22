@@ -60,6 +60,8 @@ const NotificationBell = () => {
       navigate("/profile");
     } else if (notification.type === "follow" && notification.relatedId) {
       navigate(`/user/${notification.relatedId}`);
+    } else if (notification.type === "session_start") {
+      navigate("/sessions");
     }
   };
 
