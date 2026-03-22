@@ -57,7 +57,19 @@ const userSchema = new mongoose.Schema({
     ref: "User"
   }],
   resetToken: String,
-  resetTokenExpire: Date
+  resetTokenExpire: Date,
+  currentStreak: {
+    type: Number,
+    default: 0
+  },
+  highestStreak: {
+    type: Number,
+    default: 0
+  },
+  lastAttendanceDate: {
+    type: Date,
+    default: null
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

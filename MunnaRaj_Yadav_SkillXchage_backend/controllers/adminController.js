@@ -55,7 +55,32 @@ exports.adminLogin = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password").sort({ createdAt: -1 });
-    res.json(users);
+    
+    // Calculate running streak dynamically
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const processedUsers = users.map(user => {
+      const u = user.toObject();
+      const lastDate = u.lastAttendanceDate ? new Date(u.lastAttendanceDate) : null;
+      
+      if (lastDate) {
+        lastDate.setHours(0, 0, 0, 0);
+        // If last attendance was today or yesterday, streak is still running
+        if (lastDate.getTime() >= yesterday.getTime()) {
+          u.runningStreak = u.currentStreak || 0;
+        } else {
+          u.runningStreak = 0;
+        }
+      } else {
+        u.runningStreak = 0;
+      }
+      return u;
+    });
+
+    res.json(processedUsers);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");

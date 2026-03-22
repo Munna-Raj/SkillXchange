@@ -729,10 +729,22 @@ export default function Profile() {
           </div>
 
           <div className="profile-card">
-            <h3 className="card-title mb-2">Contribution Graph</h3>
-            <p className="text-xs text-gray-500 mb-4">
-              Your session attendance over the last 6 months
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="card-title mb-0">Contribution Graph</h3>
+                <p className="text-xs text-gray-500">
+                  Your session attendance over the last 6 months
+                </p>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="text-sm font-bold text-orange-600 flex items-center gap-1">
+                  🔥 {profile.currentStreak || 0} Day Streak
+                </span>
+                <span className="text-[10px] text-gray-500">
+                  Best: {profile.highestStreak || 0}
+                </span>
+              </div>
+            </div>
             <ContributionGraph userId={profile._id} />
           </div>
 

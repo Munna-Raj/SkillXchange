@@ -1,5 +1,6 @@
 const Attendance = require("../models/Attendance");
 const Session = require("../models/Session");
+const User = require("../models/User");
 
 // Mark attendance when joining a session
 exports.markAttendance = async (req, res) => {
@@ -38,6 +39,37 @@ exports.markAttendance = async (req, res) => {
       date: today,
       timestamp: now
     });
+
+    // Update User Streak
+    const user = await User.findById(userId);
+    if (user) {
+      const lastDate = user.lastAttendanceDate ? new Date(user.lastAttendanceDate) : null;
+      if (lastDate) {
+        lastDate.setHours(0, 0, 0, 0);
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (lastDate.getTime() === yesterday.getTime()) {
+          // Continuous streak
+          user.currentStreak += 1;
+        } else if (lastDate.getTime() < yesterday.getTime()) {
+          // Streak broken
+          user.currentStreak = 1;
+        }
+        // If lastDate is today, currentStreak stays same (handled by existing attendance check above)
+      } else {
+        // First time attendance
+        user.currentStreak = 1;
+      }
+
+      // Update highest streak if current is higher
+      if (user.currentStreak > user.highestStreak) {
+        user.highestStreak = user.currentStreak;
+      }
+
+      user.lastAttendanceDate = today;
+      await user.save();
+    }
 
     res.status(201).json(newAttendance);
   } catch (err) {

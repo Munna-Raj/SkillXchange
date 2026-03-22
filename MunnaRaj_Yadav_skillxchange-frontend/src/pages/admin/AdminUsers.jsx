@@ -122,6 +122,9 @@ const AdminUsers = () => {
                     Role
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Streaks
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Joined
                   </th>
                   <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -157,6 +160,22 @@ const AdminUsers = () => {
                         }`}>
                           {user.role}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-orange-600 font-black">
+                              🔥 {user.runningStreak || 0}
+                            </span>
+                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Running</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[11px] text-gray-700 font-bold">
+                              🏆 {user.highestStreak || 0}
+                            </span>
+                            <span className="text-[9px] text-gray-400 font-medium uppercase tracking-tighter">Best Ever</span>
+                          </div>
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(user.createdAt || user.created_at || Date.now()).toLocaleDateString()}

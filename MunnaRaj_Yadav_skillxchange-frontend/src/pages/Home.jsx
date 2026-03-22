@@ -154,6 +154,88 @@ export default function Home() {
           </div>
         </div>
 
+        {/* How it Works Section */}
+        <section className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How it Works</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              SkillXchange is built on the principle of mutual learning. Here's how you can get started in 4 simple steps.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="relative p-6 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xl mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-all">1</div>
+              <h4 className="font-bold text-gray-900 mb-2">Create Profile</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">List the skills you can teach and the ones you want to learn.</p>
+              <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 text-gray-200 text-2xl">→</div>
+            </div>
+            <div className="relative p-6 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
+              <div className="w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center text-sky-600 font-bold text-xl mb-4 group-hover:bg-sky-600 group-hover:text-white transition-all">2</div>
+              <h4 className="font-bold text-gray-900 mb-2">Find Matches</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">Our system finds people with complementary skills to yours.</p>
+              <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 text-gray-200 text-2xl">→</div>
+            </div>
+            <div className="relative p-6 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-xl mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-all">3</div>
+              <h4 className="font-bold text-gray-900 mb-2">Send Request</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">Propose an exchange and chat to finalize the learning plan.</p>
+              <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 text-gray-200 text-2xl">→</div>
+            </div>
+            <div className="relative p-6 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 font-bold text-xl mb-4 group-hover:bg-amber-600 group-hover:text-white transition-all">4</div>
+              <h4 className="font-bold text-gray-900 mb-2">Start Learning</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">Join live sessions, share knowledge, and grow together.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Why SkillXchange Section */}
+        <section className="mb-20 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="relative">
+            <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur-3xl opacity-20"></div>
+            <img 
+              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+              alt="Community Learning" 
+              className="relative rounded-[3rem] shadow-2xl border-8 border-white object-cover aspect-video md:aspect-square"
+            />
+            <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-3xl shadow-xl border border-gray-50 max-w-[200px]">
+              <p className="text-2xl font-bold text-indigo-600">500+</p>
+              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Active Mentors</p>
+            </div>
+          </div>
+          <div className="space-y-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+              A community built on <span className="text-indigo-600">shared knowledge.</span>
+            </h2>
+            <p className="text-gray-600 leading-relaxed">
+              We believe everyone has something valuable to teach and something new to learn. SkillXchange removes the barriers of traditional learning by connecting you directly with peers.
+            </p>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs flex-shrink-0 mt-0.5">✓</div>
+                <div>
+                  <h5 className="font-bold text-gray-900 text-sm">No Monetary Cost</h5>
+                  <p className="text-xs text-gray-500">Trade your time and skills instead of money.</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs flex-shrink-0 mt-0.5">✓</div>
+                <div>
+                  <h5 className="font-bold text-gray-900 text-sm">Real Human Connection</h5>
+                  <p className="text-xs text-gray-500">Learn from real people with real-world experience.</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs flex-shrink-0 mt-0.5">✓</div>
+                <div>
+                  <h5 className="font-bold text-gray-900 text-sm">Structured Progress</h5>
+                  <p className="text-xs text-gray-500">Track your learning journey with our session manager.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </section>
+
         <section className="homeSectionCard">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-gray-900">Recommended Matches</h2>

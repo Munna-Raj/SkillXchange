@@ -6,6 +6,7 @@ import { getFeedbackForUser, createFeedback } from '../services/feedbackService'
 import SendRequestModal from '../components/SendRequestModal';
 import FeedbackModal from '../components/FeedbackModal';
 import NotificationBell from '../components/NotificationBell';
+import ContributionGraph from '../components/ContributionGraph';
 import ChatBox from '../components/ChatBox';
 import { getSentRequestsApi, getReceivedRequestsApi } from '../services/requestService';
 
@@ -312,6 +313,25 @@ const UserProfileView = () => {
             )}
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Contribution Graph
+                  </h2>
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-end">
+                      <span className="text-sm font-bold text-orange-600 flex items-center gap-1">
+                        🔥 {user.currentStreak || 0} Day Streak
+                      </span>
+                      <span className="text-[10px] text-gray-500">
+                        Best: {user.highestStreak || 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <ContributionGraph userId={user._id} />
+              </div>
+
               <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4">
                 <h2 className="text-lg font-semibold text-gray-900 mb-3">
                   Skills to Teach
