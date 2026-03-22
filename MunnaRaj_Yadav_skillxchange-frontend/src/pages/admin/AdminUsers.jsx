@@ -51,6 +51,25 @@ const AdminUsers = () => {
     }
   };
 
+  const handlePromote = async (id) => {
+    if (window.confirm('Are you sure you want to promote this user to mentor?')) {
+      try {
+        await adminService.promoteToMentor(id);
+        toast.success('User promoted to mentor successfully');
+        const updatedUsers = users.map((user) => {
+          if (user._id === id) {
+            return { ...user, role: 'mentor' };
+          }
+          return user;
+        });
+        setUsers(updatedUsers);
+      } catch (err) {
+        console.error('Error promoting user:', err);
+        toast.error(err.response?.data?.msg || 'Failed to promote user');
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-full">
@@ -132,7 +151,9 @@ const AdminUsers = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+                          user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 
+                          user.role === 'mentor' ? 'bg-indigo-100 text-indigo-800' :
+                          'bg-green-100 text-green-800'
                         }`}>
                           {user.role}
                         </span>
@@ -141,6 +162,14 @@ const AdminUsers = () => {
                         {new Date(user.createdAt || user.created_at || Date.now()).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        {user.role === 'user' && (
+                          <button
+                            onClick={() => handlePromote(user._id)}
+                            className="text-blue-600 hover:text-blue-900 focus:outline-none"
+                          >
+                            Promote to Mentor
+                          </button>
+                        )}
                         {user.role !== 'admin' && (
                           <button
                             onClick={() => handleDelete(user._id)}

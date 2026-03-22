@@ -332,6 +332,18 @@ export default function Dashboard() {
                   >
                     Account Settings
                   </button>
+                  {(userProfile?.role === 'mentor' || userProfile?.role === 'admin') && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSettingsOpen(false);
+                        navigate("/mentor/dashboard");
+                      }}
+                      className="block w-full px-3 py-2 text-left text-indigo-600 font-semibold hover:bg-gray-100"
+                    >
+                      Mentor Dashboard
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => {

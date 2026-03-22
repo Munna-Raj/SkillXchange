@@ -87,6 +87,36 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
+// Promote to mentor
+exports.promoteToMentor = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    if (user.role === "mentor") {
+      return res.status(400).json({ msg: "User is already a mentor" });
+    }
+
+    if (user.role === "admin") {
+      return res.status(400).json({ msg: "Admin cannot be promoted to mentor" });
+    }
+
+    user.role = "mentor";
+    await user.save();
+
+    res.json({ msg: "User promoted to mentor successfully", user });
+  } catch (err) {
+    console.error(err.message);
+    if (err.kind === "ObjectId") {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    res.status(500).send("Server Error");
+  }
+};
+
 // Stats
 exports.getDashboardStats = async (req, res) => {
   try {

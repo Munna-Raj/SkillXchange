@@ -10,6 +10,11 @@ const deleteUser = async (id) => {
   return response.data;
 };
 
+const promoteToMentor = async (id) => {
+  const response = await api.put(`/admin/users/${id}/promote`);
+  return response.data;
+};
+
 const getDashboardStats = async () => {
   const response = await api.get('/admin/stats');
   return response.data;
@@ -43,6 +48,7 @@ const getReportsData = async () => {
 const adminService = {
   getUsers,
   deleteUser,
+  promoteToMentor,
   getDashboardStats,
   getSkills,
   deleteSkill,

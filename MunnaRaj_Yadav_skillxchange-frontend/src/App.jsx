@@ -15,8 +15,10 @@ import Sessions from "./pages/Sessions";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import { AdminSkills, AdminRequests, AdminReports } from "./pages/admin/AdminPages";
+import MentorDashboard from "./pages/mentor/MentorDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
+import MentorRoute from "./components/MentorRoute";
 import Footer from "./components/Footer";
 import ComingSoon from "./pages/ComingSoon";
 import Services from "./pages/Services";
@@ -92,6 +94,16 @@ function Layout() {
             <AdminRoute>
               <AdminDashboard content={<AdminReports />} />
             </AdminRoute>
+          } 
+        />
+
+        {/* Mentor Routes */}
+        <Route 
+          path="/mentor/dashboard" 
+          element={
+            <MentorRoute>
+              <MentorDashboard />
+            </MentorRoute>
           } 
         />
 

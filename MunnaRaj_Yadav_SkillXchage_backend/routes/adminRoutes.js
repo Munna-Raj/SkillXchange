@@ -9,7 +9,8 @@ const {
     deleteSkill,
     getAllRequests,
     deleteRequest,
-    getReportsData
+    getReportsData,
+    promoteToMentor
 } = require("../controllers/adminController");
 const adminAuth = require("../middleware/adminAuth");
 
@@ -22,6 +23,11 @@ router.post("/login", adminLogin);
 // @desc    Get all users
 // @access  Private (Admin only)
 router.get("/users", adminAuth, getAllUsers);
+
+// @route   PUT /api/admin/users/:id/promote
+// @desc    Promote a user to mentor
+// @access  Private (Admin only)
+router.put("/users/:id/promote", adminAuth, promoteToMentor);
 
 // @route   DELETE /api/admin/users/:id
 // @desc    Delete a user

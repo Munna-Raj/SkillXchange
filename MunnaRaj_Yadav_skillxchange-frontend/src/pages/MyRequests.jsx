@@ -26,8 +26,9 @@ const MyRequests = () => {
         getSentRequestsApi(),
         getReceivedRequestsApi(),
       ]);
-      setSentRequests(sent);
-      setReceivedRequests(received);
+      // Filter out requests where the other user is null (deleted user)
+      setSentRequests((sent || []).filter(r => r && r.receiverId));
+      setReceivedRequests((received || []).filter(r => r && r.senderId));
     } catch (err) {
       console.error("Failed to fetch requests:", err);
       setError("Failed to load requests.");
@@ -129,12 +130,12 @@ const MyRequests = () => {
                 <div key={req._id} className="request-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
                   <div className="request-user-info flex items-center gap-4 w-full md:w-auto">
                     <img
-                      src={req.senderId.profilePic ? `http://localhost:5000/uploads/${req.senderId.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.senderId.fullName)}&background=random`}
-                      alt={req.senderId.fullName}
+                      src={req.senderId?.profilePic ? `http://localhost:5000/uploads/${req.senderId.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.senderId?.fullName || "Deleted")}&background=random`}
+                      alt={req.senderId?.fullName || "Deleted User"}
                       className="w-14 h-14 rounded-full object-cover border border-gray-200"
                     />
                     <div>
-                      <h3 className="font-bold text-gray-900">{req.senderId.fullName}</h3>
+                      <h3 className="font-bold text-gray-900">{req.senderId?.fullName || "Deleted User"}</h3>
                       <p className="text-sm text-gray-600">
                         Wants to learn <span className="font-semibold text-indigo-600">{req.learnSkill}</span>
                       </p>
@@ -163,7 +164,7 @@ const MyRequests = () => {
                     ) : (
                       <div className="flex items-center gap-3">
                         <StatusBadge status={req.status} />
-                        {req.status === "accepted" && (
+                        {req.status === "accepted" && req.senderId && (
                           <button
                             onClick={() => setActiveChat({ requestId: req._id, otherUser: req.senderId })}
                             className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
@@ -187,12 +188,12 @@ const MyRequests = () => {
               <div key={req._id} className="request-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="request-user-info flex items-center gap-4">
                   <img
-                    src={req.receiverId.profilePic ? `http://localhost:5000/uploads/${req.receiverId.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.receiverId.fullName)}&background=random`}
-                    alt={req.receiverId.fullName}
+                    src={req.receiverId?.profilePic ? `http://localhost:5000/uploads/${req.receiverId.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.receiverId?.fullName || "Deleted")}&background=random`}
+                    alt={req.receiverId?.fullName || "Deleted User"}
                     className="w-14 h-14 rounded-full object-cover border border-gray-200"
                   />
                   <div>
-                    <h3 className="font-bold text-gray-900">To: {req.receiverId.fullName}</h3>
+                    <h3 className="font-bold text-gray-900">To: {req.receiverId?.fullName || "Deleted User"}</h3>
                     <p className="text-sm text-gray-600">
                       You want to learn <span className="font-semibold text-indigo-600">{req.learnSkill}</span>
                     </p>
@@ -203,7 +204,7 @@ const MyRequests = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge status={req.status} />
-                  {req.status === "accepted" && (
+                  {req.status === "accepted" && req.receiverId && (
                     <button
                       onClick={() => setActiveChat({ requestId: req._id, otherUser: req.receiverId })}
                       className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
