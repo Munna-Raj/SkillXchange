@@ -5,6 +5,8 @@ import { deleteMessageApi } from "../services/chatService";
  
 import { createSessionApi, getSessionsByRequestApi, updateSessionApi } from "../services/sessionService";
 
+import { markAttendanceApi } from "../services/attendanceService";
+
 const socket = io("http://localhost:5000");
 
 const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floating" }) => {
@@ -298,6 +300,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
                   href={activeSession.meetLink} 
                   target="_blank" 
                   rel="noreferrer" 
+                  onClick={() => markAttendanceApi(activeSession._id)}
                   className="px-4 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-colors"
                 >
                   Join Link

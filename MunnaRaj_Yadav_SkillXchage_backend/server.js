@@ -17,6 +17,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
+const attendanceRoutes = require("./routes/attendanceRoutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -47,6 +48,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/feedback", feedbackRoutes); 
 app.use("/api/chat", chatRoutes);
 app.use("/api/sessions", sessionRoutes);
+app.use("/api/attendance", attendanceRoutes);
 app.use("/api", searchRoutes); 
 
 // Socket.io logic

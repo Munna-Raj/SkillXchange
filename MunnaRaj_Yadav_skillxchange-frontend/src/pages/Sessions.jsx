@@ -1,10 +1,19 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUpcomingForMeApi } from "../services/sessionService";
+import { markAttendanceApi } from "../services/attendanceService";
 
 const SessionCard = ({ session, item, isNext }) => {
   const [timeLeft, setTimeLeft] = useState("");
   const [isLive, setIsLive] = useState(false);
+
+  const handleJoin = async () => {
+    try {
+      await markAttendanceApi(session._id);
+    } catch (err) {
+      console.error("Failed to mark attendance:", err);
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -103,6 +112,7 @@ const SessionCard = ({ session, item, isNext }) => {
             href={session.meetLink} 
             target="_blank" 
             rel="noreferrer" 
+            onClick={handleJoin}
             className={`px-6 py-2 rounded-xl text-sm font-bold shadow-md transition-all ${
               isLive 
                 ? 'bg-green-600 text-white hover:bg-green-700 hover:shadow-green-200' 
@@ -257,6 +267,7 @@ export default function Sessions() {
                         href={oi.session.meetLink} 
                         target="_blank" 
                         rel="noreferrer" 
+                        onClick={() => markAttendanceApi(oi.session._id)}
                         className="text-xs font-bold text-indigo-600 hover:underline px-3 py-1 rounded-lg hover:bg-indigo-50"
                       >
                         Join Link
