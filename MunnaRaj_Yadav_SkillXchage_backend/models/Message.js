@@ -4,7 +4,16 @@ const MessageSchema = new mongoose.Schema({
   requestId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "SkillExchangeRequest",
-    required: true,
+    required: false,
+  },
+  groupId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Group",
+    required: false,
+  },
+  isGroupMessage: {
+    type: Boolean,
+    default: false,
   },
   senderId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -14,7 +23,7 @@ const MessageSchema = new mongoose.Schema({
   receiverId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: false,
   },
   text: {
     type: String,

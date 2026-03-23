@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getUpcomingForMeApi } from "../services/sessionService";
 import { markAttendanceApi } from "../services/attendanceService";
 
-const SessionCard = ({ session, item, isNext }) => {
+const SessionCard = ({ session, item, isNext, partnerInfo }) => {
   const [isLive, setIsLive] = useState(() => {
     const now = new Date();
     const startDate = new Date(item.date);
@@ -85,15 +85,15 @@ const SessionCard = ({ session, item, isNext }) => {
       }
     };
 
-    updateTime(); // Run immediately
+    updateTime();
     const timer = setInterval(updateTime, 1000);
-
     return () => clearInterval(timer);
   }, [item]);
 
-  const title = session.requestId?.teachSkill || "Skill Session";
+  const skillTitle = session.isGroupSession ? "Group Session" : (session.requestId?.teachSkill || "Skill Session");
   const valid = typeof session.meetLink === "string" && session.meetLink.startsWith("https://meet.google.com/");
   const dateStr = new Date(item.date).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  const partnerName = partnerInfo?.fullName || partnerInfo?.username || "User";
   
   return (
     <div className={`rounded-[2rem] p-6 border-2 transition-all relative overflow-hidden ${
@@ -109,17 +109,12 @@ const SessionCard = ({ session, item, isNext }) => {
             <h3 className={`text-xl font-black tracking-tight truncate ${
               isNext && !isLive ? 'text-white' : 'text-gray-900 dark:text-white'
             }`}>
-              {title}
+              {skillTitle} <span className={`text-sm font-medium italic ${isNext && !isLive ? 'text-indigo-200' : 'text-gray-400'}`}>{session.isGroupSession ? "for" : "with"}</span> <span className="text-lg">{partnerName}</span>
             </h3>
             {isLive && (
               <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500 text-white text-[10px] font-black uppercase tracking-wider">
                 <span className="h-2 w-2 rounded-full bg-white animate-ping"></span>
                 Live
-              </span>
-            )}
-            {isNext && !isLive && (
-              <span className="px-2.5 py-0.5 rounded-lg bg-white/20 text-white text-[10px] font-black uppercase tracking-widest backdrop-blur-sm border border-white/10">
-                Next Up
               </span>
             )}
           </div>
@@ -156,26 +151,29 @@ const SessionCard = ({ session, item, isNext }) => {
         </div>
       </div>
 
-      {/* Horizontal Divider */}
       <div className={`my-5 h-[1px] w-full ${
         isNext && !isLive ? 'bg-white/10' : 'bg-gray-200/60 dark:bg-gray-700'
       }`}></div>
 
       <div className="flex items-center justify-between relative z-10">
         <div className="flex items-center gap-3">
-          <div className={`h-9 w-9 rounded-full flex items-center justify-center font-black text-sm shadow-sm ${
+          <div className={`h-9 w-9 rounded-full flex items-center justify-center font-black text-sm shadow-sm overflow-hidden ${
             isNext && !isLive ? 'bg-white text-indigo-600' : 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300'
           }`}>
-            {session.createdBy?.fullName?.charAt(0) || "U"}
+            {partnerInfo?.profilePic ? (
+              <img src={`http://localhost:5000/uploads/${partnerInfo.profilePic}`} alt={partnerName} className="h-full w-full object-cover" />
+            ) : (
+              partnerName.charAt(0)
+            )}
           </div>
           <div className="flex flex-col">
             <span className={`text-[10px] font-bold uppercase tracking-tight ${
               isNext && !isLive ? 'text-indigo-200' : 'text-gray-400 dark:text-gray-500'
-            }`}>Organized by</span>
+            }`}>{session.isGroupSession ? "Group Name" : "Meeting with"}</span>
             <span className={`text-xs font-bold ${
               isNext && !isLive ? 'text-white' : 'text-gray-700 dark:text-gray-200'
             }`}>
-              {session.createdBy?.fullName || "Partner"}
+              {partnerName}
             </span>
           </div>
         </div>
@@ -214,6 +212,39 @@ export default function Sessions() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const currentUser = useMemo(() => {
+    try {
+      const user = localStorage.getItem("user");
+      return user ? JSON.parse(user) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const getPartnerInfo = (session) => {
+    if (session.isGroupSession && session.groupId) {
+      return {
+        fullName: session.groupId.name,
+        username: "Group",
+        profilePic: session.groupId.groupPic,
+        isGroup: true
+      };
+    }
+
+    if (!currentUser || !session.requestId) return { fullName: "Unknown User", username: "unknown" };
+    
+    const sender = session.requestId.senderId;
+    const receiver = session.requestId.receiverId;
+    
+    // Identify current user ID (handle both _id and id formats)
+    const currentId = currentUser._id || currentUser.id;
+    
+    // The partner is the user who is NOT the current user
+    const partner = (sender?._id === currentId || sender === currentId) ? receiver : sender;
+    
+    return partner || { fullName: "Unknown User", username: "unknown" };
+  };
+
   const load = async () => {
     setLoading(true);
     setError("");
@@ -237,7 +268,6 @@ export default function Sessions() {
         .flatMap((s) => (s.upcoming || []).map((u) => ({ session: s, item: u })))
         .sort((a, b) => new Date(a.item.date) - new Date(b.item.date));
       
-      // Filter out duplicates if any (same date/time across multiple sessions)
       const uniqueItems = allItems.filter((item, index, self) =>
         index === self.findIndex((t) => (
           new Date(t.item.date).toDateString() === new Date(item.item.date).toDateString() &&
@@ -285,11 +315,7 @@ export default function Sessions() {
             <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Your Schedule</h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">Manage and join your 7-day class sessions.</p>
           </div>
-          <button 
-            onClick={load} 
-            className="p-2 rounded-full hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all group"
-            title="Refresh schedule"
-          >
+          <button onClick={load} className="p-2 rounded-full hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all group">
             <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 text-gray-400 group-hover:text-indigo-600 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
@@ -308,51 +334,54 @@ export default function Sessions() {
           </div>
         ) : !nextItem ? (
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-12 text-center shadow-sm">
-            <div className="w-20 h-20 bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-300 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3M4 11h16M5 19h14a2 2 0 002-2v-6H3v6a2 2 0 002 2z" />
-              </svg>
-            </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white">No sessions scheduled</h3>
             <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto">Start a conversation with a match to schedule your first 7-day class.</p>
-            <button onClick={() => navigate("/conversations")} className="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-indigo-700 transition-all">
-              Go to Chat
-            </button>
           </div>
         ) : (
           <div className="space-y-8">
             <section>
               <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Up Next</h2>
-              <SessionCard session={nextItem.session} item={nextItem.item} isNext={true} />
+              <SessionCard 
+                session={nextItem.session} 
+                item={nextItem.item} 
+                isNext={true} 
+                partnerInfo={getPartnerInfo(nextItem.session)}
+              />
             </section>
 
             {otherItems.length > 0 && (
               <section>
                 <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Following Classes</h2>
                 <div className="grid gap-4">
-                  {otherItems.map((oi, idx) => (
-                    <div key={idx} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center justify-between hover:border-indigo-200 dark:hover:border-indigo-500 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-700 flex flex-col items-center justify-center border border-gray-100 dark:border-gray-600">
-                          <span className="text-[10px] font-bold text-gray-400 uppercase">{new Date(oi.item.date).toLocaleDateString(undefined, { weekday: 'short' })}</span>
-                          <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{new Date(oi.item.date).getDate()}</span>
+                  {otherItems.map((oi, idx) => {
+                    const partner = getPartnerInfo(oi.session);
+                    const partnerName = partner?.fullName || partner?.username || "User";
+                    return (
+                      <div key={idx} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center justify-between hover:border-indigo-200 dark:hover:border-indigo-500 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-gray-700 flex flex-col items-center justify-center border border-gray-100 dark:border-gray-600">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">{new Date(oi.item.date).toLocaleDateString(undefined, { weekday: 'short' })}</span>
+                            <span className="text-lg font-black text-gray-700 dark:text-gray-200 leading-none mt-1">{new Date(oi.item.date).getDate()}</span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">
+                              {oi.session.requestId?.teachSkill || "Session"} <span className="text-gray-400 font-medium italic">with</span> {partnerName}
+                            </p>
+                            <p className="text-xs font-black text-indigo-600 dark:text-indigo-400 mt-0.5">{oi.item.timeSlot}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-bold text-gray-900 dark:text-white">{oi.session.requestId?.teachSkill || "Session"}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{oi.item.timeSlot}</p>
-                        </div>
+                        <a 
+                          href={oi.session.meetLink} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          onClick={() => markAttendanceApi(oi.session._id)}
+                          className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 transition-all hover:scale-105"
+                        >
+                          Join Link
+                        </a>
                       </div>
-                      <a 
-                        href={oi.session.meetLink} 
-                        target="_blank" 
-                        rel="noreferrer" 
-                        onClick={() => markAttendanceApi(oi.session._id)}
-                        className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline px-3 py-1 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
-                      >
-                        Join Link
-                      </a>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
             )}
@@ -362,4 +391,3 @@ export default function Sessions() {
     </div>
   );
 }
-

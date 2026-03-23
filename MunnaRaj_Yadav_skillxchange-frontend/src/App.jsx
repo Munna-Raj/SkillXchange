@@ -12,6 +12,8 @@ import UserProfileView from "./pages/UserProfileView";
 import MyRequests from "./pages/MyRequests";
 import Conversations from "./pages/Conversations";
 import Sessions from "./pages/Sessions";
+import Groups from "./pages/Groups";
+import GroupDetails from "./pages/GroupDetails";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import { AdminSkills, AdminRequests, AdminReports } from "./pages/admin/AdminPages";
@@ -145,6 +147,22 @@ function Layout() {
           element={
             <ProtectedRoute>
               <Sessions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/groups"
+          element={
+            <ProtectedRoute>
+              <Groups />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/groups/:id"
+          element={
+            <ProtectedRoute>
+              <GroupDetails />
             </ProtectedRoute>
           }
         />

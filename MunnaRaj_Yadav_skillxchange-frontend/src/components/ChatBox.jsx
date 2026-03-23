@@ -17,6 +17,8 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
   const messagesEndRef = useRef(null);
  
   const [sessions, setSessions] = useState([]);
+  const [mentorGroups, setMentorGroups] = useState([]);
+  const [showGroupDropdown, setShowGroupDropdown] = useState(false);
   const [creatingSession, setCreatingSession] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [timeSlot, setTimeSlot] = useState("10:00");
@@ -32,6 +34,27 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
   };
 
   useEffect(() => {
+    const fetchMentorGroups = async () => {
+      if (currentUser.role === "mentor" || currentUser.role === "admin") {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch("http://localhost:5000/api/groups", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (res.ok) {
+            // Filter to groups where the current user is the mentor
+            setMentorGroups(data.filter(g => g.mentor?._id === (currentUser.id || currentUser._id)));
+          }
+        } catch (err) {
+          console.error("Failed to fetch mentor groups", err);
+        }
+      }
+    };
+    fetchMentorGroups();
+
+    if (!requestId || requestId === "undefined") return;
+
     socket.emit("join_room", requestId);
     socket.emit("register", { userId: currentUser.id || currentUser._id });
     const onConnect = () => {
@@ -77,7 +100,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
  
       socket.off("connect", onConnect);
     };
-  }, [requestId]);
+  }, [requestId, currentUser.id, currentUser._id, currentUser.role]);
 
  
 
@@ -182,6 +205,30 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
     }
   };
 
+  const addToGroup = async (groupId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:5000/api/groups/${groupId}/members`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId: otherUser._id || otherUser.id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("User added to group successfully!");
+        setShowGroupDropdown(false);
+      } else {
+        alert(data.msg || "Failed to add user to group");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error");
+    }
+  };
+
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const activeSession = sessions.find(s => s.status === "active");
 
@@ -213,16 +260,49 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
             </span>
           </div>
         </div>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {mentorGroups.length > 0 && (
+            <div className="relative">
+              <button
+                onClick={() => setShowGroupDropdown(!showGroupDropdown)}
+                className="p-1.5 hover:bg-white/10 rounded-full transition-colors flex items-center gap-1 text-[10px] font-bold border border-white/20"
+                title="Add to Group"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Group
+              </button>
+              
+              {showGroupDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-[60] animate-fade-in text-gray-800">
+                  <p className="px-3 py-1 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50 mb-1">Add to Group</p>
+                  <div className="max-h-40 overflow-y-auto">
+                    {mentorGroups.map(group => (
+                      <button
+                        key={group._id}
+                        onClick={() => addToGroup(group._id)}
+                        className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                      >
+                        {group.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">

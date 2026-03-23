@@ -18,7 +18,9 @@ const feedbackRoutes = require("./routes/feedbackRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
+const groupRoutes = require("./routes/groupRoutes");
 const Session = require("./models/Session");
+const Group = require("./models/Group");
 const Notification = require("./models/Notification");
 
 const app = express();
@@ -51,6 +53,7 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/groups", groupRoutes);
 app.use("/api", searchRoutes); 
 
 // Socket.io logic
@@ -67,34 +70,64 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("join_room", (requestId) => {
-    socket.join(requestId);
-    console.log(`User joined room: ${requestId}`);
+  socket.on("join_room", (roomId) => {
+    socket.join(roomId);
+    console.log(`User joined room: ${roomId}`);
   });
 
   socket.on("send_message", async (data) => {
-    const { requestId, senderId, receiverId, text } = data;
+    const { requestId, groupId, isGroupMessage, senderId, receiverId, text, fileUrl, fileName, fileType } = data;
     
     try {
-      const newMessage = new Message({
-        requestId,
+      const messageData = {
         senderId,
-        receiverId,
-        text
-      });
+        text,
+        fileUrl,
+        fileName,
+        fileType
+      };
+
+      if (isGroupMessage && groupId) {
+        messageData.groupId = groupId;
+        messageData.isGroupMessage = true;
+      } else if (requestId) {
+        messageData.requestId = requestId;
+        messageData.receiverId = receiverId;
+      }
+
+      const newMessage = new Message(messageData);
       await newMessage.save();
       
+      const roomId = isGroupMessage ? groupId : requestId;
+      
       // Emit to everyone in the room
-      io.to(requestId).emit("receive_message", newMessage);
+      io.to(roomId).emit("receive_message", newMessage);
 
-      const userSockets = io.userSockets || new Map();
-      const recvSocket = userSockets.get(String(receiverId));
-      const sndSocket = userSockets.get(String(senderId));
-      if (recvSocket) {
-        io.to(recvSocket).emit("message_notification", { requestId, message: newMessage });
-      }
-      if (sndSocket) {
-        io.to(sndSocket).emit("message_notification", { requestId, message: newMessage });
+      // Handle notifications
+      if (isGroupMessage) {
+        // Group message notification logic
+        // For groups, we might want to notify all members except sender
+        const group = await require("./models/Group").findById(groupId);
+        if (group) {
+          group.members.forEach(memberId => {
+            if (memberId.toString() !== senderId.toString()) {
+              const recvSocket = userSockets.get(String(memberId));
+              if (recvSocket) {
+                io.to(recvSocket).emit("message_notification", { groupId, message: newMessage });
+              }
+            }
+          });
+        }
+      } else {
+        // 1-on-1 message notification logic
+        const recvSocket = userSockets.get(String(receiverId));
+        const sndSocket = userSockets.get(String(senderId));
+        if (recvSocket) {
+          io.to(recvSocket).emit("message_notification", { requestId, message: newMessage });
+        }
+        if (sndSocket) {
+          io.to(sndSocket).emit("message_notification", { requestId, message: newMessage });
+        }
       }
     } catch (err) {
       console.error("Socket error:", err);

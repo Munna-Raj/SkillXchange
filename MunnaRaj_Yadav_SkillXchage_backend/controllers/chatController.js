@@ -3,16 +3,38 @@ const path = require("path");
 const fs = require("fs");
 
 // Chat history
+// Individual chat history
 exports.getChatHistory = async (req, res) => {
   try {
     const { requestId } = req.params;
+    if (!requestId || requestId === "undefined") {
+      return res.status(400).json({ msg: "Valid requestId is required" });
+    }
     const messages = await Message.find({ requestId })
       .sort({ createdAt: 1 })
       .populate("senderId", "fullName profilePic");
     
     res.json(messages);
   } catch (err) {
-    console.error(err.message);
+    console.error("GET CHAT HISTORY ERROR:", err.message);
+    res.status(500).send("Server Error");
+  }
+};
+
+// Group chat history
+exports.getGroupChatHistory = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    if (!groupId || groupId === "undefined") {
+      return res.status(400).json({ msg: "Valid groupId is required" });
+    }
+    const messages = await Message.find({ groupId })
+      .sort({ createdAt: 1 })
+      .populate("senderId", "fullName profilePic");
+    
+    res.json(messages);
+  } catch (err) {
+    console.error("GET GROUP CHAT HISTORY ERROR:", err.message);
     res.status(500).send("Server Error");
   }
 };

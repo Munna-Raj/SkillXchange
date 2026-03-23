@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
 
 const SessionSchema = new mongoose.Schema({
-  requestId: { type: mongoose.Schema.Types.ObjectId, ref: "SkillExchangeRequest", required: true },
-  users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }], // max 2
+  requestId: { type: mongoose.Schema.Types.ObjectId, ref: "SkillExchangeRequest" },
+  groupId: { type: mongoose.Schema.Types.ObjectId, ref: "Group" },
+  isGroupSession: { type: Boolean, default: false },
+  users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }],
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   meetLink: {
     type: String,
