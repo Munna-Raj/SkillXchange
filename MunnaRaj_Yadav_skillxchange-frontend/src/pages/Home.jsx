@@ -39,9 +39,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="home-page font-moho min-h-screen bg-white flex items-center justify-center px-4 relative overflow-hidden">
-      <header className="fixed top-0 inset-x-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-5xl mx-auto px-4 py-4 md:py-5 flex items-center justify-between">
+    <div className="home-page font-moho min-h-screen bg-white flex items-center justify-center px-4 relative overflow-hidden transition-colors duration-200">
+      <header className="fixed top-0 inset-x-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 py-4 md:py-5 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <div className="h-11 w-11 md:h-12 md:w-12 rounded-2xl overflow-hidden shadow-lg border border-gray-200">
               <img
@@ -58,8 +58,7 @@ export default function Home() {
             {token ? (
               <Link
                 to="/dashboard"
-                className="px-5 py-2.5 text-sm md:text-base font-semibold rounded-full text-white transition-colors"
-                style={{ backgroundColor: "#4b0082" }}
+                className="btn-primary"
               >
                 Explore
               </Link>
@@ -67,15 +66,13 @@ export default function Home() {
               <>
                 <Link
                   to="/login"
-                  className="px-5 py-2.5 text-sm md:text-base font-semibold rounded-full text-white transition-colors"
-                  style={{ backgroundColor: "#005f73" }}
+                  className="btn-primary"
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
-                  className="px-5 py-2.5 text-sm md:text-base font-semibold rounded-full border transition-colors"
-                  style={{ borderColor: "#005f73", color: "#005f73", backgroundColor: "#e9f5f2" }}
+                  className="px-5 py-2.5 text-sm md:text-base font-semibold rounded-full border border-indigo-600 text-indigo-700 bg-indigo-50 transition-colors"
                 >
                   Sign up
                 </Link>
@@ -97,7 +94,7 @@ export default function Home() {
               <h1
                 className="brand-title text-6xl md:text-8xl font-black text-gray-900 tracking-tighter leading-none"
               >
-                SkillXchange
+                Skill<span className="text-indigo-600">X</span>change
               </h1>
               <p className="mt-2 text-sm md:text-base text-gray-500 font-medium">
                 A peer‑to‑peer platform to trade skills, time, and knowledge.
@@ -105,8 +102,8 @@ export default function Home() {
             </div>
           </div>
 
-          <p className="home-tagline text-xl md:text-2xl text-gray-700 mb-6 max-w-2xl mx-auto leading-relaxed">
-            Learn what you want and teach what you know in one simple system.
+          <p className="home-tagline text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Learn what you want and teach what you know in one simple, peer‑to‑peer system.
           </p>
 
           <div className="grid gap-8 md:grid-cols-3 mb-16">
@@ -392,18 +389,14 @@ export default function Home() {
             <>
               <Link
                 to="/login"
-                className="btn-primary-home group relative px-8 py-4 text-white font-semibold rounded-2xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
-                style={{
-                  backgroundImage: "linear-gradient(to right, #4b0082, #E6E6FA)",
-                }}
+                className="group relative px-8 py-4 text-white font-semibold rounded-2xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden bg-indigo-600"
               >
                 <span className="relative z-10">Start exploring the system</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </Link>
               <Link
                 to="/register"
-                className="btn-secondary-home px-8 py-4 font-semibold rounded-2xl border shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-                style={{ backgroundColor: "#E6E6FA", borderColor: "#4b0082", color: "#4b0082" }}
+                className="px-8 py-4 font-semibold rounded-2xl border border-indigo-600 text-indigo-700 bg-indigo-50 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 Create a free account
               </Link>
@@ -411,10 +404,7 @@ export default function Home() {
           ) : (
             <Link
               to="/dashboard"
-              className="btn-dashboard-home group relative px-8 py-4 text-white font-semibold rounded-2xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
-              style={{
-                backgroundImage: "linear-gradient(to right, #4b0082, #E6E6FA)",
-              }}
+              className="group relative px-8 py-4 text-white font-semibold rounded-2xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden bg-indigo-600"
             >
               <span className="relative z-10 flex items-center gap-2">
                 View your SkillXchange workspace

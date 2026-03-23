@@ -79,7 +79,7 @@ const NotificationBell = () => {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)} 
-        className="relative p-2 text-gray-600 hover:text-indigo-600 transition-colors focus:outline-none"
+        className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus:outline-none"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -92,30 +92,34 @@ const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-          <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-            <h3 className="font-semibold text-gray-900">Notifications</h3>
+        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 overflow-hidden z-50 transition-all">
+          <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+            <h3 className="font-semibold text-gray-900 dark:text-white">Notifications</h3>
             {unreadCount > 0 && (
-              <button onClick={handleMarkAllRead} className="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+              <button onClick={handleMarkAllRead} className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition-colors">
                 Mark all read
               </button>
             )}
           </div>
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="p-4 text-center text-gray-500 text-sm">No notifications</div>
+              <div className="p-8 text-center text-gray-500 dark:text-gray-400 italic text-sm">
+                No notifications yet
+              </div>
             ) : (
-              notifications.map((notification) => (
-                <div 
-                  key={notification._id} 
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`p-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors ${!notification.isRead ? 'bg-indigo-50/50' : ''}`}
+              notifications.map((n) => (
+                <div
+                  key={n._id}
+                  onClick={() => handleNotificationClick(n)}
+                  className={`p-4 border-b border-gray-50 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                    !n.isRead ? "bg-indigo-50/50 dark:bg-indigo-900/10" : ""
+                  }`}
                 >
-                  <p className={`text-sm ${!notification.isRead ? 'font-semibold text-gray-900' : 'text-gray-600'}`}>
-                    {notification.message}
+                  <p className={`text-sm ${!n.isRead ? "font-bold text-gray-900 dark:text-white" : "text-gray-600 dark:text-gray-400"}`}>
+                    {n.message}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {new Date(notification.createdAt).toLocaleDateString()}
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 uppercase font-bold tracking-tight">
+                    {new Date(n.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               ))

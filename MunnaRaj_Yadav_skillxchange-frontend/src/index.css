@@ -32,67 +32,45 @@ html, body {
 body {
   margin: 0;
   font-family: "Moho Condensed", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  @apply bg-white text-gray-900 transition-colors duration-200;
   background-color: var(--background);
   color: var(--text-primary);
 }
 
-/* Explicit dark mode styles to ensure they work */
+html.dark body {
+  background-color: var(--background) !important;
+  color: var(--text-primary);
+}
+
+/* Explicit dark mode styles - cleaned up to avoid !important where possible */
 html.dark .bg-red-600 {
-  background-color: rgb(220 38 38) !important;
-}
-
-html.dark .bg-blue-600 {
-  background-color: var(--sx-primary) !important;
-}
-
-html.dark .bg-gray-900 {
-  background-color: rgb(17 24 39) !important;
-}
-
-html.dark .bg-gray-100 {
-  background-color: rgb(243 244 246) !important;
+  background-color: rgb(220 38 38);
 }
 
 html.dark .text-white {
-  color: rgb(255 255 255) !important;
+  color: #ffffff;
 }
 
-html.dark .text-gray-900 {
-  color: rgb(17 24 39) !important;
-}
-
-/* Dashboard specific dark mode overrides */
-html.dark .bg-white\/5 {
-  background-color: rgb(255 255 255 / 0.05) !important;
-}
-
-html.dark .bg-gray-900\/70 {
-  background-color: rgb(17 24 39 / 0.7) !important;
-}
-
-html.dark .bg-white\/10 {
-  background-color: rgb(255 255 255 / 0.1) !important;
-}
-
+/* Use variables for consistent theme colors */
 .bg-indigo-600,
 .bg-blue-600,
 .bg-emerald-600,
 .bg-green-600 {
-  background-color: var(--sx-primary) !important;
+  background-color: var(--sx-primary);
 }
 
 .text-indigo-600,
 .text-blue-600,
 .text-emerald-600,
 .text-green-600 {
-  color: var(--sx-primary) !important;
+  color: var(--sx-primary);
 }
 
 .border-indigo-600,
 .border-blue-600,
 .border-emerald-600,
 .border-green-600 {
-  border-color: var(--sx-primary) !important;
+  border-color: var(--sx-primary);
 }
 
 .bg-indigo-50,
@@ -103,7 +81,7 @@ html.dark .bg-white\/10 {
 .bg-pink-50,
 .bg-amber-50,
 .bg-teal-50 {
-  background-color: var(--sx-primary-light) !important;
+  background-color: var(--sx-primary-light);
 }
 
 html.dark .bg-gray-800 {
@@ -127,7 +105,7 @@ html.dark .bg-gray-800\/50 {
   }
   
   .auth-container {
-    @apply min-h-screen bg-white text-gray-900 flex items-center justify-center px-4 relative overflow-hidden;
+    @apply min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white flex items-center justify-center px-4 relative overflow-hidden;
   }
 
   .content-wrapper {
@@ -135,26 +113,26 @@ html.dark .bg-gray-800\/50 {
   }
 
   .card-container {
-    @apply rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-sm;
+    @apply rounded-3xl bg-white dark:bg-gray-900 p-6 ring-1 ring-gray-200 dark:ring-gray-800 shadow-sm;
   }
   
   .profile-card {
-    @apply rounded-3xl p-6 ring-1 ring-gray-200;
+    @apply rounded-3xl p-6 ring-1 ring-gray-200 dark:ring-gray-800;
     background-color: var(--card-background);
   }
 
   .auth-card {
-    @apply rounded-3xl p-8 shadow-2xl border border-gray-200 w-full max-w-md relative z-10;
+    @apply rounded-3xl p-8 shadow-2xl border border-gray-200 dark:border-gray-800 w-full max-w-md relative z-10;
     background-color: var(--card-background);
   }
 
   .home-page {
-    @apply text-gray-900;
+    @apply text-gray-900 dark:text-white transition-colors duration-200;
     background: radial-gradient(circle at top left, #E6E6FA 0%, #E6E6FA 40%, #4b0082 100%);
   }
 
   .services-page {
-    @apply text-gray-900;
+    @apply text-gray-900 dark:text-white;
     background: radial-gradient(circle at top left, #E6E6FA 0%, #E6E6FA 40%, #4b0082 100%);
   }
 
@@ -178,6 +156,10 @@ html.dark .bg-gray-800\/50 {
     @apply inline-flex items-center gap-3 mb-6 justify-center;
   }
 
+  .brand-title {
+    @apply text-6xl md:text-8xl font-black text-gray-900 dark:text-white tracking-tighter leading-none;
+  }
+
   .logo-image {
     @apply w-16 h-16 rounded-2xl shadow-2xl object-cover;
   }
@@ -187,11 +169,11 @@ html.dark .bg-gray-800\/50 {
   }
 
   .feature-card {
-    @apply bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-indigo-100 transform transition-all duration-300;
+    @apply bg-white dark:bg-gray-900 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-indigo-100 dark:hover:border-indigo-900 transform transition-all duration-300;
   }
 
   .homeSectionCard {
-    @apply mb-10 rounded-2xl bg-gradient-to-br from-white/90 via-indigo-50/80 to-emerald-50/80 border border-indigo-50 shadow-md p-6 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-indigo-200;
+    @apply mb-10 rounded-2xl bg-gradient-to-br from-white/90 via-indigo-50/80 to-emerald-50/80 dark:from-gray-900 dark:via-indigo-950/30 dark:to-emerald-950/20 border border-indigo-50 dark:border-gray-800 shadow-md p-6 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-indigo-200 dark:hover:border-indigo-800;
   }
 
   .action-buttons-container {
@@ -199,7 +181,7 @@ html.dark .bg-gray-800\/50 {
   }
 
   .navbar {
-    @apply sticky top-0 z-20 border-b border-gray-200 backdrop-blur-md;
+    @apply sticky top-0 z-20 border-b border-gray-200 dark:border-gray-800 backdrop-blur-md transition-colors duration-200;
     background-color: var(--card-background);
   }
   
@@ -235,17 +217,17 @@ html.dark .bg-gray-800\/50 {
 
   /* Forms & Inputs */
   .input-field {
-    @apply mt-1 w-full rounded-lg px-3 py-2 outline-none ring-1 ring-gray-300 focus:ring-2 focus:ring-indigo-500 transition-all duration-200;
+    @apply mt-1 w-full rounded-lg px-3 py-2 outline-none ring-1 ring-gray-300 dark:ring-gray-700 focus:ring-2 focus:ring-indigo-500 transition-all duration-200;
     background-color: var(--background);
     color: var(--text-primary);
   }
   
   .input-field-disabled {
-    @apply mt-1 w-full rounded-lg bg-gray-100 px-3 py-2 outline-none ring-1 ring-gray-300 text-gray-500 cursor-not-allowed;
+    @apply mt-1 w-full rounded-lg bg-gray-100 dark:bg-gray-800 px-3 py-2 outline-none ring-1 ring-gray-300 dark:ring-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed;
   }
 
   .auth-input {
-    @apply w-full px-4 py-3 rounded-xl text-gray-900 outline-none ring-2 ring-gray-300 focus:ring-blue-500 transition-all duration-200 placeholder-gray-400;
+    @apply w-full px-4 py-3 rounded-xl text-gray-900 dark:text-white outline-none ring-2 ring-gray-300 dark:ring-gray-700 focus:ring-blue-500 transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500;
     background-color: var(--background);
     color: var(--text-primary);
   }
@@ -256,34 +238,34 @@ html.dark .bg-gray-800\/50 {
   }
   
   .select-field {
-    @apply mt-1 w-full rounded-lg px-3 py-2 outline-none ring-1 ring-gray-300;
+    @apply mt-1 w-full rounded-lg px-3 py-2 outline-none ring-1 ring-gray-300 dark:ring-gray-700;
     background-color: var(--background);
     color: var(--text-primary);
   }
 
   /* Buttons */
   .btn-primary {
-    @apply rounded-lg bg-indigo-600 px-6 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors duration-200;
+    @apply rounded-lg bg-indigo-600 dark:bg-indigo-500 px-6 py-2 text-sm font-semibold text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-60 transition-colors duration-200;
   }
 
   .btn-auth {
-    @apply w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply w-full py-3 px-4 bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors duration-200;
+    @apply px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200;
   }
   
   .btn-back {
-    @apply rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold ring-1 ring-gray-300 hover:bg-gray-200 transition-colors duration-200;
+    @apply rounded-xl bg-gray-100 dark:bg-gray-800 px-4 py-2 text-sm font-semibold ring-1 ring-gray-300 dark:ring-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200;
   }
 
   .btn-add {
-    @apply text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors duration-200;
+    @apply text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200;
   }
 
   .btn-icon {
-    @apply h-10 w-10 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 disabled:opacity-60 shadow-lg transition-colors duration-200;
+    @apply h-10 w-10 rounded-full bg-indigo-600 dark:bg-indigo-500 text-white flex items-center justify-center hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-60 shadow-lg transition-colors duration-200;
   }
   
   .btn-delete {
@@ -292,25 +274,25 @@ html.dark .bg-gray-800\/50 {
 
   /* Skills */
   .skill-item {
-    @apply flex items-center justify-between bg-white p-3 rounded-lg ring-1 ring-gray-100 transition-shadow hover:shadow-sm;
+    @apply flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded-lg ring-1 ring-gray-100 dark:ring-gray-700 transition-shadow hover:shadow-sm;
   }
   
   .skill-section-header {
-    @apply text-sm font-bold text-gray-500 uppercase mb-3 border-b border-gray-200 pb-2;
+    @apply text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-3 border-b border-gray-200 dark:border-gray-700 pb-2;
   }
   
   /* Alerts */
   .alert-error {
-    @apply rounded-lg bg-red-50 p-3 text-red-800 ring-1 ring-red-200;
+    @apply rounded-lg bg-red-50 dark:bg-red-900/30 p-3 text-red-800 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800;
   }
   
   .alert-success {
-    @apply rounded-lg bg-green-50 p-3 text-green-800 ring-1 ring-green-200;
+    @apply rounded-lg bg-green-50 dark:bg-green-900/30 p-3 text-green-800 dark:text-green-300 ring-1 ring-green-200 dark:ring-green-800;
   }
 
   /* Profile Specific */
   .loading-screen {
-    @apply min-h-screen bg-white text-gray-900 flex items-center justify-center;
+    @apply min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white flex items-center justify-center;
   }
   
   .loading-text {
@@ -341,7 +323,7 @@ html.dark .bg-gray-800\/50 {
   }
   
   .profile-pic-container {
-    @apply h-32 w-32 rounded-full bg-gray-200 overflow-hidden ring-4 ring-gray-300 mx-auto;
+    @apply h-32 w-32 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden ring-4 ring-gray-300 dark:ring-gray-600 mx-auto;
   }
   
   .profile-pic-placeholder {
@@ -359,7 +341,7 @@ html.dark .bg-gray-800\/50 {
   }
   
   .skill-form-container {
-    @apply mb-8 bg-white p-4 rounded-xl ring-1 ring-gray-200 space-y-4;
+    @apply mb-8 bg-white dark:bg-gray-800 p-4 rounded-xl ring-1 ring-gray-200 dark:ring-gray-700 space-y-4;
   }
 
   /* Auth Pages */
@@ -367,9 +349,31 @@ html.dark .bg-gray-800\/50 {
     @apply min-h-screen bg-white text-gray-900 flex items-center justify-center px-4 relative overflow-hidden;
   }
 
-  /* =========================================
-     FOOTER STYLES
-     ========================================= */
+/* Removed aggressive global overrides that break component dark: classes */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #1f2937;
+  color: white;
+  border-color: #4b5563;
+}
+
+html.dark .dashboard-page,
+html.dark .page-container,
+html.dark .services-page {
+  background: var(--background) !important;
+}
+
+/* Fix for overlapping text colors in buttons */
+html.dark .btn-primary,
+html.dark .bg-indigo-600,
+html.dark .bg-blue-600 {
+  color: white !important;
+}
+
+/* =========================================
+   FOOTER STYLES
+   ========================================= */
   .footer {
     @apply bg-sky-950 text-sky-100 py-8 mt-auto border-t border-sky-900;
   }
@@ -603,11 +607,11 @@ html.dark .bg-gray-800\/50 {
   }
 
   .login-card, .register-card {
-    @apply bg-white rounded-3xl p-8 shadow-2xl border border-gray-200 w-full max-w-md relative z-10;
+    @apply bg-white dark:bg-gray-900 rounded-3xl p-8 shadow-2xl border border-gray-200 dark:border-gray-800 w-full max-w-md relative z-10;
   }
 
   .login-error-alert, .register-error-alert {
-    @apply mb-6 rounded-xl bg-red-50 p-4 text-red-700 border border-red-200;
+    @apply mb-6 rounded-xl bg-red-50 dark:bg-red-900/30 p-4 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800;
   }
   
   /* =========================================
@@ -622,27 +626,27 @@ html.dark .bg-gray-800\/50 {
   }
 
   .searchTitle {
-    @apply text-3xl font-bold text-gray-900 mb-2;
+    @apply text-3xl font-bold text-gray-900 dark:text-white mb-2;
   }
 
   .searchSubtitle {
-    @apply text-gray-600;
+    @apply text-gray-600 dark:text-gray-400;
   }
 
   .searchForm {
-    @apply bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-10 grid grid-cols-1 md:grid-cols-12 gap-4;
+    @apply bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 mb-10 grid grid-cols-1 md:grid-cols-12 gap-4;
   }
 
   .searchInput {
-    @apply md:col-span-6 w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all;
+    @apply md:col-span-6 w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-gray-700 transition-all text-gray-900 dark:text-white;
   }
 
   .searchSelect {
-    @apply md:col-span-4 w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all;
+    @apply md:col-span-4 w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-gray-700 transition-all text-gray-900 dark:text-white;
   }
 
   .searchButton {
-    @apply md:col-span-2 w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors shadow-md flex items-center justify-center gap-2;
+    @apply md:col-span-2 w-full py-3 px-6 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white font-semibold rounded-xl transition-colors shadow-md flex items-center justify-center gap-2;
   }
 
   .resultsGrid {
@@ -650,7 +654,7 @@ html.dark .bg-gray-800\/50 {
   }
 
   .skillCard {
-    @apply bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col h-full;
+    @apply bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col h-full;
   }
 
   .skillCardHeader {
@@ -658,7 +662,7 @@ html.dark .bg-gray-800\/50 {
   }
 
   .skillBadge {
-    @apply px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700;
+    @apply px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50;
   }
 
   .skillLevelBadge {
@@ -666,31 +670,31 @@ html.dark .bg-gray-800\/50 {
   }
 
   .skillLevelBeginner {
-    @apply bg-green-50 text-green-700 border-green-200;
+    @apply bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900/50;
   }
 
   .skillLevelIntermediate {
-    @apply bg-yellow-50 text-yellow-700 border-yellow-200;
+    @apply bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/50;
   }
 
   .skillLevelAdvanced {
-    @apply bg-red-50 text-red-700 border-red-200;
+    @apply bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-900/50;
   }
 
   .skillName {
-    @apply text-xl font-bold text-gray-900 mb-2;
+    @apply text-xl font-bold text-gray-900 dark:text-white mb-2;
   }
 
   .skillDescription {
-    @apply text-gray-600 text-sm mb-6 flex-grow line-clamp-3;
+    @apply text-gray-600 dark:text-gray-400 text-sm mb-6 flex-grow line-clamp-3;
   }
 
   .skillCardFooter {
-    @apply flex items-center gap-3 pt-4 border-t border-gray-50 mt-auto;
+    @apply flex items-center gap-3 pt-4 border-t border-gray-50 dark:border-gray-800 mt-auto;
   }
 
   .userAvatar {
-    @apply w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm;
+    @apply w-10 h-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-800 shadow-sm;
   }
 
   .userInfo {
@@ -698,17 +702,11 @@ html.dark .bg-gray-800\/50 {
   }
 
   .userName {
-    @apply text-sm font-semibold text-gray-900;
+    @apply text-sm font-semibold text-gray-900 dark:text-white;
   }
 
   .userBio {
-    font-size: 0.75rem;
-    line-height: 1rem;
-    color: #6b7280;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 150px;
+    @apply text-[10px] leading-4 text-gray-500 dark:text-gray-400 overflow-hidden text-ellipsis whitespace-nowrap max-w-[150px];
   }
 
   /* =========================================
@@ -723,11 +721,11 @@ html.dark .bg-gray-800\/50 {
   }
 
   .search-results-title {
-    @apply text-2xl font-bold text-gray-900 mb-2;
+    @apply text-2xl font-bold text-gray-900 dark:text-white mb-2;
   }
 
   .search-results-count {
-    @apply text-gray-600;
+    @apply text-gray-600 dark:text-gray-400;
   }
 
   .search-bar-large {
@@ -735,11 +733,11 @@ html.dark .bg-gray-800\/50 {
   }
 
   .search-input-large {
-    @apply flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg;
+    @apply flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg;
   }
 
   .search-btn-large {
-    @apply px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors;
+    @apply px-6 py-3 bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-xl hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors;
   }
 
   .results-grid-users {
@@ -747,7 +745,7 @@ html.dark .bg-gray-800\/50 {
   }
 
   .user-result-card {
-    @apply bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col;
+    @apply bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow flex flex-col;
   }
   
   .user-card-header {
@@ -755,7 +753,7 @@ html.dark .bg-gray-800\/50 {
   }
   
   .user-card-avatar {
-    @apply w-16 h-16 rounded-full object-cover ring-4 ring-gray-50;
+    @apply w-16 h-16 rounded-full object-cover ring-4 ring-gray-50 dark:ring-gray-800;
   }
   
   .user-card-info {
@@ -763,11 +761,11 @@ html.dark .bg-gray-800\/50 {
   }
   
   .user-card-name {
-    @apply text-lg font-bold text-gray-900 truncate;
+    @apply text-lg font-bold text-gray-900 dark:text-white truncate;
   }
   
   .user-card-username {
-    @apply text-sm text-gray-500 truncate;
+    @apply text-sm text-gray-500 dark:text-gray-400 truncate;
   }
   
   .user-skills-section {
@@ -775,7 +773,7 @@ html.dark .bg-gray-800\/50 {
   }
   
   .user-skills-label {
-    @apply text-xs font-semibold text-gray-500 uppercase mb-2;
+    @apply text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2;
   }
   
   .user-skills-tags {
@@ -783,51 +781,51 @@ html.dark .bg-gray-800\/50 {
   }
   
   .skill-tag-teach {
-    @apply px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-medium border border-indigo-100;
+    @apply px-2 py-1 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs font-medium border border-indigo-100 dark:border-indigo-900/50;
   }
   
   .view-profile-btn {
-    @apply mt-6 w-full py-2.5 bg-gray-50 text-gray-900 font-semibold rounded-xl hover:bg-gray-100 border border-gray-200 transition-colors;
+    @apply mt-6 w-full py-2.5 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition-colors;
   }
   
   /* User Profile View */
   .user-profile-view-page {
-    @apply min-h-screen bg-white;
+    @apply min-h-screen bg-white dark:bg-gray-950;
   }
   
   .user-profile-header-card {
-    @apply bg-white rounded-3xl p-8 border border-gray-100 shadow-sm relative overflow-hidden;
+    @apply bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden;
   }
   
   .user-profile-avatar-lg {
-    @apply w-32 h-32 rounded-full object-cover ring-4 ring-white shadow-lg mx-auto;
+    @apply w-32 h-32 rounded-full object-cover ring-4 ring-white dark:ring-gray-800 shadow-lg mx-auto;
   }
   
   .user-profile-name-lg {
-    @apply text-3xl font-bold text-gray-900 mb-1;
+    @apply text-3xl font-bold text-gray-900 dark:text-white mb-1;
   }
   
   .user-profile-username-lg {
-    @apply text-gray-500 font-medium;
+    @apply text-gray-500 dark:text-gray-400 font-medium;
   }
   
   .action-btn-primary {
-    @apply flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg;
+    @apply flex items-center gap-2 px-6 py-3 bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-xl hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all shadow-md hover:shadow-lg;
   }
   
   .action-btn-secondary {
-    @apply flex items-center gap-2 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl hover:bg-gray-50 border border-gray-200 transition-all;
+    @apply flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition-all;
   }
   
   .skill-category-container {
-    @apply bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-full;
+    @apply bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm h-full;
   }
   
   .skill-category-title {
-    @apply text-lg font-bold text-gray-900 mb-4 flex items-center gap-2;
+    @apply text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2;
   }
   
   .public-skill-card {
-    @apply flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-blue-200 transition-colors;
+    @apply flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-indigo-500 transition-colors;
   }
 }

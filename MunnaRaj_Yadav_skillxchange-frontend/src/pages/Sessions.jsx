@@ -4,8 +4,42 @@ import { getUpcomingForMeApi } from "../services/sessionService";
 import { markAttendanceApi } from "../services/attendanceService";
 
 const SessionCard = ({ session, item, isNext }) => {
-  const [timeLeft, setTimeLeft] = useState("");
-  const [isLive, setIsLive] = useState(false);
+  const [isLive, setIsLive] = useState(() => {
+    const now = new Date();
+    const startDate = new Date(item.date);
+    const [h, m] = String(item.timeSlot || "00:00").split(":").map((x) => parseInt(x, 10));
+    const start = new Date(startDate);
+    start.setHours(h || 0, m || 0, 0, 0);
+    const end = new Date(start.getTime() + 60 * 60000);
+    return now >= start && now <= end;
+  });
+
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const now = new Date();
+    const startDate = new Date(item.date);
+    const [h, m] = String(item.timeSlot || "00:00").split(":").map((x) => parseInt(x, 10));
+    const start = new Date(startDate);
+    start.setHours(h || 0, m || 0, 0, 0);
+    const end = new Date(start.getTime() + 60 * 60000);
+
+    if (now >= start && now <= end) {
+      const diff = end - now;
+      const mins = Math.floor(diff / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      return `${mins}m ${secs}s left`;
+    } else if (now < start) {
+      const diff = start - now;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      if (days > 0) return `${days}d ${hours}h left`;
+      if (hours > 0) return `${hours}h ${mins}m left`;
+      return `${mins}m ${secs}s left`;
+    }
+    return "Ended";
+  });
 
   const handleJoin = async () => {
     try {
@@ -16,7 +50,7 @@ const SessionCard = ({ session, item, isNext }) => {
   };
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const updateTime = () => {
       const now = new Date();
       const startDate = new Date(item.date);
       const [h, m] = String(item.timeSlot || "00:00").split(":").map((x) => parseInt(x, 10));
@@ -49,7 +83,10 @@ const SessionCard = ({ session, item, isNext }) => {
         setIsLive(false);
         setTimeLeft("Ended");
       }
-    }, 1000);
+    };
+
+    updateTime(); // Run immediately
+    const timer = setInterval(updateTime, 1000);
 
     return () => clearInterval(timer);
   }, [item]);
@@ -59,52 +96,88 @@ const SessionCard = ({ session, item, isNext }) => {
   const dateStr = new Date(item.date).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
   
   return (
-    <div className={`rounded-2xl p-5 border-2 transition-all ${isLive ? 'border-green-500 bg-green-50 shadow-green-100' : isNext ? 'border-indigo-500 bg-indigo-50 shadow-indigo-100' : 'border-gray-100 bg-white'} shadow-lg mb-4`}>
-      <div className="flex items-start justify-between">
+    <div className={`rounded-[2rem] p-6 border-2 transition-all relative overflow-hidden ${
+      isLive 
+        ? 'border-green-500 bg-[#f0fff4] dark:bg-green-900/20 shadow-[0_0_25px_rgba(34,197,94,0.25)] dark:shadow-none' 
+        : isNext 
+          ? 'border-indigo-400 bg-[#3f3bb1] text-white' 
+          : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800'
+    } mb-6`}>
+      <div className="flex items-start justify-between relative z-10">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-lg font-bold text-gray-900 truncate">{title}</h3>
+          <div className="flex items-center gap-3 mb-2">
+            <h3 className={`text-xl font-black tracking-tight truncate ${
+              isNext && !isLive ? 'text-white' : 'text-gray-900 dark:text-white'
+            }`}>
+              {title}
+            </h3>
             {isLive && (
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold uppercase animate-pulse">
-                <span className="h-1.5 w-1.5 rounded-full bg-white"></span>
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500 text-white text-[10px] font-black uppercase tracking-wider">
+                <span className="h-2 w-2 rounded-full bg-white animate-ping"></span>
                 Live
               </span>
             )}
             {isNext && !isLive && (
-              <span className="px-2 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-bold uppercase">
+              <span className="px-2.5 py-0.5 rounded-lg bg-white/20 text-white text-[10px] font-black uppercase tracking-widest backdrop-blur-sm border border-white/10">
                 Next Up
               </span>
             )}
           </div>
-          <div className="flex items-center gap-3 text-sm text-gray-600">
-            <div className="flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          
+          <div className={`flex items-center gap-4 text-sm font-medium ${
+            isNext && !isLive ? 'text-indigo-100' : 'text-gray-500 dark:text-gray-400'
+          }`}>
+            <div className="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3M4 11h16M5 19h14a2 2 0 002-2v-6H3v6a2 2 0 002 2z" />
               </svg>
               <span>{dateStr}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>{item.timeSlot}</span>
             </div>
           </div>
         </div>
+
         <div className="text-right">
-          <p className={`text-xs font-bold uppercase ${isLive ? 'text-green-600' : 'text-indigo-600'}`}>
+          <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${
+            isLive ? 'text-indigo-600 dark:text-indigo-400' : isNext ? 'text-indigo-200' : 'text-gray-400'
+          }`}>
             {isLive ? 'Started' : 'Starts in'}
           </p>
-          <p className="text-xl font-mono font-bold text-gray-900">{timeLeft}</p>
+          <p className={`text-xl font-mono font-black ${
+            isNext && !isLive ? 'text-white' : 'text-gray-900 dark:text-white'
+          }`}>
+            {timeLeft}
+          </p>
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
+      {/* Horizontal Divider */}
+      <div className={`my-5 h-[1px] w-full ${
+        isNext && !isLive ? 'bg-white/10' : 'bg-gray-200/60 dark:bg-gray-700'
+      }`}></div>
+
+      <div className="flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-3">
+          <div className={`h-9 w-9 rounded-full flex items-center justify-center font-black text-sm shadow-sm ${
+            isNext && !isLive ? 'bg-white text-indigo-600' : 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300'
+          }`}>
             {session.createdBy?.fullName?.charAt(0) || "U"}
           </div>
-          <span className="text-xs text-gray-500">Scheduled by {session.createdBy?.fullName || "Partner"}</span>
+          <div className="flex flex-col">
+            <span className={`text-[10px] font-bold uppercase tracking-tight ${
+              isNext && !isLive ? 'text-indigo-200' : 'text-gray-400 dark:text-gray-500'
+            }`}>Organized by</span>
+            <span className={`text-xs font-bold ${
+              isNext && !isLive ? 'text-white' : 'text-gray-700 dark:text-gray-200'
+            }`}>
+              {session.createdBy?.fullName || "Partner"}
+            </span>
+          </div>
         </div>
         
         {valid ? (
@@ -113,16 +186,22 @@ const SessionCard = ({ session, item, isNext }) => {
             target="_blank" 
             rel="noreferrer" 
             onClick={handleJoin}
-            className={`px-6 py-2 rounded-xl text-sm font-bold shadow-md transition-all ${
+            className={`px-8 py-3 rounded-2xl text-sm font-black shadow-xl transition-all hover:scale-105 active:scale-95 ${
               isLive 
-                ? 'bg-green-600 text-white hover:bg-green-700 hover:shadow-green-200' 
-                : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-200'
+                ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed]' 
+                : isNext 
+                  ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed] border border-white/10'
+                  : 'bg-indigo-600 text-white hover:bg-indigo-700'
             }`}
           >
             {isLive ? 'Join Now' : 'Join Link'}
           </a>
         ) : (
-          <span className="text-xs text-red-500 font-medium">Link not set</span>
+          <div className={`px-4 py-2 rounded-xl text-xs font-bold border ${
+            isNext && !isLive ? 'border-white/20 text-white/50' : 'border-red-100 dark:border-red-900/30 text-red-400 dark:text-red-500'
+          }`}>
+            Link not set
+          </div>
         )}
       </div>
     </div>
@@ -177,20 +256,20 @@ export default function Sessions() {
   }, [upcomingSessions]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="navbar sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <header className="navbar sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl overflow-hidden ring-1 ring-gray-200 shadow-sm">
+            <div className="h-10 w-10 rounded-xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 shadow-sm">
               <img src="/src/Image/logo skillxChange.jpeg" alt="SkillXchange" className="h-full w-full object-cover" />
             </div>
             <div>
-              <p className="text-sm font-bold text-gray-900">SkillXchange</p>
-              <p className="text-xs text-indigo-600 font-medium">Class Sessions</p>
+              <p className="text-sm font-bold text-gray-900 dark:text-white">SkillXchange</p>
+              <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">Class Sessions</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => navigate("/dashboard")} className="rounded-xl bg-white border border-gray-200 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
+            <button onClick={() => navigate("/dashboard")} className="rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 px-4 py-2 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
               Dashboard
             </button>
             <button onClick={() => navigate("/conversations")} className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-md hover:bg-indigo-700 transition-colors">
@@ -203,12 +282,12 @@ export default function Sessions() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Your Schedule</h1>
-            <p className="text-gray-500 mt-1">Manage and join your 7-day class sessions.</p>
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Your Schedule</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage and join your 7-day class sessions.</p>
           </div>
           <button 
             onClick={load} 
-            className="p-2 rounded-full hover:bg-white border border-transparent hover:border-gray-200 transition-all group"
+            className="p-2 rounded-full hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all group"
             title="Refresh schedule"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 text-gray-400 group-hover:text-indigo-600 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -220,23 +299,23 @@ export default function Sessions() {
         {loading && !nextItem ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="h-12 w-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-gray-500 font-medium">Loading your sessions...</p>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">Loading your sessions...</p>
           </div>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
-            <p className="text-red-600 font-bold">{error}</p>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 text-center">
+            <p className="text-red-600 dark:text-red-400 font-bold">{error}</p>
             <button onClick={load} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors">Try Again</button>
           </div>
         ) : !nextItem ? (
-          <div className="bg-white border border-gray-200 rounded-3xl p-12 text-center shadow-sm">
-            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-12 text-center shadow-sm">
+            <div className="w-20 h-20 bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-300 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3M4 11h16M5 19h14a2 2 0 002-2v-6H3v6a2 2 0 002 2z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900">No sessions scheduled</h3>
-            <p className="text-gray-500 mt-2 max-w-xs mx-auto">Start a conversation with a match to schedule your first 7-day class.</p>
-            <button onClick={() => navigate("/conversations")} className="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">No sessions scheduled</h3>
+            <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto">Start a conversation with a match to schedule your first 7-day class.</p>
+            <button onClick={() => navigate("/conversations")} className="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-indigo-700 transition-all">
               Go to Chat
             </button>
           </div>
@@ -252,15 +331,15 @@ export default function Sessions() {
                 <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Following Classes</h2>
                 <div className="grid gap-4">
                   {otherItems.map((oi, idx) => (
-                    <div key={idx} className="bg-white border border-gray-200 rounded-2xl p-4 flex items-center justify-between hover:border-indigo-200 transition-colors">
+                    <div key={idx} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center justify-between hover:border-indigo-200 dark:hover:border-indigo-500 transition-colors">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-gray-50 flex flex-col items-center justify-center border border-gray-100">
+                        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-700 flex flex-col items-center justify-center border border-gray-100 dark:border-gray-600">
                           <span className="text-[10px] font-bold text-gray-400 uppercase">{new Date(oi.item.date).toLocaleDateString(undefined, { weekday: 'short' })}</span>
-                          <span className="text-sm font-bold text-gray-700">{new Date(oi.item.date).getDate()}</span>
+                          <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{new Date(oi.item.date).getDate()}</span>
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-gray-900">{oi.session.requestId?.teachSkill || "Session"}</p>
-                          <p className="text-xs text-gray-500">{oi.item.timeSlot}</p>
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">{oi.session.requestId?.teachSkill || "Session"}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{oi.item.timeSlot}</p>
                         </div>
                       </div>
                       <a 
@@ -268,7 +347,7 @@ export default function Sessions() {
                         target="_blank" 
                         rel="noreferrer" 
                         onClick={() => markAttendanceApi(oi.session._id)}
-                        className="text-xs font-bold text-indigo-600 hover:underline px-3 py-1 rounded-lg hover:bg-indigo-50"
+                        className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline px-3 py-1 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
                       >
                         Join Link
                       </a>

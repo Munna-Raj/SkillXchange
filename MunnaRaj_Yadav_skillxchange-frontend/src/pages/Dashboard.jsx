@@ -7,18 +7,17 @@ import { getReceivedRequestsApi } from "../services/requestService";
 
 function StatCard({ title, value, sub }) {
   return (
-    <div className="stat-card rounded-2xl bg-white p-5 ring-1 ring-gray-200 shadow-lg">
-      <p className="text-sm text-gray-600">{title}</p>
-      <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
-      <p className="mt-2 text-xs text-gray-500">{sub}</p>
+    <div className="stat-card rounded-2xl bg-white dark:bg-gray-900 p-5 ring-1 ring-gray-200 dark:ring-gray-800 shadow-lg transition-all">
+      <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{title}</p>
+      <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{value}</p>
+      <p className="mt-2 text-xs text-gray-400 dark:text-gray-500 font-medium">{sub}</p>
     </div>
   );
 }
 
 function Pill({ children }) {
   return (
-    <span className="pill-badge inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
-      style={{ backgroundColor: "#E6E6FA", color: "#4b0082" }}>
+    <span className="pill-badge inline-flex items-center rounded-full px-3 py-1 text-xs font-bold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50">
       {children}
     </span>
   );
@@ -28,8 +27,7 @@ function PrimaryButton({ children, to }) {
   return (
     <Link
       to={to}
-      className="btn-primary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-colors"
-      style={{ backgroundImage: "linear-gradient(to right, #4b0082, #E6E6FA)" }}
+      className="btn-primary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-bold text-white bg-indigo-600 dark:bg-indigo-500 shadow-md hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all"
     >
       {children}
     </Link>
@@ -40,7 +38,7 @@ function SecondaryButton({ children, to }) {
   return (
     <Link
       to={to}
-      className="btn-secondary inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-gray-900 border border-gray-300 hover:bg-gray-50 transition-colors"
+      className="btn-secondary inline-flex items-center justify-center rounded-xl bg-white dark:bg-gray-800 px-4 py-2 text-sm font-bold text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
     >
       {children}
     </Link>
@@ -203,29 +201,12 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard-page min-h-screen text-gray-900 transition-colors duration-200">
-      {/* Background glow */}
-        <div className="pointer-events-none fixed inset-0 overflow-hidden">
-          <div
-            className="absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full blur-3xl"
-            style={{ backgroundColor: "rgba(75, 0, 130, 0.25)" }}
-          />
-          <div
-            className="absolute top-40 right-[-8rem] h-72 w-72 rounded-full blur-3xl"
-            style={{ backgroundColor: "rgba(230, 230, 250, 0.9)" }}
-          />
-          <div
-            className="absolute bottom-[-8rem] left-[-8rem] h-72 w-72 rounded-full blur-3xl"
-            style={{ backgroundColor: "rgba(75, 0, 130, 0.15)" }}
-          />
-        </div>
-
+    <div className="dashboard-page min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-200">
       {/* Navbar */}
-      <header className="navbar-container sticky top-0 z-20 border-b border-gray-200 bg-white/80 backdrop-blur">
+      <header className="navbar-container sticky top-0 z-20 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="logo-box grid h-10 w-10 place-items-center rounded-xl ring-1 overflow-hidden"
-                 style={{ boxShadow: "0 10px 30px rgba(75, 0, 130, 0.25)" }}>
+            <div className="logo-box grid h-10 w-10 place-items-center rounded-xl ring-1 overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800">
               <img 
                 src="/src/Image/logo skillxChange.jpeg" 
                 alt="SkillXchange Logo" 
@@ -233,15 +214,15 @@ export default function Dashboard() {
               />
             </div>
             <div>
-              <p className="text-sm font-semibold leading-4 text-gray-900">SkillXchange</p>
-              <p className="text-xs text-gray-500">Dashboard</p>
+              <p className="text-sm font-semibold leading-4 text-gray-900 dark:text-white">SkillXchange</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Dashboard</p>
             </div>
           </div>
 
-          <form onSubmit={handleSearch} className="search-bar hidden w-full max-w-sm items-center gap-2 rounded-xl bg-gray-100 px-3 py-2 ring-1 ring-gray-300 md:flex">
-            <span className="text-gray-500">⌕</span>
+          <form onSubmit={handleSearch} className="search-bar hidden w-full max-w-sm items-center gap-2 rounded-xl bg-gray-100 dark:bg-gray-800 px-3 py-2 ring-1 ring-gray-300 dark:ring-gray-700 md:flex">
+            <span className="text-gray-500 dark:text-gray-400">⌕</span>
             <input
-              className="w-full bg-transparent text-sm text-gray-900 placeholder-gray-600 outline-none"
+              className="w-full bg-transparent text-sm text-gray-900 dark:text-white placeholder-gray-600 dark:placeholder-gray-400 outline-none"
               placeholder="Search skills, mentors..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -251,8 +232,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/conversations")}
-              className="hidden sm:inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-semibold ring-1 hover:bg-[rgba(230,230,250,0.9)]"
-              style={{ backgroundColor: "#E6E6FA", color: "#4b0082", borderColor: "#4b0082" }}
+              className="hidden sm:inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-semibold ring-1 border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -272,8 +252,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => navigate("/sessions")}
-              className="hidden sm:inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-semibold ring-1 hover:bg-gray-100"
-              style={{ backgroundColor: "#ffffff", color: "#4b0082", borderColor: "#4b0082" }}
+              className="hidden sm:inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-semibold ring-1 border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               title="Add or Join Sessions"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -283,10 +262,10 @@ export default function Dashboard() {
             </button>
             <NotificationBell />
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-semibold text-gray-900">{userProfile?.username || data.username || "User"}</p>
-              <p className="text-xs text-gray-500">Member</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">{userProfile?.username || data.username || "User"}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Member</p>
             </div>
-            <div className="h-10 w-10 rounded-full bg-gray-200 ring-1 ring-gray-300 overflow-hidden">
+            <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 ring-1 ring-gray-300 dark:ring-gray-600 overflow-hidden">
               {getProfilePictureUrl() ? (
                 <img
                   src={getProfilePictureUrl()}
@@ -295,7 +274,7 @@ export default function Dashboard() {
                 />
               ) : (
                 <div className="h-full w-full flex items-center justify-center">
-                  <span className="text-sm font-bold text-gray-600">
+                  <span className="text-sm font-bold text-gray-600 dark:text-gray-300">
                     {(userProfile?.fullName || data.username || "?").charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -305,20 +284,20 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => setIsSettingsOpen((prev) => !prev)}
-                className="rounded-xl bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 hover:bg-gray-200 flex items-center gap-1"
+                className="rounded-xl bg-gray-100 dark:bg-gray-800 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white ring-1 ring-gray-300 dark:ring-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-1 transition-colors"
               >
                 <span>⚙️</span>
                 <span className="hidden sm:inline">Settings</span>
               </button>
               {isSettingsOpen && (
-                <div className="absolute right-0 mt-2 w-40 rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 py-1 text-sm z-10">
+                <div className="absolute right-0 mt-2 w-40 rounded-xl bg-white dark:bg-gray-900 shadow-lg ring-1 ring-black ring-opacity-5 dark:ring-gray-800 py-1 text-sm z-10 transition-all">
                   <button
                     type="button"
                     onClick={() => {
                       setIsSettingsOpen(false);
                       navigate("/profile");
                     }}
-                    className="block w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-100"
+                    className="block w-full px-3 py-2 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
                     Profile
                   </button>
@@ -328,7 +307,7 @@ export default function Dashboard() {
                       setIsSettingsOpen(false);
                       navigate("/settings");
                     }}
-                    className="block w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-100"
+                    className="block w-full px-3 py-2 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
                     Account Settings
                   </button>
@@ -339,7 +318,7 @@ export default function Dashboard() {
                         setIsSettingsOpen(false);
                         navigate("/mentor/dashboard");
                       }}
-                      className="block w-full px-3 py-2 text-left text-indigo-600 font-semibold hover:bg-gray-100"
+                      className="block w-full px-3 py-2 text-left text-indigo-600 dark:text-indigo-400 font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
                       Mentor Dashboard
                     </button>
@@ -350,7 +329,7 @@ export default function Dashboard() {
                       setIsSettingsOpen(false);
                       logout();
                     }}
-                    className="block w-full px-3 py-2 text-left text-red-600 hover:bg-gray-100"
+                    className="block w-full px-3 py-2 text-left text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
                     Logout
                   </button>
@@ -362,15 +341,15 @@ export default function Dashboard() {
       </header>
 
       {/* Content */}
-      <main className="dashboard-main relative mx-auto max-w-6xl px-4 py-8">
+      <main className="dashboard-main relative mx-auto max-w-6xl px-4 py-8 transition-all">
         {/* Hero */}
-        <div className="hero-section rounded-3xl bg-white/90 p-6 ring-1 ring-gray-200 shadow-lg">
+        <div className="hero-section rounded-3xl bg-white dark:bg-gray-900 p-6 ring-1 ring-gray-200 dark:ring-gray-800 shadow-lg">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                 Welcome back, {userProfile?.fullName?.split(" ")[0] || data.username || "User"}!
               </h1>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-gray-600 dark:text-gray-400">
                 You have new matches waiting for you.
               </p>
             </div>
@@ -382,14 +361,14 @@ export default function Dashboard() {
         </div>
 
         {/* Sessions quick link */}
-        <div className="mt-6 rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
+        <div className="mt-6 rounded-3xl bg-white dark:bg-gray-900 p-6 ring-1 ring-gray-200 dark:ring-gray-800 shadow-lg">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">Sessions</h2>
-            <button onClick={() => navigate('/sessions')} className="text-sm text-indigo-600 hover:underline">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Sessions</h2>
+            <button onClick={() => navigate('/sessions')} className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
               Open Sessions →
             </button>
           </div>
-          <p className="mt-2 text-sm text-gray-600">Create, update, and join your upcoming sessions.</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Create, update, and join your upcoming sessions.</p>
         </div>
 
         {/* Stats */}
@@ -419,12 +398,11 @@ export default function Dashboard() {
         {/* Two columns */}
         <div className="dashboard-content-grid mt-6 grid gap-6 lg:grid-cols-3">
           {/* Recommended matches */}
-          <section className="recommended-section lg:col-span-2 rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
+          <section className="recommended-section lg:col-span-2 rounded-3xl bg-white dark:bg-gray-900 p-6 ring-1 ring-gray-200 dark:ring-gray-800 shadow-lg">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">Recommended Matches</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Recommended Matches</h2>
               <Link
-                className="text-sm font-semibold hover:underline"
-                style={{ color: "#4b0082" }}
+                className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
                 to="/matches"
               >
                 View all →
@@ -434,48 +412,42 @@ export default function Dashboard() {
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               {/* Login User Card (First in list) */}
               {userProfile && (
-                <div className="match-card rounded-2xl p-5 ring-1 shadow-sm relative overflow-hidden"
-                     style={{ backgroundColor: "rgba(230, 230, 250, 0.6)", borderColor: "#E6E6FA" }}>
+                <div className="match-card rounded-2xl p-5 ring-1 shadow-sm relative overflow-hidden bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-900/30">
                     <div className="absolute top-0 right-0">
-                      <span className="text-white text-[10px] px-3 py-1 font-bold uppercase tracking-widest rounded-bl-xl shadow-sm"
-                            style={{ backgroundColor: "#4b0082" }}>
+                      <span className="text-white text-[10px] px-3 py-1 font-bold uppercase tracking-widest rounded-bl-xl shadow-sm bg-indigo-600 dark:bg-indigo-500">
                       Me
                     </span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-12 h-12 rounded-full overflow-hidden border-2"
-                        style={{ borderColor: "#E6E6FA" }}
+                        className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-100 dark:border-indigo-900/50"
                       >
                         {getProfilePictureUrl() ? (
                           <img src={getProfilePictureUrl()} alt="Me" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center font-bold"
-                               style={{ backgroundColor: "#E6E6FA", color: "#4b0082" }}>
+                          <div className="w-full h-full flex items-center justify-center font-bold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
                             {userProfile.fullName?.charAt(0)}
                           </div>
                         )}
                       </div>
                       <div>
-                        <p className="text-base font-bold text-gray-900">{userProfile.fullName}</p>
-                        <p className="text-xs font-medium" style={{ color: "#4b0082" }}>Your Profile Details</p>
+                        <p className="text-base font-bold text-gray-900 dark:text-white">{userProfile.fullName}</p>
+                        <p className="text-xs font-medium text-indigo-600 dark:text-indigo-400">Your Profile Details</p>
                       </div>
                     </div>
                   </div>
 
                     <div className="mt-4 grid grid-cols-2 gap-3">
-                      <div className="rounded-xl bg-white p-3 shadow-sm ring-1"
-                           style={{ borderColor: "#E6E6FA" }}>
-                        <p className="text-[10px] uppercase font-bold tracking-tight" style={{ color: "#4b0082" }}>I Teach</p>
-                      <p className="mt-1 text-sm font-semibold text-gray-800">
+                      <div className="rounded-xl bg-white dark:bg-gray-800 p-3 shadow-sm ring-1 border-indigo-50 dark:border-indigo-900/30">
+                        <p className="text-[10px] uppercase font-bold tracking-tight text-indigo-600 dark:text-indigo-400">I Teach</p>
+                      <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-gray-200">
                         {userProfile.skillsToTeach?.[0]?.name || "Not set"}
                       </p>
                     </div>
-                      <div className="rounded-xl bg-white p-3 shadow-sm ring-1"
-                           style={{ borderColor: "#E6E6FA" }}>
-                        <p className="text-[10px] uppercase font-bold tracking-tight" style={{ color: "#4b0082" }}>I Want to Learn</p>
-                      <p className="mt-1 text-sm font-semibold text-gray-800">
+                      <div className="rounded-xl bg-white dark:bg-gray-800 p-3 shadow-sm ring-1 border-indigo-50 dark:border-indigo-900/30">
+                        <p className="text-[10px] uppercase font-bold tracking-tight text-indigo-600 dark:text-indigo-400">I Want to Learn</p>
+                      <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-gray-200">
                         {userProfile.skillsToLearn?.[0]?.name || "Not set"}
                       </p>
                     </div>
@@ -484,8 +456,7 @@ export default function Dashboard() {
                     <div className="mt-4 flex gap-3">
                       <button 
                         onClick={() => navigate("/profile")}
-                        className="flex-1 rounded-xl bg-white border px-4 py-2 text-sm font-semibold hover:bg-[rgba(230,230,250,0.9)] transition-colors"
-                        style={{ borderColor: "#4b0082", color: "#4b0082" }}
+                        className="flex-1 rounded-xl bg-white dark:bg-gray-800 border border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 px-4 py-2 text-sm font-semibold hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors"
                       >
                       Update My Skills
                     </button>
@@ -493,9 +464,9 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {/* Recommended Matches from API */}
+              {/* Recommended Matches */}
               {loadingMatches ? (
-                <div className="col-span-full py-10 text-center text-gray-400 text-sm italic">
+                <div className="col-span-full py-10 text-center text-gray-400 dark:text-gray-500 text-sm italic">
                   Finding best matches for you...
                 </div>
               ) : recommendedMatches.filter((m) => !isAdminAccount(m)).length > 0 ? (
@@ -505,57 +476,39 @@ export default function Dashboard() {
                   .map((m) => (
                   <div
                     key={m._id}
-                    className="match-card rounded-2xl bg-gray-50 p-5 ring-1 ring-gray-200 hover:shadow-md transition-shadow"
+                    className="match-card rounded-2xl bg-white dark:bg-gray-800 p-5 ring-1 ring-gray-200 dark:ring-gray-700 shadow-sm transition-all hover:shadow-md dark:hover:shadow-indigo-900/10"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-200">
+                        <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 dark:border-gray-700">
                           {m.profilePic ? (
                             <img src={`http://localhost:5000/uploads/${m.profilePic}`} alt={m.fullName} className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold">
+                            <div className="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 font-bold">
                               {m.fullName?.charAt(0)}
                             </div>
                           )}
                         </div>
                         <div>
-                          <p className="text-base font-semibold text-gray-900">{m.fullName}</p>
-                          <p className="text-xs text-gray-600">
-                            {m.matchScore || 0}% Match • {m.skillsToTeach?.[0]?.level || "User"}
-                          </p>
+                          <p className="text-base font-bold text-gray-900 dark:text-white">{m.fullName}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{m.username}</p>
                         </div>
                       </div>
-                      <span className="rounded-full bg-green-100 px-3 py-1 text-[10px] text-green-700 font-bold uppercase">
+                      <span className="rounded-full bg-green-50 dark:bg-green-900/30 px-3 py-1 text-[10px] text-green-600 dark:text-green-400 font-bold uppercase border border-green-100 dark:border-green-900/50">
                         Match
                       </span>
                     </div>
 
                     <div className="mt-4 grid grid-cols-2 gap-3">
-                      <div
-                        className="rounded-xl p-3 ring-1"
-                        style={{ backgroundColor: "#E6E6FA", borderColor: "#4b0082" }}
-                      >
-                        <p
-                          className="text-[10px] uppercase font-bold tracking-tight"
-                          style={{ color: "#4b0082" }}
-                        >
-                          Can Teach
-                        </p>
-                        <p className="mt-1 text-sm font-semibold text-gray-800">
+                      <div className="rounded-xl p-3 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800">
+                        <p className="text-[10px] uppercase font-bold tracking-tight text-indigo-600 dark:text-indigo-400">Can Teach</p>
+                        <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-gray-200">
                           {m.skillsToTeach?.[0]?.name || "Not set"}
                         </p>
                       </div>
-                      <div
-                        className="rounded-xl bg-white p-3 ring-1"
-                        style={{ borderColor: "#E6E6FA" }}
-                      >
-                        <p
-                          className="text-[10px] uppercase font-bold tracking-tight"
-                          style={{ color: "#4b0082" }}
-                        >
-                          Wants to Learn
-                        </p>
-                        <p className="mt-1 text-sm font-semibold text-gray-800">
+                      <div className="rounded-xl bg-white dark:bg-gray-800 p-3 border border-gray-100 dark:border-gray-700 ring-1 ring-gray-50 dark:ring-transparent">
+                        <p className="text-[10px] uppercase font-bold tracking-tight text-gray-400 dark:text-gray-500">Wants to Learn</p>
+                        <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-gray-200">
                           {m.skillsToLearn?.[0]?.name || "Not set"}
                         </p>
                       </div>
@@ -564,21 +517,18 @@ export default function Dashboard() {
                     <div className="mt-4 flex gap-3">
                       <button
                         onClick={() => navigate(`/user/${m._id}`)}
-                        className="flex-1 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors"
-                        style={{
-                          backgroundImage: "linear-gradient(to right, #4b0082, #E6E6FA)",
-                        }}
+                        className="flex-1 rounded-xl px-4 py-2 text-sm font-bold text-white bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 shadow-sm transition-all"
                       >
                         Send Request
                       </button>
-                      <button className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-200">
+                      <button className="rounded-xl bg-gray-100 dark:bg-gray-700 px-4 py-2 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
                         Message
                       </button>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="col-span-full py-10 text-center text-gray-500 text-sm">
+                <div className="col-span-full py-10 text-center text-gray-500 dark:text-gray-400 text-sm">
                   No matches found. Try adding more skills to your profile!
                 </div>
               )}
@@ -586,49 +536,49 @@ export default function Dashboard() {
           </section>
 
           {/* Requests */}
-          <section className="requests-section rounded-3xl bg-white p-6 ring-1 ring-gray-200 shadow-lg">
+          <section className="requests-section rounded-3xl bg-white dark:bg-gray-900 p-6 ring-1 ring-gray-200 dark:ring-gray-800 shadow-lg">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">Recent Requests</h2>
-              <Link className="text-sm text-blue-700 hover:text-blue-800" to="/requests">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Recent Requests</h2>
+              <Link className="text-sm text-blue-700 dark:text-sky-400 hover:text-blue-800 dark:hover:text-sky-300" to="/requests">
                 Open →
               </Link>
             </div>
 
             <div className="mt-4 space-y-3">
               {loadingRequests ? (
-                <div className="py-4 text-center text-gray-400 text-xs italic">
+                <div className="py-4 text-center text-gray-400 dark:text-gray-500 text-xs italic">
                   Loading requests...
                 </div>
               ) : recentRequests.length > 0 ? (
                 recentRequests.map((r) => (
                   <div
                     key={r._id}
-                    className="request-card rounded-2xl bg-gray-50 p-4 ring-1 ring-gray-200"
+                    className="request-card rounded-2xl bg-gray-50 dark:bg-gray-800/50 p-4 ring-1 ring-gray-200 dark:ring-gray-700"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
+                        <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
                           {r.senderId?.profilePic ? (
                             <img src={`http://localhost:5000/uploads/${r.senderId.profilePic}`} alt={r.senderId.fullName} className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-[10px] font-bold">
+                            <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 text-[10px] font-bold">
                               {r.senderId?.fullName?.charAt(0) || "?"}
                             </div>
                           )}
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-gray-900">{r.senderId?.fullName || "Deleted User"}</p>
-                          <p className="text-[10px] text-gray-600">Wants: {r.learnSkill}</p>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">{r.senderId?.fullName || "Deleted User"}</p>
+                          <p className="text-[10px] text-gray-600 dark:text-gray-400">Wants: {r.learnSkill}</p>
                         </div>
                       </div>
                       <span
                         className={[
                           "status-badge rounded-full px-2 py-0.5 text-[10px] font-bold ring-1 uppercase",
                           r.status === "accepted"
-                            ? "bg-green-100 text-green-700 ring-green-200"
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-200 dark:ring-green-900/50"
                             : r.status === "rejected"
-                            ? "bg-red-100 text-red-700 ring-red-200"
-                            : "bg-yellow-100 text-yellow-700 ring-yellow-200",
+                            ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-red-200 dark:ring-red-900/50"
+                            : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 ring-yellow-200 dark:ring-yellow-900/50",
                         ].join(" ")}
                       >
                         {r.status}
@@ -638,14 +588,14 @@ export default function Dashboard() {
                     <div className="mt-3 flex gap-2">
                       <button 
                         onClick={() => navigate("/requests")}
-                        className="flex-1 rounded-xl bg-white border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                        className="flex-1 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                       >
                         View
                       </button>
                       {r.status === "pending" && (
                         <button 
                           onClick={() => navigate("/requests")}
-                          className="flex-1 rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 shadow-sm"
+                          className="flex-1 rounded-xl bg-blue-600 dark:bg-blue-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 dark:hover:bg-blue-600 shadow-sm"
                         >
                           Respond
                         </button>
@@ -653,7 +603,7 @@ export default function Dashboard() {
                       {r.status === "accepted" && (
                         <button 
                           onClick={() => openChatFromRequest(r)}
-                          className="flex-1 rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm"
+                          className="flex-1 rounded-xl bg-indigo-600 dark:bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 shadow-sm"
                         >
                           Chat
                         </button>
@@ -662,7 +612,7 @@ export default function Dashboard() {
                   </div>
                 ))
               ) : (
-                <div className="py-8 text-center text-gray-500 text-sm">
+                <div className="py-8 text-center text-gray-500 dark:text-gray-400 text-sm">
                   No recent requests.
                 </div>
               )}

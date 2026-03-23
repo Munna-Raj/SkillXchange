@@ -58,11 +58,11 @@ const Footer = () => {
               <span>Inaruwa-3, Sunsari, Nepal</span>
             </div>
             <a
-              href="mailto:munnarajyad@gmail.com"
+              href="mailto:skillxchangesystem@gmail.com"
               className="footerContactItem"
             >
               <span className="footerIcon">✉️</span> 
-              <span>munnarajyad@gmail.com</span>
+              <span>skillxchangesystem@gmail.com</span>
             </a>
           </div>
         </div>
