@@ -10,7 +10,8 @@ const {
     getAllRequests,
     deleteRequest,
     getReportsData,
-    promoteToMentor
+    promoteToMentor,
+    getAllSessions
 } = require("../controllers/adminController");
 const adminAuth = require("../middleware/adminAuth");
 
@@ -70,5 +71,10 @@ router.delete("/requests/:id", adminAuth, deleteRequest);
 // @desc    Get reports data
 // @access  Private (Admin only)
 router.get("/reports", adminAuth, getReportsData);
+
+// @route   GET /api/admin/sessions
+// @desc    Get all sessions for admin view
+// @access  Private (Admin only)
+router.get("/sessions", adminAuth, getAllSessions);
 
 module.exports = router;

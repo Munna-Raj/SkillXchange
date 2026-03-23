@@ -2,6 +2,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const SkillExchangeRequest = require("../models/SkillExchangeRequest");
+const Session = require("../models/Session");
+const Attendance = require("../models/Attendance");
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "rajyadavproject@gmail.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin123";
@@ -47,6 +49,83 @@ exports.adminLogin = async (req, res) => {
     );
   } catch (err) {
     console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+};
+
+// Get all sessions for Admin
+exports.getAllSessions = async (req, res) => {
+  try {
+    const { status, search, date, creator } = req.query;
+
+    let query = {};
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (date) {
+      const dayStart = new Date(date);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(date);
+      dayEnd.setHours(23, 59, 59, 999);
+      query.startDate = { $gte: dayStart, $lte: dayEnd };
+    }
+
+    if (creator) {
+      query.createdBy = creator;
+    }
+
+    let sessions = await Session.find(query)
+      .populate("createdBy", "fullName email role")
+      .populate("groupId", "name")
+      .populate("users", "fullName") // For total member count
+      .populate({
+        path: 'requestId',
+        select: 'skill senderId receiverId',
+        populate: {
+          path: 'senderId receiverId',
+          select: 'fullName email role'
+        }
+      })
+      .sort({ createdAt: -1 });
+
+    if (search) {
+      const regex = new RegExp(search, "i");
+      sessions = sessions.filter(session => {
+        const createdByMatch = session.createdBy && (regex.test(session.createdBy.fullName) || regex.test(session.createdBy.email));
+        const groupMatch = session.groupId && regex.test(session.groupId.name);
+        // Basic title match for 1-on-1 sessions if possible
+        // This part is tricky without populating the request, so we keep it simple
+        return createdByMatch || groupMatch;
+      });
+    }
+
+    // After filtering, get attendance counts for each session
+    const sessionsWithAttendance = await Promise.all(
+      sessions.map(async (session) => {
+        const attendanceCount = await Attendance.countDocuments({ sessionId: session._id });
+        const sessionObj = session.toObject();
+
+        let title = '1-on-1 Session';
+        if (sessionObj.isGroupSession) {
+          title = sessionObj.groupId?.name || 'Group Session';
+        } else if (sessionObj.requestId) {
+          title = sessionObj.requestId.skill;
+        }
+
+        return {
+          ...sessionObj,
+          title,
+          attendanceCount,
+        };
+      })
+    );
+
+    res.json(sessionsWithAttendance);
+
+  } catch (err) {
+    console.error("GET ALL SESSIONS ERROR:", err);
     res.status(500).send("Server Error");
   }
 };

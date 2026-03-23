@@ -17,6 +17,7 @@ import GroupDetails from "./pages/GroupDetails";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import { AdminSkills, AdminRequests, AdminReports } from "./pages/admin/AdminPages";
+import SessionManagement from "./pages/admin/SessionManagement";
 import MentorDashboard from "./pages/mentor/MentorDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
@@ -95,6 +96,14 @@ function Layout() {
           element={
             <AdminRoute>
               <AdminDashboard content={<AdminReports />} />
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/admin/sessions" 
+          element={
+            <AdminRoute>
+              <AdminDashboard content={<SessionManagement />} />
             </AdminRoute>
           } 
         />

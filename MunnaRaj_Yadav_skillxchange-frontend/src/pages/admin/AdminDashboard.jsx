@@ -64,6 +64,7 @@ const AdminDashboard = ({ content }) => {
     if (path.includes("/admin/skills")) return "Skills Management";
     if (path.includes("/admin/requests")) return "Requests Management";
     if (path.includes("/admin/reports")) return "Reports Management";
+    if (path.includes("/admin/sessions")) return "Session Management";
     return "Dashboard Overview";
   };
 
@@ -90,6 +91,9 @@ const AdminDashboard = ({ content }) => {
           </NavLink>
           <NavLink to="/admin/reports" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
             Reports
+          </NavLink>
+          <NavLink to="/admin/sessions" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            Sessions
           </NavLink>
         </nav>
 

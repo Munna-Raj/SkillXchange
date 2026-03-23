@@ -1,9 +1,8 @@
 const Attendance = require("../models/Attendance");
 const Session = require("../models/Session");
-const User = require("../models/User");
 
-// Mark attendance when joining a session
-exports.markAttendance = async (req, res) => {
+// Log when a user joins a session
+exports.logJoin = async (req, res) => {
   try {
     const { sessionId } = req.body;
     const userId = req.user.id || req.user._id;
@@ -12,88 +11,65 @@ exports.markAttendance = async (req, res) => {
       return res.status(400).json({ msg: "Session ID is required" });
     }
 
-    // Verify session exists
     const session = await Session.findById(sessionId);
     if (!session) {
       return res.status(404).json({ msg: "Session not found" });
     }
 
-    // Current date normalized to midnight
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    // Check if already marked for today for this session
-    const existing = await Attendance.findOne({
-      userId,
-      sessionId,
-      date: today
-    });
-
-    if (existing) {
-      return res.json({ msg: "Attendance already marked for today", attendance: existing });
-    }
-
+    // Create a new record for this join event
     const newAttendance = await Attendance.create({
-      userId,
       sessionId,
-      date: today,
-      timestamp: now
+      userId,
+      joinTime: new Date(),
+      status: "joined",
     });
 
-    // Update User Streak
-    const user = await User.findById(userId);
-    if (user) {
-      const lastDate = user.lastAttendanceDate ? new Date(user.lastAttendanceDate) : null;
-      if (lastDate) {
-        lastDate.setHours(0, 0, 0, 0);
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
+    res.status(201).json({ msg: "Join event logged successfully", attendance: newAttendance });
 
-        if (lastDate.getTime() === yesterday.getTime()) {
-          // Continuous streak
-          user.currentStreak += 1;
-        } else if (lastDate.getTime() < yesterday.getTime()) {
-          // Streak broken
-          user.currentStreak = 1;
-        }
-        // If lastDate is today, currentStreak stays same (handled by existing attendance check above)
-      } else {
-        // First time attendance
-        user.currentStreak = 1;
-      }
-
-      // Update highest streak if current is higher
-      if (user.currentStreak > user.highestStreak) {
-        user.highestStreak = user.currentStreak;
-      }
-
-      user.lastAttendanceDate = today;
-      await user.save();
-    }
-
-    res.status(201).json(newAttendance);
   } catch (err) {
-    console.error("MARK ATTENDANCE ERROR:", err);
+    console.error("LOG JOIN ERROR:", err);
     res.status(500).json({ msg: "Server error" });
   }
 };
 
-// Get attendance history for a user (for the graph)
-exports.getUserAttendance = async (req, res) => {
+// Log when a user leaves a session
+exports.logLeave = async (req, res) => {
   try {
-    const userId = req.params.userId || req.user.id || req.user._id;
-    
-    // Fetch all unique dates user joined any session
-    const attendance = await Attendance.find({ userId })
-      .select("date")
-      .sort({ date: 1 });
+    const { attendanceId } = req.body; // We'll need the specific attendance record ID
 
-    // Extract unique date strings to avoid duplicates in frontend
-    const dates = [...new Set(attendance.map(a => a.date.toISOString().split('T')[0]))];
+    if (!attendanceId) {
+      return res.status(400).json({ msg: "Attendance ID is required" });
+    }
 
-    res.json(dates);
+    const attendance = await Attendance.findById(attendanceId);
+    if (!attendance) {
+      return res.status(404).json({ msg: "Attendance record not found" });
+    }
+
+    // Update the existing record with leave time
+    attendance.leaveTime = new Date();
+    attendance.status = "left";
+    await attendance.save();
+
+    res.json({ msg: "Leave event logged successfully", attendance });
+
   } catch (err) {
-    console.error("GET ATTENDANCE ERROR:", err);
+    console.error("LOG LEAVE ERROR:", err);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
+// Get detailed attendance for a specific session (for Admin)
+exports.getSessionAttendance = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const attendance = await Attendance.find({ sessionId })
+      .populate("userId", "fullName username profilePic email")
+      .sort({ joinTime: -1 });
+
+    res.json(attendance);
+  } catch (err) {
+    console.error("GET SESSION ATTENDANCE ERROR:", err);
     res.status(500).json({ msg: "Server error" });
   }
 };

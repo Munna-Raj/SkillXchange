@@ -197,7 +197,7 @@ export const AdminRequests = () => {
       <main className="flex-1 overflow-x-hidden overflow-y-auto">
         {/* Stats Section with Bar Graph */}
         <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100 min-w-0">
             <h2 className="text-lg font-semibold text-gray-700 mb-4">Request Status Distribution</h2>
             <div style={{ width: '100%', height: 300 }}>
               <ResponsiveContainer width="100%" height="100%">

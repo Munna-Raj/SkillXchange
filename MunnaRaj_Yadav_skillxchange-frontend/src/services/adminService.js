@@ -45,6 +45,16 @@ const getReportsData = async () => {
   return response.data;
 };
 
+const getSessions = async (filters = {}) => {
+  const { status, date, search } = filters;
+  let url = '/admin/sessions?';
+  if (status) url += `status=${status}&`;
+  if (date) url += `date=${date}&`;
+  if (search) url += `search=${encodeURIComponent(search)}&`;
+  const response = await api.get(url);
+  return response.data;
+};
+
 const adminService = {
   getUsers,
   deleteUser,
@@ -55,6 +65,7 @@ const adminService = {
   getRequests,
   deleteRequest,
   getReportsData,
+  getSessions,
 };
 
 export default adminService;
