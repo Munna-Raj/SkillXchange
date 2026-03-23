@@ -14,6 +14,7 @@ const GroupDetails = () => {
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showSessionModal, setShowSessionModal] = useState(false);
   const [userSearch, setUserSearch] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [sessionForm, setSessionForm] = useState({
     startDate: "",
@@ -104,15 +105,25 @@ const GroupDetails = () => {
 
   const handleSearchUsers = async () => {
     if (!userSearch.trim()) return;
+    setIsSearching(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/search?q=${userSearch}`, {
+      // Pass existing member IDs to exclude them from search results
+      const excludeIds = group.members.map(m => m._id).join(',');
+      const res = await fetch(`http://localhost:5000/api/search?q=${encodeURIComponent(userSearch)}&exclude=${excludeIds}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (res.ok) setSearchResults(data);
+      if (res.ok) {
+        setSearchResults(data);
+      } else {
+        toast.error(data.message || "Search failed");
+      }
     } catch (err) {
       console.error(err);
+      toast.error("Server error during search");
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -296,12 +307,19 @@ const GroupDetails = () => {
               />
               <button
                 onClick={handleSearchUsers}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+                disabled={isSearching}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Search
+                {isSearching ? "Searching..." : "Search"}
               </button>
             </div>
             <div className="max-h-60 overflow-y-auto space-y-2 mb-6">
+              {isSearching && (
+                <div className="text-center py-4 text-xs text-gray-400">Searching for users...</div>
+              )}
+              {!isSearching && searchResults.length === 0 && (
+                <div className="text-center py-4 text-xs text-gray-400">No users found. Try a different search.</div>
+              )}
               {searchResults.map(user => (
                 <div key={user._id} className="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg">
                   <div className="flex items-center gap-2">
@@ -358,7 +376,17 @@ const GroupDetails = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Google Meet Link</label>
+                <label className="block text-xs font-medium text-gray-500 mb-1 flex justify-between items-center">
+                  <span>Google Meet Link</span>
+                  <a 
+                    href="https://meet.new" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 hover:underline font-bold"
+                  >
+                    Generate Link
+                  </a>
+                </label>
                 <input
                   type="url"
                   required

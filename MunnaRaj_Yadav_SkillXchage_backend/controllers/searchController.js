@@ -2,23 +2,33 @@ const User = require("../models/User");
 
 const searchUsersAndSkills = async (req, res) => {
   try {
-    const { query } = req.query;
+    const { q, exclude } = req.query;
 
-    if (!query) {
+    if (!q) {
       return res.status(400).json({ message: "Search query is required" });
     }
 
-    const regex = new RegExp(query, "i");
+    const regex = new RegExp(q, "i");
 
-    // Query
-    const users = await User.find({
+    let query = {
       $or: [
         { fullName: regex },
         { username: regex },
+        { email: regex }, // Also search by email
         { "skillsToTeach.name": regex },
         { "skillsToLearn.name": regex }
       ]
-    }).select("fullName username profilePic skillsToTeach skillsToLearn bio");
+    };
+
+    // Exclude existing members if an array of IDs is provided
+    if (exclude) {
+      const excludeIds = exclude.split(',');
+      query._id = { $nin: excludeIds };
+    }
+
+    const users = await User.find(query)
+      .select("fullName username email profilePic")
+      .limit(10); // Limit results for performance
 
     res.status(200).json(users);
   } catch (error) {
