@@ -165,7 +165,8 @@ export default function Register() {
                     focusedField === "fullName" 
                       ? "ring-indigo-500 dark:ring-indigo-400 bg-white/10 dark:bg-gray-700/70" 
                       : "ring-white/20 dark:ring-gray-600/50"
-                  } placeholder="Your-Name"}
+                  }`}
+                  placeholder="Full Name"
                   required
                 />
               </div>
@@ -191,7 +192,8 @@ export default function Register() {
                     focusedField === "username" 
                       ? "ring-indigo-500 dark:ring-indigo-400 bg-white/10 dark:bg-gray-700/70" 
                       : "ring-white/20 dark:ring-gray-600/50"
-                  }`} placeholder="Your-Name"}
+                  }`}
+                  placeholder="Username"
                   required
                 />
               </div>
@@ -220,7 +222,8 @@ export default function Register() {
                     focusedField === "email" 
                       ? "ring-indigo-500 dark:ring-indigo-400 bg-white/10 dark:bg-gray-700/70" 
                       : "ring-white/20 dark:ring-gray-600/50"
-                  } placeholder="you@example.com"}
+                  }`}
+                  placeholder="you@example.com"
                   required
                 />
               </div>
@@ -246,7 +249,8 @@ export default function Register() {
                     focusedField === "password" 
                       ? "ring-indigo-500 dark:ring-indigo-400 bg-white/10 dark:bg-gray-700/70" 
                       : "ring-white/20 dark:ring-gray-600/50"
-                  } placeholder="••••••••"}
+                  }`}
+                  placeholder="••••••••"
                   required
                 />
                 <button

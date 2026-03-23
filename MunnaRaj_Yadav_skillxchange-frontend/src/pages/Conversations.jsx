@@ -31,7 +31,7 @@ const Conversations = () => {
         const [sent, received, groupsRes] = await Promise.all([
           getSentRequestsApi(),
           getReceivedRequestsApi(),
-          fetch("http://localhost:5000/api/groups", {
+          fetch(`${import.meta.env.VITE_API_URL}/api/groups`, {
             headers: { Authorization: `Bearer ${token}` },
           }).then(res => res.json())
         ]);
@@ -102,7 +102,7 @@ const Conversations = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/groups", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/groups`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -114,7 +114,7 @@ const Conversations = () => {
       if (res.ok) {
         // After creating the group, add selected members
         for (const memberId of selectedMembers) {
-          await fetch(`http://localhost:5000/api/groups/${data._id}/members`, {
+          await fetch(`${import.meta.env.VITE_API_URL}/api/groups/${data._id}/members`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -141,7 +141,7 @@ const Conversations = () => {
 
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
-    socketRef.current = io("http://localhost:5000");
+    socketRef.current = io(import.meta.env.VITE_API_URL);
     const socket = socketRef.current;
     const register = () => {
       socket.emit("register", { userId: currentUser.id || currentUser._id });
@@ -269,7 +269,7 @@ const Conversations = () => {
                           <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold">
                             {conv.otherUser?.profilePic ? (
                               <img
-                                src={`http://localhost:5000/uploads/${conv.otherUser.profilePic}`}
+                                src={`${import.meta.env.VITE_API_URL}/uploads/${conv.otherUser.profilePic}`}
                                 alt={conv.otherUser?.fullName}
                                 className="w-full h-full object-cover"
                               />

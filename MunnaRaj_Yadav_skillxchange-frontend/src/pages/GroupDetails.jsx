@@ -44,7 +44,7 @@ const GroupDetails = () => {
   };
 
   const setupSocket = () => {
-    socketRef.current = io("http://localhost:5000");
+    socketRef.current = io(import.meta.env.VITE_API_URL);
     socketRef.current.emit("join_room", groupId);
     socketRef.current.on("receive_message", (message) => {
       if (message.groupId === groupId) {
@@ -56,7 +56,7 @@ const GroupDetails = () => {
   const fetchGroupDetails = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/groups/${groupId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/groups/${groupId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -78,7 +78,7 @@ const GroupDetails = () => {
   const fetchMessages = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/chat/group/${groupId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/group/${groupId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -110,7 +110,7 @@ const GroupDetails = () => {
       const token = localStorage.getItem("token");
       // Pass existing member IDs to exclude them from search results
       const excludeIds = group.members.map(m => m._id).join(',');
-      const res = await fetch(`http://localhost:5000/api/search?q=${encodeURIComponent(userSearch)}&exclude=${excludeIds}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/search?q=${encodeURIComponent(userSearch)}&exclude=${excludeIds}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -130,7 +130,7 @@ const GroupDetails = () => {
   const handleAddMember = async (userId) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/groups/${groupId}/members`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/groups/${groupId}/members`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -154,7 +154,7 @@ const GroupDetails = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/sessions", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

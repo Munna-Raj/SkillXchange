@@ -34,7 +34,7 @@ const Navbar = ({ userProfile, pageTitle = "Dashboard" }) => {
   const getProfilePictureUrl = () => {
     const pic = userProfile?.profilePic || currentUser?.profilePic;
     if (pic) {
-      return `http://localhost:5000/uploads/${pic}`;
+      return `${import.meta.env.VITE_API_URL}/uploads/${pic}`;
     }
     return null;
   };

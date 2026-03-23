@@ -235,7 +235,7 @@ const UserProfileView = () => {
                 <img
                   src={
                     user.profilePic
-                      ? `http://localhost:5000/uploads/${user.profilePic}`
+                      ? `${import.meta.env.VITE_API_URL}/uploads/${user.profilePic}`
                       : `https://ui-avatars.com/api/?name=${encodeURIComponent(
                           user.fullName || user.username || "User"
                         )}&background=random`
@@ -428,7 +428,7 @@ const UserProfileView = () => {
                     <img
                       src={
                         feedback.reviewer?.profilePic
-                          ? `http://localhost:5000/uploads/${feedback.reviewer.profilePic}`
+                          ? `${import.meta.env.VITE_API_URL}/uploads/${feedback.reviewer.profilePic}`
                           : `https://ui-avatars.com/api/?name=${encodeURIComponent(
                               feedback.reviewer?.fullName || "User"
                             )}&background=random`

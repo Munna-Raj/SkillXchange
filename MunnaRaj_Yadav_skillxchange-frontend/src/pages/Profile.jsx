@@ -72,7 +72,7 @@ export default function Profile() {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/profile", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -124,7 +124,7 @@ export default function Profile() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/profile", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -187,7 +187,7 @@ export default function Profile() {
       const formData = new FormData();
       formData.append("profilePic", file);
 
-      const response = await fetch("http://localhost:5000/api/profile/picture", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/profile/picture`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -211,7 +211,7 @@ export default function Profile() {
 
   const getProfilePictureUrl = () => {
     if (profile.profilePic) {
-      return `http://localhost:5000/uploads/${profile.profilePic}`;
+      return `${import.meta.env.VITE_API_URL}/uploads/${profile.profilePic}`;
     }
     return null;
   };
@@ -370,7 +370,7 @@ export default function Profile() {
                         <img
                           src={
                             follower.profilePic
-                              ? `http://localhost:5000/uploads/${follower.profilePic}`
+                              ? `${import.meta.env.VITE_API_URL}/uploads/${follower.profilePic}`
                               : `https://ui-avatars.com/api/?name=${encodeURIComponent(
                                   follower.fullName || follower.username
                                 )}&background=random`
@@ -401,7 +401,7 @@ export default function Profile() {
                       <img
                         src={
                           followed.profilePic
-                            ? `http://localhost:5000/uploads/${followed.profilePic}`
+                            ? `${import.meta.env.VITE_API_URL}/uploads/${followed.profilePic}`
                             : `https://ui-avatars.com/api/?name=${encodeURIComponent(
                                 followed.fullName || followed.username
                               )}&background=random`
@@ -450,7 +450,7 @@ export default function Profile() {
                       <div className="flex items-center gap-3">
                         <img 
                           src={feedback.reviewer?.profilePic 
-                            ? `http://localhost:5000/uploads/${feedback.reviewer.profilePic}` 
+                            ? `${import.meta.env.VITE_API_URL}/uploads/${feedback.reviewer.profilePic}` 
                             : `https://ui-avatars.com/api/?name=${encodeURIComponent(feedback.reviewer?.fullName || 'Anonymous')}&background=random`} 
                           alt={feedback.reviewer?.fullName}
                           className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"

@@ -299,7 +299,7 @@ const SessionManagement = () => {
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold overflow-hidden">
                                   {record.userId?.profilePic ? (
-                                    <img src={`http://localhost:5000/uploads/${record.userId.profilePic}`} alt="" className="w-full h-full object-cover" />
+                                    <img src={`${import.meta.env.VITE_API_URL}/uploads/${record.userId.profilePic}`} alt="" className="w-full h-full object-cover" />
                                   ) : (
                                     record.userId?.fullName?.charAt(0) || 'U'
                                   )}

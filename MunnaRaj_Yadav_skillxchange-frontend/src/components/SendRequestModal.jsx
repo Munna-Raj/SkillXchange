@@ -49,7 +49,7 @@ const SendRequestModal = ({ isOpen, onClose, receiver, currentUserSkills }) => {
         <div className="p-6">
           <div className="mb-4 flex items-center gap-3">
             <img
-              src={receiver.profilePic ? `http://localhost:5000/uploads/${receiver.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(receiver.fullName)}&background=random`}
+              src={receiver.profilePic ? `${import.meta.env.VITE_API_URL}/uploads/${receiver.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(receiver.fullName)}&background=random`}
               alt={receiver.fullName}
               className="w-12 h-12 rounded-full object-cover border border-gray-200"
             />

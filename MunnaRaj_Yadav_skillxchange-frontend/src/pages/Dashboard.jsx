@@ -168,7 +168,7 @@ export default function Dashboard() {
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/profile", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -189,7 +189,7 @@ export default function Dashboard() {
   // Format profile pic URL
   const getProfilePictureUrl = () => {
     if (userProfile?.profilePic) {
-      return `http://localhost:5000/uploads/${userProfile.profilePic}`;
+      return `${import.meta.env.VITE_API_URL}/uploads/${userProfile.profilePic}`;
     }
     return null;
   };
@@ -482,7 +482,7 @@ export default function Dashboard() {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 dark:border-gray-700">
                           {m.profilePic ? (
-                            <img src={`http://localhost:5000/uploads/${m.profilePic}`} alt={m.fullName} className="w-full h-full object-cover" />
+                            <img src={`${import.meta.env.VITE_API_URL}/uploads/${m.profilePic}`} alt={m.fullName} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 font-bold">
                               {m.fullName?.charAt(0)}
@@ -559,7 +559,7 @@ export default function Dashboard() {
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
                           {r.senderId?.profilePic ? (
-                            <img src={`http://localhost:5000/uploads/${r.senderId.profilePic}`} alt={r.senderId.fullName} className="w-full h-full object-cover" />
+                            <img src={`${import.meta.env.VITE_API_URL}/uploads/${r.senderId.profilePic}`} alt={r.senderId.fullName} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 text-[10px] font-bold">
                               {r.senderId?.fullName?.charAt(0) || "?"}

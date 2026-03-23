@@ -161,7 +161,7 @@ const SessionCard = ({ session, item, isNext, partnerInfo }) => {
             isNext && !isLive ? 'bg-white text-indigo-600' : 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300'
           }`}>
             {partnerInfo?.profilePic ? (
-              <img src={`http://localhost:5000/uploads/${partnerInfo.profilePic}`} alt={partnerName} className="h-full w-full object-cover" />
+              <img src={`${import.meta.env.VITE_API_URL}/uploads/${partnerInfo.profilePic}`} alt={partnerName} className="h-full w-full object-cover" />
             ) : (
               partnerName.charAt(0)
             )}

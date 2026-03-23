@@ -23,16 +23,27 @@ const Session = require("./models/Session");
 const Group = require("./models/Group");
 const Notification = require("./models/Notification");
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  process.env.CLIENT_URL
+].filter(Boolean);
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: allowedOrigins,
     methods: ["GET", "POST"]
   }
 });
 
-app.use(cors({ origin: ["http://localhost:5173", "http://localhost:5174"] }));
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  optionsSuccessStatus: 200
+}));
 app.use(express.json());
 
 // Serve static files from uploads directory
@@ -41,6 +52,10 @@ app.use("/uploads", express.static("uploads"));
 connectDB();
 
 app.get("/", (req, res) => res.send("API working!"));
+
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Frontend and backend connected successfully" });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);

@@ -14,7 +14,7 @@ const MentorDashboard = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const profileRes = await fetch("http://localhost:5000/api/profile", {
+        const profileRes = await fetch(`${import.meta.env.VITE_API_URL}/api/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -33,7 +33,7 @@ const MentorDashboard = () => {
         setMentorData(profileData);
 
         // Now that we have the mentor ID, fetch and filter groups
-        const groupsRes = await fetch("http://localhost:5000/api/groups", {
+        const groupsRes = await fetch(`${import.meta.env.VITE_API_URL}/api/groups`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (groupsRes.ok) {
@@ -43,7 +43,7 @@ const MentorDashboard = () => {
         }
 
         // Fetch all upcoming sessions and filter on the client
-        const sessionsRes = await fetch("http://localhost:5000/api/sessions/upcoming", {
+        const sessionsRes = await fetch(`${import.meta.env.VITE_API_URL}/api/sessions/upcoming`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (sessionsRes.ok) {

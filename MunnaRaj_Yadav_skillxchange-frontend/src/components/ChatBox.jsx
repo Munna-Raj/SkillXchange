@@ -7,7 +7,7 @@ import { createSessionApi, getSessionsByRequestApi, updateSessionApi } from "../
 
 import { markAttendanceApi } from "../services/attendanceService";
 
-const socket = io("http://localhost:5000");
+const socket = io(import.meta.env.VITE_API_URL);
 
 const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floating" }) => {
   const [messages, setMessages] = useState([]);
@@ -38,7 +38,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
       if (currentUser.role === "mentor" || currentUser.role === "admin") {
         try {
           const token = localStorage.getItem("token");
-          const res = await fetch("http://localhost:5000/api/groups", {
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/groups`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const data = await res.json();
@@ -208,7 +208,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
   const addToGroup = async (groupId) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/groups/${groupId}/members`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/groups/${groupId}/members`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -244,7 +244,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border border-white/30">
             {otherUser.profilePic ? (
               <img 
-                src={`http://localhost:5000/uploads/${otherUser.profilePic}`} 
+                src={`${import.meta.env.VITE_API_URL}/uploads/${otherUser.profilePic}`} 
                 alt={otherUser.fullName} 
                 className="w-full h-full object-cover"
               />
@@ -429,9 +429,9 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
                   {msg.fileUrl && (
                     <div className="mb-2">
                       {msg.fileType === "image" ? (
-                        <a href={`http://localhost:5000/uploads/${msg.fileUrl}`} target="_blank" rel="noopener noreferrer">
+                        <a href={`${import.meta.env.VITE_API_URL}/uploads/${msg.fileUrl}`} target="_blank" rel="noopener noreferrer">
                           <img 
-                            src={`http://localhost:5000/uploads/${msg.fileUrl}`} 
+                            src={`${import.meta.env.VITE_API_URL}/uploads/${msg.fileUrl}`} 
                             alt={msg.fileName} 
                             className="max-w-full rounded-lg border border-white/20 hover:opacity-90 transition-opacity"
                             style={{ maxHeight: "200px" }}
@@ -439,7 +439,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
                         </a>
                       ) : (
                         <a 
-                          href={`http://localhost:5000/uploads/${msg.fileUrl}`} 
+                          href={`${import.meta.env.VITE_API_URL}/uploads/${msg.fileUrl}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className={`flex items-center gap-2 p-2 rounded-xl border ${
