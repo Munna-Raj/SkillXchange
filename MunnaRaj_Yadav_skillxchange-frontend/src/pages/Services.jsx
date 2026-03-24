@@ -12,7 +12,7 @@ export default function Services() {
           <Link to="/" className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl overflow-hidden border border-gray-100 shadow-sm">
               <img
-                src="/src/Image/logo skillxChange.jpeg"
+                src="/logo%20skillxChange.jpeg"
                 alt="SkillXchange Logo"
                 className="h-full w-full object-cover"
               />

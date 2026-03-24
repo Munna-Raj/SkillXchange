@@ -81,9 +81,9 @@ const MyRequests = () => {
       <header className="navbar mb-8">
         <div className="navbar-inner">
           <div className="flex items-center gap-3">
-             <div className="nav-logo-container">
-               <img src="/src/Image/logo skillxChange.jpeg" alt="Logo" className="w-full h-full object-cover" />
-             </div>
+             <Link to="/dashboard" className="nav-logo-container">
+               <img src="/logo%20skillxChange.jpeg" alt="SkillXchange Logo" className="w-full h-full object-cover" />
+             </Link>
              <p className="text-sm font-semibold">SkillXchange</p>
           </div>
           <button onClick={() => navigate("/dashboard")} className="btn-back">

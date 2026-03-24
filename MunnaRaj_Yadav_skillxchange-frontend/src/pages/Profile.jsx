@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { addSkillApi, deleteSkillApi, getCategoriesApi } from "../services/profileService";
 import { getFeedbackForUser } from "../services/feedbackService";
 import NotificationBell from "../components/NotificationBell";
@@ -273,13 +273,13 @@ export default function Profile() {
       <header className="navbar">
         <div className="navbar-inner">
           <div className="flex items-center gap-3">
-            <div className="nav-logo-container">
+            <Link to="/dashboard" className="nav-logo-container border border-gray-100 dark:border-gray-800">
               <img 
-                src="/src/Image/logo skillxChange.jpeg" 
+                src="/logo%20skillxChange.jpeg" 
                 alt="SkillXchange Logo" 
                 className="w-full h-full object-cover"
               />
-            </div>
+            </Link>
             <div>
               <p className="text-sm font-semibold leading-4">SkillXchange</p>
               <p className="text-xs text-gray-500">Profile</p>

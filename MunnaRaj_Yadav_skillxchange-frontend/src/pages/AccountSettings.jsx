@@ -69,7 +69,7 @@ export default function AccountSettings() {
           <div className="flex items-center gap-3">
             <div className="nav-logo-container border border-gray-100 dark:border-gray-800">
               <img
-                src="/src/Image/logo skillxChange.jpeg"
+                src="/logo%20skillxChange.jpeg"
                 alt="SkillXchange Logo"
                 className="w-full h-full object-cover"
               />

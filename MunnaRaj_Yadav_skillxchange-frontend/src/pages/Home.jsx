@@ -45,7 +45,7 @@ export default function Home() {
           <Link to="/" className="flex items-center gap-3">
             <div className="h-11 w-11 md:h-12 md:w-12 rounded-2xl overflow-hidden shadow-lg border border-gray-200">
               <img
-                src="/src/Image/logo skillxChange.jpeg"
+                src="/logo%20skillxChange.jpeg"
                 alt="SkillXchange home"
                 className="h-full w-full object-cover"
               />
@@ -86,7 +86,7 @@ export default function Home() {
         <div className="home-header text-center mb-12">
           <div className="brand-logo-container inline-flex items-center gap-3 mb-6 justify-center">
             <img
-              src="/src/Image/logo skillxChange.jpeg"
+              src="/logo%20skillxChange.jpeg"
               alt="SkillXchange Logo"
               className="logo-image w-16 h-16 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-300 object-cover"
             />

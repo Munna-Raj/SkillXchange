@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { getSentRequestsApi, getReceivedRequestsApi } from "../services/requestService";
 import ChatBox from "../components/ChatBox";
 import { io } from "socket.io-client";
@@ -172,13 +172,13 @@ const Conversations = () => {
       <header className="navbar mb-8">
         <div className="navbar-inner">
           <div className="flex items-center gap-3">
-            <div className="nav-logo-container">
+            <Link to="/dashboard" className="logo-box grid h-10 w-10 place-items-center rounded-xl ring-1 overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800">
               <img
-                src="/src/Image/logo skillxChange.jpeg"
-                alt="Logo"
+                src="/logo%20skillxChange.jpeg"
+                alt="SkillXchange Logo"
                 className="w-full h-full object-cover"
               />
-            </div>
+            </Link>
             <p className="text-sm font-semibold">SkillXchange</p>
           </div>
           <button onClick={() => navigate("/dashboard")} className="btn-back">

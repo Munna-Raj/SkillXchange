@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { getUpcomingForMeApi } from "../services/sessionService";
 import { markAttendanceApi } from "../services/attendanceService";
 
@@ -290,9 +290,13 @@ export default function Sessions() {
       <header className="navbar sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 shadow-sm">
-              <img src="/src/Image/logo skillxChange.jpeg" alt="SkillXchange" className="h-full w-full object-cover" />
-            </div>
+            <Link to="/dashboard" className="logo-box grid h-10 w-10 place-items-center rounded-xl ring-1 overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800">
+              <img 
+                src="/logo%20skillxChange.jpeg" 
+                alt="SkillXchange Logo" 
+                className="w-full h-full object-cover"
+              />
+            </Link>
             <div>
               <p className="text-sm font-bold text-gray-900 dark:text-white">SkillXchange</p>
               <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">Class Sessions</p>

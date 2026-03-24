@@ -96,7 +96,7 @@ export default function Register() {
           <Link to="/" className="inline-flex items-center gap-3 mb-6 hover:opacity-80 transition-opacity">
             <div className="h-12 w-12 rounded-2xl overflow-hidden border border-gray-100 shadow-xl">
               <img 
-                src="/src/Image/logo skillxChange.jpeg" 
+                src="/logo%20skillxChange.jpeg" 
                 alt="SkillXchange Logo" 
                 className="h-full w-full object-cover"
               />

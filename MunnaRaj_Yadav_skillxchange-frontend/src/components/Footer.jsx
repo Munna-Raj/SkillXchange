@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="flex items-center gap-3">
             <div className="footerLogoContainer">
               <img 
-                src="/src/Image/logo skillxChange.jpeg" 
+                src="/logo%20skillxChange.jpeg" 
                 alt="SkillXchange Logo" 
                 className="footerLogo"
               />
