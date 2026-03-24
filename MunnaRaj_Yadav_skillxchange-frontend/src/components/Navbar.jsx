@@ -50,7 +50,7 @@ const Navbar = ({ userProfile, pageTitle = "Dashboard" }) => {
         <div className="flex items-center gap-3">
           <Link to="/dashboard" className="logo-box grid h-10 w-10 place-items-center rounded-xl ring-1 overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800">
             <img 
-              src="/logo.jpeg" 
+              src="/logo%20skillxChange.jpeg" 
               alt="SkillXchange Logo" 
               className="w-full h-full object-cover"
             />
