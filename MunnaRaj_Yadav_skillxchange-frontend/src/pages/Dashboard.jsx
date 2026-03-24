@@ -4,6 +4,7 @@ import NotificationBell from "../components/NotificationBell";
 import ChatBox from "../components/ChatBox";
 import { getMatchesApi } from "../services/matchService";
 import { getReceivedRequestsApi } from "../services/requestService";
+import logo from "../Image/logo skillxChange.jpeg";
 
 function StatCard({ title, value, sub }) {
   return (
@@ -208,7 +209,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             <div className="logo-box grid h-10 w-10 place-items-center rounded-xl ring-1 overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800">
               <img 
-                src="/src/Image/logo skillxChange.jpeg" 
+                src={logo} 
                 alt="SkillXchange Logo" 
                 className="w-full h-full object-cover"
               />

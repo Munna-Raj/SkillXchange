@@ -2,6 +2,7 @@ import { useState } from "react";
 import { loginApi } from "../services/authService";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import logo from "../Image/logo skillxChange.jpeg";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -84,7 +85,7 @@ export default function Login() {
           <Link to="/" className="inline-flex items-center gap-3 mb-6 hover:opacity-80 transition-opacity">
             <div className="h-12 w-12 rounded-2xl overflow-hidden border border-gray-100 shadow-xl">
               <img 
-                src="/src/Image/logo skillxChange.jpeg" 
+                src={logo} 
                 alt="SkillXchange Logo" 
                 className="h-full w-full object-cover"
               />
