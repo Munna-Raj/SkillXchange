@@ -543,7 +543,7 @@ export default function Profile() {
                   onChange={handleChange}
                   className="input-field"
                   disabled={!isEditing}
-                  placeholder="+977 9812345678"
+                  placeholder="+977 .........."
                 />
               </div>
               {isEditing ? (
