@@ -1,7 +1,9 @@
 import { api } from "./api";
 
 export const searchUsersApi = async (query) => {
-  const response = await api.get(`/search?query=${query}`);
+  const response = await api.get(`/search`, {
+    params: { query, q: query } // Support both 'query' and 'q' to be safe
+  });
   return response.data;
 };
 

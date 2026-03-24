@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { searchUsersApi } from '../services/searchService';
 
 const SearchResults = () => {
@@ -26,18 +27,19 @@ const SearchResults = () => {
   };
 
   useEffect(() => {
-    if (query) {
-      performSearch(query);
-    }
+    performSearch(query);
   }, [query]);
 
   const performSearch = async (searchQuery) => {
     setLoading(true);
+    console.log("SEARCH: Initiating search for:", searchQuery);
     try {
       const data = await searchUsersApi(searchQuery);
+      console.log("SEARCH: Results received:", data.length);
       setResults(data);
     } catch (error) {
-      console.error("Search failed:", error);
+      console.error("SEARCH: Failed:", error);
+      toast.error("Search failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -60,7 +62,18 @@ const SearchResults = () => {
 
       <div className="search-page-container relative z-10">
         <div className="search-header-simple">
-          <h1 className="search-results-title">Search Results</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="search-results-title mb-0">Search Results</h1>
+            <button 
+              onClick={() => navigate('/dashboard')}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition-all font-medium flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+              </svg>
+              Go to Dashboard
+            </button>
+          </div>
           <p className="search-results-count">
             {loading ? 'Searching...' : `Found ${results.length} result(s) for "${query}"`}
           </p>

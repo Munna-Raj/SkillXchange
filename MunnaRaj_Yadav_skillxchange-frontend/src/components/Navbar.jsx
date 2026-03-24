@@ -61,9 +61,11 @@ const Navbar = ({ userProfile, pageTitle = "Dashboard" }) => {
           </div>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Bar (Desktop) */}
         <form onSubmit={handleSearch} className="search-bar hidden w-full max-w-xs items-center gap-2 rounded-xl bg-gray-100 dark:bg-gray-800 px-3 py-2 ring-1 ring-gray-300 dark:ring-gray-700 md:flex mx-4">
-          <span className="text-gray-500 dark:text-gray-400">⌕</span>
+          <button type="submit" className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition-colors">
+            ⌕
+          </button>
           <input
             className="w-full bg-transparent text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 outline-none"
             placeholder="Search skills, mentors..."
@@ -71,6 +73,13 @@ const Navbar = ({ userProfile, pageTitle = "Dashboard" }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </form>
+
+        {/* Mobile Search Button (Visible on small screens) */}
+        <div className="flex md:hidden ml-auto mr-2">
+          <Link to="/search" className="p-2 text-gray-500 dark:text-gray-400" title="Search">
+            <span className="text-xl">⌕</span>
+          </Link>
+        </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2 sm:gap-3">

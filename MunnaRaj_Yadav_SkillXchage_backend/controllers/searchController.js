@@ -2,38 +2,71 @@ const User = require("../models/User");
 
 const searchUsersAndSkills = async (req, res) => {
   try {
-    const { q, exclude } = req.query;
+    // Check both 'query' and 'q' to support different frontend versions/parameters
+    let q = req.query.query || req.query.q;
+    const { exclude } = req.query;
+    
+    console.log("----------------------------------------");
+    console.log("SEARCH: Request received for query:", q);
 
-    if (!q) {
-      return res.status(400).json({ message: "Search query is required" });
+    // 1. If query is empty, return 200 OK with empty array
+    if (!q || q.trim() === "") {
+      console.log("SEARCH: Empty query detected, returning empty results with 200 OK");
+      return res.status(200).json([]);
     }
 
-    const regex = new RegExp(q, "i");
+    q = q.trim();
+    let dbQuery = {};
 
-    let query = {
-      $or: [
-        { fullName: regex },
-        { username: regex },
-        { email: regex }, // Also search by email
-        { "skillsToTeach.name": regex },
-        { "skillsToLearn.name": regex }
-      ]
-    };
+    // 2. Handle @ prefix for username searches
+    let isUsernameSearch = false;
+    if (q.startsWith('@')) {
+      q = q.substring(1);
+      isUsernameSearch = true;
+      console.log("SEARCH: Stripped @ for username search. New q:", q);
+    }
 
-    // Exclude existing members if an array of IDs is provided
+    const regexOptions = "i"; // Case-insensitive
+
+    if (isUsernameSearch) {
+      dbQuery = {
+        $or: [
+          { username: { $regex: `^${q}`, $options: regexOptions } },
+          { username: { $regex: q, $options: regexOptions } }
+        ]
+      };
+    } else {
+      // 3. Robust multi-field search logic
+      dbQuery = {
+        $or: [
+          { fullName: { $regex: q, $options: regexOptions } },
+          { username: { $regex: q, $options: regexOptions } },
+          { email: { $regex: q, $options: regexOptions } },
+          { "skillsToTeach.name": { $regex: q, $options: regexOptions } },
+          { "skillsToTeach.category": { $regex: q, $options: regexOptions } },
+          { "skillsToLearn.name": { $regex: q, $options: regexOptions } },
+          { "skillsToLearn.category": { $regex: q, $options: regexOptions } }
+        ]
+      };
+    }
+
     if (exclude) {
       const excludeIds = exclude.split(',');
-      query._id = { $nin: excludeIds };
+      dbQuery._id = { $nin: excludeIds };
     }
 
-    const users = await User.find(query)
-      .select("fullName username email profilePic")
-      .limit(10); // Limit results for performance
+    const users = await User.find(dbQuery)
+      .select("fullName username email profilePic skillsToTeach skillsToLearn role bio")
+      .sort({ createdAt: -1 })
+      .limit(20);
 
-    res.status(200).json(users);
+    console.log(`SEARCH: Found ${users.length} users. Returning 200 OK.`);
+    console.log("----------------------------------------");
+
+    return res.status(200).json(users);
   } catch (error) {
-    console.error("Search error:", error);
-    res.status(500).json({ message: "Server Error" });
+    console.error("SEARCH ERROR:", error);
+    return res.status(500).json({ error: "Server Error", details: error.message });
   }
 };
 
