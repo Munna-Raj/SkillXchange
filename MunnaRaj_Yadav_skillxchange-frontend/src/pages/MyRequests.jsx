@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { getSentRequestsApi, getReceivedRequestsApi, respondToRequestApi } from "../services/requestService";
 import NotificationBell from "../components/NotificationBell";
 import ChatBox from "../components/ChatBox";
@@ -27,8 +27,8 @@ const MyRequests = () => {
         getReceivedRequestsApi(),
       ]);
       // Filter out requests where the other user is null (deleted user)
-      setSentRequests((sent || []).filter(r => r && r.receiverId));
-      setReceivedRequests((received || []).filter(r => r && r.senderId));
+      setSentRequests(Array.isArray(sent) ? sent.filter(r => r && r.receiverId) : []);
+      setReceivedRequests(Array.isArray(received) ? received.filter(r => r && r.senderId) : []);
     } catch (err) {
       console.error("Failed to fetch requests:", err);
       setError("Failed to load requests.");
