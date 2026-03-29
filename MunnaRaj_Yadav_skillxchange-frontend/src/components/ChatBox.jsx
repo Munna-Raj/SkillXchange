@@ -33,6 +33,15 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
     } catch {}
   };
 
+  const getFileUrl = (fileUrl) => {
+    if (!fileUrl) return "";
+    if (fileUrl.startsWith("http")) return fileUrl;
+    
+    // Remove /api from baseURL if it exists to get the root server URL
+    const rootUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    return `${rootUrl}/uploads/${fileUrl}`;
+  };
+
   useEffect(() => {
     const fetchMentorGroups = async () => {
       if (currentUser.role === "mentor" || currentUser.role === "admin") {
@@ -246,7 +255,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border border-white/30">
             {otherUser.profilePic ? (
               <img 
-                src={`${import.meta.env.VITE_API_URL}/uploads/${otherUser.profilePic}`} 
+                src={getFileUrl(otherUser.profilePic)} 
                 alt={otherUser.fullName} 
                 className="w-full h-full object-cover"
               />
@@ -431,9 +440,9 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
                   {msg.fileUrl && (
                     <div className="mb-2">
                       {msg.fileType === "image" ? (
-                        <a href={`${import.meta.env.VITE_API_URL}/uploads/${msg.fileUrl}`} target="_blank" rel="noopener noreferrer">
+                        <a href={getFileUrl(msg.fileUrl)} target="_blank" rel="noopener noreferrer">
                           <img 
-                            src={`${import.meta.env.VITE_API_URL}/uploads/${msg.fileUrl}`} 
+                            src={getFileUrl(msg.fileUrl)} 
                             alt={msg.fileName} 
                             className="max-w-full rounded-lg border border-white/20 hover:opacity-90 transition-opacity"
                             style={{ maxHeight: "200px" }}
@@ -441,7 +450,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
                         </a>
                       ) : (
                         <a 
-                          href={`${import.meta.env.VITE_API_URL}/uploads/${msg.fileUrl}`} 
+                          href={getFileUrl(msg.fileUrl)} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className={`flex items-center gap-2 p-2 rounded-xl border ${

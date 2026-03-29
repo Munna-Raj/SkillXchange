@@ -6,6 +6,8 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const Message = require("./models/Message");
 
+const path = require("path");
+
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const skillRoutes = require("./routes/skillRoutes");
@@ -45,9 +47,10 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from uploads directory
-app.use("/uploads", express.static("uploads"));
+// Serve static files from uploads folder
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 connectDB();
 
