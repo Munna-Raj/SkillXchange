@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Attendance = require("../models/Attendance");
 const Session = require("../models/Session");
 
@@ -70,6 +71,48 @@ exports.getSessionAttendance = async (req, res) => {
     res.json(attendance);
   } catch (err) {
     console.error("GET SESSION ATTENDANCE ERROR:", err);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
+// Get a user's attendance dates for the contribution graph
+exports.getUserAttendance = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ msg: "Invalid user ID" });
+    }
+    
+    // Find all attendance records for this user where they joined a session
+    const attendanceRecords = await Attendance.find({ 
+      userId,
+      status: { $in: ["joined", "left"] }
+    }).select("joinTime");
+
+    if (!attendanceRecords || attendanceRecords.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // Extract unique date strings (YYYY-MM-DD)
+    const uniqueDates = [
+      ...new Set(
+        attendanceRecords
+          .filter(record => record && record.joinTime)
+          .map(record => {
+            try {
+              return new Date(record.joinTime).toISOString().split('T')[0];
+            } catch (e) {
+              return null;
+            }
+          })
+          .filter(Boolean)
+      )
+    ];
+
+    res.json(uniqueDates);
+  } catch (err) {
+    console.error("GET USER ATTENDANCE ERROR:", err);
     res.status(500).json({ msg: "Server error" });
   }
 };

@@ -19,6 +19,40 @@ exports.getProfile = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
+    // Proactive duplicate cleanup (for existing users)
+    let hasDuplicates = false;
+    const cleanupSkills = (skills) => {
+      const seen = new Set();
+      return (skills || []).filter(skill => {
+        const name = skill.name?.trim().toLowerCase();
+        if (name && !seen.has(name)) {
+          seen.add(name);
+          return true;
+        }
+        hasDuplicates = true;
+        return false;
+      });
+    };
+
+    if (user.skillsToTeach?.length > 0) {
+      const cleanedTeach = cleanupSkills(user.skillsToTeach);
+      if (cleanedTeach.length !== user.skillsToTeach.length) {
+        user.skillsToTeach = cleanedTeach;
+      }
+    }
+
+    if (user.skillsToLearn?.length > 0) {
+      const cleanedLearn = cleanupSkills(user.skillsToLearn);
+      if (cleanedLearn.length !== user.skillsToLearn.length) {
+        user.skillsToLearn = cleanedLearn;
+      }
+    }
+
+    if (hasDuplicates) {
+      console.log(`CLEANUP: Removed duplicate skills for user: ${user.username}`);
+      await user.save();
+    }
+
     // Legacy user fix
     let userObj = user.toObject();
     if (!userObj.createdAt) {
@@ -54,7 +88,13 @@ exports.updateProfile = async (req, res) => {
     // Update fields
     if (fullName) user.fullName = fullName;
     if (bio !== undefined) user.bio = bio;
-    if (contactNumber !== undefined) user.contactNumber = contactNumber;
+    
+    if (contactNumber !== undefined) {
+      if (contactNumber !== "" && !/^(\+977|\+91)\d{10}$/.test(contactNumber)) {
+        return res.status(400).json({ msg: "Contact number must be a valid 10-digit number with +977 or +91 prefix" });
+      }
+      user.contactNumber = contactNumber;
+    }
 
     await user.save();
 
@@ -80,11 +120,27 @@ exports.addSkill = async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ msg: "User not found" });
 
+    // Validate input
+    if (!name || !category || !level) {
+      return res.status(400).json({ msg: "Name, category, and level are required." });
+    }
+
     const newSkill = { name, category, level, description };
     
+    // Check for duplicate skill (same name, case-insensitive)
+    const normalizedName = name.trim().toLowerCase();
+    
     if (type === 'teach') {
+      const isDuplicate = user.skillsToTeach.some(s => s.name.trim().toLowerCase() === normalizedName);
+      if (isDuplicate) {
+        return res.status(400).json({ msg: "Skill already exists." });
+      }
       user.skillsToTeach.push(newSkill);
     } else {
+      const isDuplicate = user.skillsToLearn.some(s => s.name.trim().toLowerCase() === normalizedName);
+      if (isDuplicate) {
+        return res.status(400).json({ msg: "Skill already exists." });
+      }
       user.skillsToLearn.push(newSkill);
     }
 

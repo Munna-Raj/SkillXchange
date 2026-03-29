@@ -5,31 +5,34 @@ const sendEmail = require("../utils/sendEmail");
 
 // SIGNUP 
 exports.signup = async (req, res) => {
-  const fullName = req.body.fullName?.trim();
-  const username = req.body.username?.trim();
-  const email = req.body.email?.toLowerCase().trim();
-  const password = req.body.password;
+  const { fullName, username, email, password, contactNumber } = req.body;
 
   try {
     // Check email exists
-    const emailExists = await User.findOne({ email });
+    const emailExists = await User.findOne({ email: email?.toLowerCase().trim() });
     if (emailExists) {
       return res.status(400).json({ msg: "Email already registered" });
     }
 
     // Check username exists
-    const usernameExists = await User.findOne({ username });
+    const usernameExists = await User.findOne({ username: username?.trim() });
     if (usernameExists) {
       return res.status(400).json({ msg: "Username already taken" });
+    }
+
+    // Validate contact number if provided
+    if (contactNumber && !/^(\+977|\+91)\d{10}$/.test(contactNumber)) {
+      return res.status(400).json({ msg: "Contact number must be a valid 10-digit number with +977 or +91 prefix" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
    
     const user = new User({
-      fullName,
-      username,
-      email,
+      fullName: fullName?.trim(),
+      username: username?.trim(),
+      email: email?.toLowerCase().trim(),
       password: hashedPassword,
+      contactNumber: contactNumber
     });
 
     await user.save();

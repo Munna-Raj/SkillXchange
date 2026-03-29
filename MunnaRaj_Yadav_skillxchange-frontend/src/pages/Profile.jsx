@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { addSkillApi, deleteSkillApi, getCategoriesApi } from "../services/profileService";
+import { toast } from "react-toastify";
+import { addSkillApi, deleteSkillApi, getCategoriesApi, updateProfileApi } from "../services/profileService";
 import { getFeedbackForUser } from "../services/feedbackService";
 import NotificationBell from "../components/NotificationBell";
 import ContributionGraph from "../components/ContributionGraph";
@@ -20,11 +21,12 @@ export default function Profile() {
     skillsToLearn: []
   });
 
-  const [editForm, setEditForm] = useState({
-    fullName: "",
-    email: "",
-    bio: "",
-    contactNumber: ""
+  const [editForm, setEditForm] = useState({ 
+    fullName: "", 
+    email: "", 
+    bio: "", 
+    countryCode: "+977", 
+    phoneNumber: "" 
   });
 
   // Skill Management State
@@ -118,33 +120,27 @@ export default function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setUpdating(true);
     setError("");
     setSuccess("");
 
+    if (editForm.phoneNumber && !/^\d{10}$/.test(editForm.phoneNumber)) {
+      setError("Phone number must be exactly 10 digits");
+      return;
+    }
+
+    setUpdating(true);
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(editForm),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.msg || "Update failed");
-      }
-
-      const data = await response.json();
-      setProfile(data.user);
+      const updateData = {
+        ...editForm,
+        contactNumber: editForm.phoneNumber ? `${editForm.countryCode}${editForm.phoneNumber}` : ""
+      };
+      const res = await updateProfileApi(updateData);
+      setProfile(res.data.user);
       setSuccess("Profile updated successfully!");
-      setTimeout(() => setSuccess(""), 3000);
       setIsEditing(false);
+      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      setError(err.message || "Update failed");
+      setError(err.response?.data?.msg || "Update failed");
     } finally {
       setUpdating(false);
     }
@@ -223,16 +219,33 @@ export default function Profile() {
 
   const handleAddSkill = async (e) => {
     e.preventDefault();
+    
+    // Prevent multiple rapid clicks
+    if (updating) return;
+
+    setError(""); // Clear previous errors
+
+    // Client-side duplicate check
+    const normalizedName = skillForm.name.trim().toLowerCase();
+    const currentSkills = skillForm.type === "teach" ? profile.skillsToTeach : profile.skillsToLearn;
+    const isDuplicate = currentSkills.some(s => s.name.trim().toLowerCase() === normalizedName);
+    
+    if (isDuplicate) {
+      toast.error("Skill already exists.");
+      return;
+    }
+
     setUpdating(true);
     try {
       const res = await addSkillApi(skillForm);
       setProfile(res.data);
-      setSuccess("Skill added successfully!");
+      toast.success("Skill added successfully!");
       setShowSkillForm(false);
       setSkillForm({ type: "teach", name: "", category: "", level: "Beginner", description: "" });
-      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      setError(err.response?.data?.msg || "Failed to add skill");
+      const msg = err.response?.data?.msg || "Failed to add skill";
+      toast.error(msg);
+      setError(msg);
     } finally {
       setUpdating(false);
     }
@@ -536,15 +549,30 @@ export default function Profile() {
               </div>
               <div>
                 <label className="label-text">Contact Number</label>
-                <input
-                  type="text"
-                  name="contactNumber"
-                  value={editForm.contactNumber}
-                  onChange={handleChange}
-                  className="input-field"
-                  disabled={!isEditing}
-                  placeholder="+977 .........."
-                />
+                <div className="flex gap-2">
+                  <select
+                    name="countryCode"
+                    value={editForm.countryCode}
+                    onChange={handleChange}
+                    className="w-28 p-3 border rounded-xl bg-gray-50 border-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm font-medium"
+                    disabled={!isEditing}
+                  >
+                    <option value="+977">(+977)</option>
+                    <option value="+91">(+91)</option>
+                  </select>
+                  <input
+                    type="text"
+                    name="phoneNumber"
+                    value={editForm.phoneNumber}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setEditForm({ ...editForm, phoneNumber: value });
+                    }}
+                    className="input-field flex-1"
+                    disabled={!isEditing}
+                    placeholder="10-digit number"
+                  />
+                </div>
               </div>
               {isEditing ? (
                 <div className="flex gap-3 justify-end">
@@ -558,11 +586,25 @@ export default function Profile() {
                   <button
                     type="button"
                     onClick={() => {
+                      let code = "+977";
+                      let phone = "";
+                      if (profile.contactNumber) {
+                        if (profile.contactNumber.startsWith("+91")) {
+                          code = "+91";
+                          phone = profile.contactNumber.substring(3);
+                        } else if (profile.contactNumber.startsWith("+977")) {
+                          code = "+977";
+                          phone = profile.contactNumber.substring(4);
+                        } else {
+                          phone = profile.contactNumber;
+                        }
+                      }
                       setEditForm({
                         fullName: profile.fullName,
                         email: profile.email,
                         bio: profile.bio || "",
-                        contactNumber: profile.contactNumber || ""
+                        countryCode: code,
+                        phoneNumber: phone
                       });
                       setIsEditing(true);
                     }}
@@ -662,9 +704,16 @@ export default function Profile() {
                     placeholder="Brief details..."
                   />
                 </div>
-                <div className="flex justify-end">
-                  <button type="submit" className="btn-primary">
-                    Save Skill
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowSkillForm(false)}
+                    className="btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={updating} className="btn-primary">
+                    {updating ? "Saving..." : "Save Skill"}
                   </button>
                 </div>
               </form>

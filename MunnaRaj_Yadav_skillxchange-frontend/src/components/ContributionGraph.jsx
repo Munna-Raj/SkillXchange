@@ -9,9 +9,14 @@ const ContributionGraph = ({ userId }) => {
     const fetchAttendance = async () => {
       try {
         const dates = await getUserAttendanceApi(userId);
-        setAttendanceDates(dates);
+        setAttendanceDates(Array.isArray(dates) ? dates : []);
       } catch (err) {
-        console.error("Failed to fetch attendance:", err);
+        // If it's a 404 (no attendance), just set empty array without error
+        if (err.response?.status === 404) {
+          setAttendanceDates([]);
+        } else {
+          console.error("Failed to fetch attendance:", err);
+        }
       } finally {
         setLoading(false);
       }

@@ -6,7 +6,14 @@ import { toast } from "react-toastify";
 
 export default function Register() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ fullName: "", username: "", email: "", password: "" });
+  const [form, setForm] = useState({ 
+    fullName: "", 
+    username: "", 
+    email: "", 
+    password: "", 
+    countryCode: "+977", 
+    phoneNumber: "" 
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -55,6 +62,14 @@ export default function Register() {
       setError("Password must be at least 6 characters");
       return false;
     }
+    if (!form.phoneNumber) {
+      setError("Phone number is required");
+      return false;
+    }
+    if (!/^\d{10}$/.test(form.phoneNumber)) {
+      setError("Phone number must be exactly 10 digits");
+      return false;
+    }
     return true;
   };
 
@@ -67,8 +82,13 @@ export default function Register() {
 
     setLoading(true);
 
+    const registrationData = {
+      ...form,
+      contactNumber: `${form.countryCode}${form.phoneNumber}`
+    };
+
     try {
-      const res = await signupApi(form);
+      const res = await signupApi(registrationData);
       const successMessage = res?.data?.msg || "Account created successfully! Please login.";
       setSuccess(successMessage);
       toast.success(successMessage);
@@ -202,7 +222,7 @@ export default function Register() {
               <label className="auth-label">
                 Password
               </label>
-              <div className="auth-input-wrapper">
+              <div className="auth-input-wrapper relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
@@ -210,23 +230,66 @@ export default function Register() {
                   onChange={handleChange}
                   onFocus={() => setFocusedField("password")}
                   onBlur={() => setFocusedField("")}
-                  className={`auth-input-field auth-input-field-icon-right ${
+                  className={`auth-input-field auth-input-field-no-icon pr-12 ${
                     focusedField === "password"
                       ? "auth-input-focus"
                       : "auth-input-default"
                   }`}
-                  placeholder="•••••••"
+                  placeholder="Create a strong password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="auth-input-icon-right"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 focus:outline-none"
                 >
-                  <span className="text-gray-500 hover:text-gray-700 transition-colors">
-                    {showPassword ? "Hide" : "Show"}
-                  </span>
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.644C3.542 4.148 7.412 1 12 1c4.588 0 8.458 3.148 9.964 10.678.07.21.07.43 0 .644C20.458 19.852 16.588 23 12 23c-4.588 0-8.458-3.148-9.964-10.678z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  )}
                 </button>
+              </div>
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <label className="auth-label">
+                Phone Number
+              </label>
+              <div className="flex gap-2">
+                <select
+                  name="countryCode"
+                  value={form.countryCode}
+                  onChange={handleChange}
+                  className="w-28 p-3 border rounded-xl bg-gray-50 border-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm font-medium"
+                >
+                  <option value="+977">Nepal (+977)</option>
+                  <option value="+91">India (+91)</option>
+                </select>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  value={form.phoneNumber}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setForm({ ...form, phoneNumber: value });
+                  }}
+                  onFocus={() => setFocusedField("phoneNumber")}
+                  onBlur={() => setFocusedField("")}
+                  className={`auth-input-field auth-input-field-no-icon flex-1 ${
+                    focusedField === "phoneNumber"
+                      ? "auth-input-focus"
+                      : "auth-input-default"
+                  }`}
+                  placeholder="10-digit number"
+                  required
+                />
               </div>
             </div>
 

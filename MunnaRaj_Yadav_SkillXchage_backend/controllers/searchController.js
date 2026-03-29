@@ -27,25 +27,27 @@ const searchUsersAndSkills = async (req, res) => {
     }
 
     const regexOptions = "i"; // Case-insensitive
+    // Escape special regex characters to prevent crashes
+    const escapedQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     if (isUsernameSearch) {
       dbQuery = {
         $or: [
-          { username: { $regex: `^${q}`, $options: regexOptions } },
-          { username: { $regex: q, $options: regexOptions } }
+          { username: { $regex: `^${escapedQ}`, $options: regexOptions } },
+          { username: { $regex: escapedQ, $options: regexOptions } }
         ]
       };
     } else {
       // 3. Robust multi-field search logic
       dbQuery = {
         $or: [
-          { fullName: { $regex: q, $options: regexOptions } },
-          { username: { $regex: q, $options: regexOptions } },
-          { email: { $regex: q, $options: regexOptions } },
-          { "skillsToTeach.name": { $regex: q, $options: regexOptions } },
-          { "skillsToTeach.category": { $regex: q, $options: regexOptions } },
-          { "skillsToLearn.name": { $regex: q, $options: regexOptions } },
-          { "skillsToLearn.category": { $regex: q, $options: regexOptions } }
+          { fullName: { $regex: escapedQ, $options: regexOptions } },
+          { username: { $regex: escapedQ, $options: regexOptions } },
+          { email: { $regex: escapedQ, $options: regexOptions } },
+          { "skillsToTeach.name": { $regex: escapedQ, $options: regexOptions } },
+          { "skillsToTeach.category": { $regex: escapedQ, $options: regexOptions } },
+          { "skillsToLearn.name": { $regex: escapedQ, $options: regexOptions } },
+          { "skillsToLearn.category": { $regex: escapedQ, $options: regexOptions } }
         ]
       };
     }
