@@ -55,6 +55,16 @@ const getSessions = async (filters = {}) => {
   return response.data;
 };
 
+const getCategories = async () => {
+  const response = await api.get('/admin/categories');
+  return response.data;
+};
+
+const deleteCategory = async (id) => {
+  const response = await api.delete(`/admin/categories/${id}`);
+  return response.data;
+};
+
 const adminService = {
   getUsers,
   deleteUser,
@@ -66,6 +76,8 @@ const adminService = {
   deleteRequest,
   getReportsData,
   getSessions,
+  getCategories,
+  deleteCategory,
 };
 
 export default adminService;

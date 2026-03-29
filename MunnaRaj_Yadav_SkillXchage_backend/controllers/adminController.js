@@ -5,6 +5,8 @@ const SkillExchangeRequest = require("../models/SkillExchangeRequest");
 const Session = require("../models/Session");
 const Attendance = require("../models/Attendance");
 
+const Category = require("../models/Category");
+
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "rajyadavproject@gmail.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin123";
 
@@ -449,6 +451,32 @@ exports.getReportsData = async (req, res) => {
     });
   } catch (err) {
     console.error("GET REPORTS DATA ERROR:", err);
+    res.status(500).send("Server Error");
+  }
+};
+
+// Get all categories for Admin
+exports.getAllCategories = async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ usageCount: -1, name: 1 });
+    res.json(categories);
+  } catch (err) {
+    console.error("GET ALL CATEGORIES ERROR:", err);
+    res.status(500).send("Server Error");
+  }
+};
+
+// Delete category
+exports.deleteCategory = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+      return res.status(404).json({ msg: "Category not found" });
+    }
+    await Category.findByIdAndDelete(req.params.id);
+    res.json({ msg: "Category removed successfully" });
+  } catch (err) {
+    console.error("DELETE CATEGORY ERROR:", err);
     res.status(500).send("Server Error");
   }
 };

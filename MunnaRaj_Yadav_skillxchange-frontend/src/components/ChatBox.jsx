@@ -164,6 +164,8 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
  
 
   const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
 
     const messageData = {
       requestId,

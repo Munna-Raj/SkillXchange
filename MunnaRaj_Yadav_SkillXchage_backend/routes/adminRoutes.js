@@ -11,7 +11,9 @@ const {
     deleteRequest,
     getReportsData,
     promoteToMentor,
-    getAllSessions
+    getAllSessions,
+    getAllCategories,
+    deleteCategory
 } = require("../controllers/adminController");
 const adminAuth = require("../middleware/adminAuth");
 
@@ -76,5 +78,15 @@ router.get("/reports", adminAuth, getReportsData);
 // @desc    Get all sessions for admin view
 // @access  Private (Admin only)
 router.get("/sessions", adminAuth, getAllSessions);
+
+// @route   GET /api/admin/categories
+// @desc    Get all categories for admin view
+// @access  Private (Admin only)
+router.get("/categories", adminAuth, getAllCategories);
+
+// @route   DELETE /api/admin/categories/:id
+// @desc    Delete a category
+// @access  Private (Admin only)
+router.delete("/categories/:id", adminAuth, deleteCategory);
 
 module.exports = router;
