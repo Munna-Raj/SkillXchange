@@ -138,9 +138,19 @@ const AdminUsers = () => {
                     <tr key={user._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Link to={`/user/${user._id}`} className="flex items-center group">
-                          <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl group-hover:bg-blue-600 transition-colors">
-                            {((user.name || user.fullName || user.username || user.email || '?')[0] || '?').toUpperCase()}
-                          </div>
+                          {user.profilePic ? (
+                            <img
+                              src={user.profilePic.startsWith("http") 
+                                ? user.profilePic 
+                                : `${import.meta.env.VITE_API_URL}/uploads/${user.profilePic}`}
+                              alt={user.fullName || user.username}
+                              className="h-10 w-10 rounded-full object-cover border border-gray-100 shadow-sm"
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl group-hover:bg-blue-600 transition-colors">
+                              {((user.name || user.fullName || user.username || user.email || '?')[0] || '?').toUpperCase()}
+                            </div>
+                          )}
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
                               {user.name || user.fullName || user.username || user.email || 'Unknown'}

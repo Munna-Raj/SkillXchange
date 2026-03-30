@@ -207,7 +207,9 @@ export default function Profile() {
 
   const getProfilePictureUrl = () => {
     if (profile.profilePic) {
-      return `${import.meta.env.VITE_API_URL}/uploads/${profile.profilePic}`;
+      if (profile.profilePic.startsWith("http")) return profile.profilePic;
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      return `${baseUrl}/uploads/${profile.profilePic}`;
     }
     return null;
   };

@@ -189,7 +189,9 @@ export default function Dashboard() {
   // Format profile pic URL
   const getProfilePictureUrl = () => {
     if (userProfile?.profilePic) {
-      return `${import.meta.env.VITE_API_URL}/uploads/${userProfile.profilePic}`;
+      if (userProfile.profilePic.startsWith("http")) return userProfile.profilePic;
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      return `${baseUrl}/uploads/${userProfile.profilePic}`;
     }
     return null;
   };

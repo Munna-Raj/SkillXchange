@@ -235,7 +235,9 @@ const UserProfileView = () => {
                 <img
                   src={
                     user.profilePic
-                      ? `${import.meta.env.VITE_API_URL}/uploads/${user.profilePic}`
+                      ? (user.profilePic.startsWith("http")
+                          ? user.profilePic
+                          : `${import.meta.env.VITE_API_URL}/uploads/${user.profilePic}`)
                       : `https://ui-avatars.com/api/?name=${encodeURIComponent(
                           user.fullName || user.username || "User"
                         )}&background=random`

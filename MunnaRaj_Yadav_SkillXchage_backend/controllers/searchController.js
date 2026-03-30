@@ -46,8 +46,11 @@ const searchUsersAndSkills = async (req, res) => {
           { email: { $regex: escapedQ, $options: regexOptions } },
           { "skillsToTeach.name": { $regex: escapedQ, $options: regexOptions } },
           { "skillsToTeach.category": { $regex: escapedQ, $options: regexOptions } },
+          { "skillsToTeach.description": { $regex: escapedQ, $options: regexOptions } },
           { "skillsToLearn.name": { $regex: escapedQ, $options: regexOptions } },
-          { "skillsToLearn.category": { $regex: escapedQ, $options: regexOptions } }
+          { "skillsToLearn.category": { $regex: escapedQ, $options: regexOptions } },
+          { "skillsToLearn.description": { $regex: escapedQ, $options: regexOptions } },
+          { bio: { $regex: escapedQ, $options: regexOptions } }
         ]
       };
     }
