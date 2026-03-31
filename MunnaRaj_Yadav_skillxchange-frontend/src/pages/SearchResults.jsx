@@ -26,6 +26,23 @@ const SearchResults = () => {
     );
   };
 
+  const getProfilePictureUrl = (pic) => {
+    if (!pic) return null;
+    
+    // Extract filename if it's a full URL
+    const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+    
+    // Always construct the URL using the frontend's environment variable
+    let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    if (baseUrl.endsWith("/api")) {
+      baseUrl = baseUrl.replace("/api", "");
+    } else if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+    
+    return `${baseUrl}/uploads/${filename}`;
+  };
+
   useEffect(() => {
     performSearch(query);
   }, [query]);
@@ -102,7 +119,7 @@ const SearchResults = () => {
               <div key={user._id} className="user-result-card">
                 <div className="user-card-header">
                   <img 
-                    src={user.profilePic ? `${import.meta.env.VITE_API_URL}/uploads/${user.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`} 
+                    src={user.profilePic ? getProfilePictureUrl(user.profilePic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`} 
                     alt={user.fullName} 
                     className="user-card-avatar"
                   />

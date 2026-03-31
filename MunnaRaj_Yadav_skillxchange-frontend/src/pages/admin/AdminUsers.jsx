@@ -9,6 +9,23 @@ const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const getProfilePictureUrl = (pic) => {
+    if (!pic) return null;
+    
+    // Extract filename if it's a full URL
+    const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+    
+    // Always construct the URL using the frontend's environment variable
+    let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    if (baseUrl.endsWith("/api")) {
+      baseUrl = baseUrl.replace("/api", "");
+    } else if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+    
+    return `${baseUrl}/uploads/${filename}`;
+  };
+
   const fetchUsers = async () => {
     try {
       const data = await adminService.getUsers();
@@ -140,9 +157,7 @@ const AdminUsers = () => {
                         <Link to={`/user/${user._id}`} className="flex items-center group">
                           {user.profilePic ? (
                             <img
-                              src={user.profilePic.startsWith("http") 
-                                ? user.profilePic 
-                                : `${import.meta.env.VITE_API_URL}/uploads/${user.profilePic}`}
+                              src={getProfilePictureUrl(user.profilePic)}
                               alt={user.fullName || user.username}
                               className="h-10 w-10 rounded-full object-cover border border-gray-100 shadow-sm"
                             />

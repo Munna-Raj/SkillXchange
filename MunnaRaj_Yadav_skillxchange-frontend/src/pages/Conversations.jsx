@@ -20,6 +20,23 @@ const Conversations = () => {
   
   const socketRef = useRef(null);
 
+  const getProfilePictureUrl = (pic) => {
+    if (!pic) return null;
+    
+    // Extract filename if it's a full URL
+    const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+    
+    // Always construct the URL using the frontend's environment variable
+    let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    if (baseUrl.endsWith("/api")) {
+      baseUrl = baseUrl.replace("/api", "");
+    } else if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+    
+    return `${baseUrl}/uploads/${filename}`;
+  };
+
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isMentor = currentUser.role === "mentor" || currentUser.role === "admin";
 
@@ -163,13 +180,13 @@ const Conversations = () => {
   }, []);
 
   return (
-    <div className="page-container my-requests-page min-h-screen bg-white">
+    <div className="min-h-screen bg-white">
       <div className="profile-bg-wrapper">
         <div className="profile-bg-blob-1" />
         <div className="profile-bg-blob-2" />
       </div>
 
-      <header className="navbar mb-8">
+      <header className="navbar mb-8 border-b border-gray-100">
         <div className="navbar-inner">
           <div className="flex items-center gap-3">
             <Link to="/dashboard" className="logo-box grid h-10 w-10 place-items-center rounded-xl ring-1 overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800">
@@ -187,9 +204,9 @@ const Conversations = () => {
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 pb-24 relative z-10">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="my-requests-title text-3xl font-bold text-gray-900">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 relative z-10">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="my-requests-title text-2xl font-bold text-gray-900">
             Conversations
           </h1>
           {isMentor && (
@@ -213,9 +230,9 @@ const Conversations = () => {
             Loading...
           </div>
         ) : (
-          <>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-              <div className="flex border-b border-gray-100">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-fit lg:h-[600px] overflow-hidden">
+              <div className="flex border-b border-gray-100 shrink-0">
                 <button
                   onClick={() => setActiveTab("direct")}
                   className={`flex-1 py-3 text-sm font-bold transition ${
@@ -238,7 +255,7 @@ const Conversations = () => {
                 </button>
               </div>
 
-              <div className="max-h-[60vh] overflow-y-auto">
+              <div className="flex-1 overflow-y-auto">
                 {activeTab === "direct" ? (
                   conversations.length === 0 ? (
                     <p className="text-gray-500 text-center py-8 text-sm">
@@ -269,7 +286,7 @@ const Conversations = () => {
                           <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold">
                             {conv.otherUser?.profilePic ? (
                               <img
-                                src={`${import.meta.env.VITE_API_URL}/uploads/${conv.otherUser.profilePic}`}
+                                src={getProfilePictureUrl(conv.otherUser.profilePic)}
                                 alt={conv.otherUser?.fullName}
                                 className="w-full h-full object-cover"
                               />
@@ -341,21 +358,23 @@ const Conversations = () => {
             </div>
 
             {activeChat && activeTab === "direct" && (
-              <ChatBox
-                requestId={activeChat.requestId}
-                currentUser={currentUser}
-                otherUser={activeChat.otherUser}
-                onClose={() => {
-                  setActiveChat(null);
-                  try {
-                    localStorage.removeItem("activeChat");
-                  } catch (err) {
-                    console.error("Failed to clear active chat", err);
-                  }
-                }}
-              />
+              <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-[500px] lg:h-[600px] overflow-hidden">
+                <ChatBox
+                  requestId={activeChat.requestId}
+                  currentUser={currentUser}
+                  otherUser={activeChat.otherUser}
+                  onClose={() => {
+                    setActiveChat(null);
+                    try {
+                      localStorage.removeItem("activeChat");
+                    } catch (err) {
+                      console.error("Failed to clear active chat", err);
+                    }
+                  }}
+                />
+              </div>
             )}
-          </>
+          </div>
         )}
       </div>
 

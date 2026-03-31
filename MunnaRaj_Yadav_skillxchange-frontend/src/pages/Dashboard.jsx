@@ -189,9 +189,17 @@ export default function Dashboard() {
   // Format profile pic URL
   const getProfilePictureUrl = () => {
     if (userProfile?.profilePic) {
-      if (userProfile.profilePic.startsWith("http")) return userProfile.profilePic;
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      return `${baseUrl}/uploads/${userProfile.profilePic}`;
+      // Extract filename if it's a full URL
+      const filename = userProfile.profilePic.includes('/') ? userProfile.profilePic.split('/').pop() : userProfile.profilePic;
+      
+      // Always construct the URL using the frontend's environment variable
+      let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      if (baseUrl.endsWith("/api")) {
+        baseUrl = baseUrl.replace("/api", "");
+      } else if (baseUrl.endsWith("/")) {
+        baseUrl = baseUrl.slice(0, -1);
+      }
+      return `${baseUrl}/uploads/${filename}`;
     }
     return null;
   };

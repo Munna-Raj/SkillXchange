@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import NotificationBell from "./NotificationBell";
 
@@ -6,6 +6,18 @@ const Navbar = ({ userProfile, pageTitle = "Dashboard" }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const settingsRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (settingsRef.current && !settingsRef.current.contains(event.target)) {
+        setIsSettingsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const currentUser = useMemo(() => {
     try {
@@ -34,9 +46,17 @@ const Navbar = ({ userProfile, pageTitle = "Dashboard" }) => {
   const getProfilePictureUrl = () => {
     const pic = userProfile?.profilePic || currentUser?.profilePic;
     if (pic) {
-      if (pic.startsWith("http")) return pic;
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      return `${baseUrl}/uploads/${pic}`;
+      // Extract filename if it's a full URL
+      const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+      
+      // Always construct the URL using the frontend's environment variable
+      let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      if (baseUrl.endsWith("/api")) {
+        baseUrl = baseUrl.replace("/api", "");
+      } else if (baseUrl.endsWith("/")) {
+        baseUrl = baseUrl.slice(0, -1);
+      }
+      return `${baseUrl}/uploads/${filename}`;
     }
     return null;
   };
@@ -117,30 +137,34 @@ const Navbar = ({ userProfile, pageTitle = "Dashboard" }) => {
 
           <NotificationBell />
 
-          <div className="hidden lg:block text-right">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[100px]">{username}</p>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">{role}</p>
+          <div className="hidden sm:block text-right mr-1">
+            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white truncate max-w-[80px] sm:max-w-[120px] leading-tight">
+              {username}
+            </p>
+            <p className="text-[9px] sm:text-[10px] text-indigo-600 dark:text-indigo-400 uppercase font-black tracking-tighter">
+              {role}
+            </p>
           </div>
 
-          <div className="relative">
+          <div className="relative" ref={settingsRef}>
             <button
               type="button"
               onClick={() => setIsSettingsOpen((prev) => !prev)}
-              className="flex items-center gap-2 rounded-xl bg-gray-50 dark:bg-gray-800 px-2 py-2 ring-1 ring-gray-200 dark:ring-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center gap-1 sm:gap-2 rounded-xl bg-gray-50 dark:bg-gray-800 px-1.5 py-1.5 sm:px-2 sm:py-2 ring-1 ring-gray-200 dark:ring-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-sm"
             >
-              <div className="h-7 w-7 rounded-full bg-indigo-100 dark:bg-indigo-900/50 overflow-hidden ring-1 ring-white dark:ring-gray-800 shadow-sm">
+              <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-indigo-100 dark:bg-indigo-900/50 overflow-hidden ring-2 ring-white dark:ring-gray-800 shadow-sm transition-transform group-hover:scale-105">
                 {getProfilePictureUrl() ? (
                   <img src={getProfilePictureUrl()} alt="Profile" className="h-full w-full object-cover" />
                 ) : (
                   <div className="h-full w-full flex items-center justify-center">
-                    <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                    <span className="text-xs sm:text-sm font-black text-indigo-700 dark:text-indigo-300">
                       {fullName.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
               </div>
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 text-gray-400 transition-transform ${isSettingsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 text-gray-400 transition-transform duration-300 ${isSettingsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
 

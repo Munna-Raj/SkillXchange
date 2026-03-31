@@ -47,8 +47,7 @@ exports.uploadFile = async (req, res) => {
     }
 
     const { requestId, receiverId } = req.body;
-    const baseUrl = process.env.BASE_URL || "http://localhost:5000";
-    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    const fileUrl = req.file.filename;
     const fileName = req.file.originalname;
     const fileType = req.file.mimetype.startsWith("image/") ? "image" : "document";
 

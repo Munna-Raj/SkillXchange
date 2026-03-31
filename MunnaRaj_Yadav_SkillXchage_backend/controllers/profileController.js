@@ -321,22 +321,22 @@ exports.updateProfilePicture = async (req, res) => {
 
     // Delete old pic
     if (user.profilePic) {
-      const oldPicPath = path.join(__dirname, "..", "uploads", user.profilePic);
+      const filename = user.profilePic.split('/').pop();
+      const oldPicPath = path.join(__dirname, "..", "uploads", filename);
       if (fs.existsSync(oldPicPath)) {
         fs.unlinkSync(oldPicPath);
       }
     }
 
     // Set new pic
-    const baseUrl = process.env.BASE_URL || "http://localhost:5000";
-    user.profilePic = `${baseUrl}/uploads/${req.file.filename}`;
+    user.profilePic = req.file.filename;
     await user.save();
 
     const updatedUser = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpire");
     res.json({ 
       msg: "Profile picture updated successfully", 
       user: updatedUser,
-      profilePicUrl: user.profilePic
+      profilePicUrl: `/uploads/${req.file.filename}`
     });
   } catch (error) {
     console.error("UPDATE PROFILE PICTURE ERROR:", error);

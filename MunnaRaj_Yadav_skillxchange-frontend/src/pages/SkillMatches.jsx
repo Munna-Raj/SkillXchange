@@ -24,6 +24,23 @@ const SkillMatches = () => {
     );
   };
 
+  const getProfilePictureUrl = (pic) => {
+    if (!pic) return null;
+    
+    // Extract filename if it's a full URL
+    const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+    
+    // Always construct the URL using the frontend's environment variable
+    let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    if (baseUrl.endsWith("/api")) {
+      baseUrl = baseUrl.replace("/api", "");
+    } else if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+    
+    return `${baseUrl}/uploads/${filename}`;
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -97,7 +114,7 @@ const SkillMatches = () => {
               <div className="p-6">
                 <div className="flex items-center space-x-4 mb-4">
                   <img 
-                    src={userProfile.profilePic ? `${import.meta.env.VITE_API_URL}/uploads/${userProfile.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.fullName)}&background=random`} 
+                    src={userProfile.profilePic ? getProfilePictureUrl(userProfile.profilePic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.fullName)}&background=random`} 
                     alt={userProfile.fullName}
                     className="w-16 h-16 rounded-full object-cover border-2 border-blue-200"
                   />
@@ -149,7 +166,7 @@ const SkillMatches = () => {
               <div className="p-6">
                 <div className="flex items-center space-x-4 mb-4">
                   <img 
-                    src={user.profilePic ? `${import.meta.env.VITE_API_URL}/uploads/${user.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`} 
+                    src={user.profilePic ? getProfilePictureUrl(user.profilePic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`} 
                     alt={user.fullName}
                     className="w-16 h-16 rounded-full object-cover border-2 border-indigo-100"
                   />

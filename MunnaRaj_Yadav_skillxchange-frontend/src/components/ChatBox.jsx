@@ -14,7 +14,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
   const [newMessage, setNewMessage] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
-  const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
  
   const [sessions, setSessions] = useState([]);
   const [mentorGroups, setMentorGroups] = useState([]);
@@ -35,9 +35,11 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
 
   const getFileUrl = (fileUrl) => {
     if (!fileUrl) return "";
-    if (fileUrl.startsWith("http")) return fileUrl;
     
-    // Fallback for old records that only store filename
+    // Extract filename if it's a full URL
+    const filename = fileUrl.includes('/') ? fileUrl.split('/').pop() : fileUrl;
+    
+    // Always construct the URL using the frontend's environment variable
     let rootUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
     if (rootUrl.endsWith("/api")) {
       rootUrl = rootUrl.replace("/api", "");
@@ -45,7 +47,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
       rootUrl = rootUrl.slice(0, -1);
     }
     
-    return `${rootUrl}/uploads/${fileUrl}`;
+    return `${rootUrl}/uploads/${filename}`;
   };
 
   useEffect(() => {
@@ -126,8 +128,10 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
  
 
   useEffect(() => {
-    // Scroll
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Scroll to bottom without moving the entire page
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const handleCreateSession = async (e) => {
@@ -329,7 +333,10 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
+      <div 
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50"
+      >
         {/* Session Section */}
         <div className="mb-4">
           {!activeSession ? (
@@ -501,7 +508,6 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
             );
           })
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-100 flex gap-2">

@@ -23,9 +23,26 @@ const GroupDetails = () => {
   });
 
   const socketRef = useRef();
-  const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isMentor = group?.mentor?._id === currentUser.id;
+
+  const getProfilePictureUrl = (pic) => {
+    if (!pic) return null;
+    
+    // Extract filename if it's a full URL
+    const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+    
+    // Always construct the URL using the frontend's environment variable
+    let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    if (baseUrl.endsWith("/api")) {
+      baseUrl = baseUrl.replace("/api", "");
+    } else if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+    
+    return `${baseUrl}/uploads/${filename}`;
+  };
 
   useEffect(() => {
     fetchGroupDetails();
@@ -40,7 +57,9 @@ const GroupDetails = () => {
   }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   };
 
   const setupSocket = () => {
@@ -182,12 +201,12 @@ const GroupDetails = () => {
   if (!group) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col transition-colors duration-200">
-      <Navbar pageTitle={`Group: ${group.name}`} />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
+      <Navbar userProfile={currentUser} pageTitle={`Group: ${group.name}`} />
       
-      <div className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-80px)] overflow-hidden">
+      <div className="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar: Group Info & Members */}
-      <div className="lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden">
+      <div className="lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col h-fit lg:h-[600px] overflow-hidden">
         <div className="p-6 border-b dark:border-gray-700">
           <h2 className="text-xl font-bold dark:text-white mb-1">{group.name}</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{group.description}</p>
@@ -217,11 +236,17 @@ const GroupDetails = () => {
           <div className="space-y-3">
             {group.members.map((member) => (
               <div key={member._id} className="flex items-center gap-3">
-                <img
-                  src={member.profilePic || "/default-avatar.png"}
-                  alt=""
-                  className="w-8 h-8 rounded-full object-cover"
-                />
+                {member.profilePic ? (
+                  <img
+                    src={getProfilePictureUrl(member.profilePic)}
+                    alt={member.fullName}
+                    className="w-8 h-8 rounded-full object-cover shadow-sm border border-gray-100"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-[10px] font-bold">
+                    {(member.fullName || "U").charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium dark:text-white truncate">{member.fullName}</p>
                   <p className="text-[10px] text-gray-400 uppercase">{member.role}</p>
@@ -236,8 +261,11 @@ const GroupDetails = () => {
       </div>
 
       {/* Main: Chat Area */}
-      <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/30 dark:bg-gray-900/30">
+      <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col h-[500px] lg:h-[600px] overflow-hidden">
+        <div 
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/30 dark:bg-gray-900/30"
+        >
           {messages.length > 0 ? (
             messages.map((msg, i) => {
               const isMine = msg.senderId?._id === currentUser.id || msg.senderId === currentUser.id;
@@ -269,7 +297,6 @@ const GroupDetails = () => {
               No messages yet. Start the conversation!
             </div>
           )}
-          <div ref={messagesEndRef} />
         </div>
 
         <form onSubmit={handleSendMessage} className="p-4 border-t dark:border-gray-700 flex gap-2">
@@ -323,7 +350,17 @@ const GroupDetails = () => {
               {searchResults.map(user => (
                 <div key={user._id} className="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <img src={user.profilePic || "/default-avatar.png"} alt="" className="w-8 h-8 rounded-full" />
+                    {user.profilePic ? (
+                      <img
+                        src={getProfilePictureUrl(user.profilePic)}
+                        alt={user.fullName}
+                        className="w-8 h-8 rounded-full object-cover shadow-sm border border-gray-100"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-[10px] font-bold">
+                        {(user.fullName || "U").charAt(0).toUpperCase()}
+                      </div>
+                    )}
                     <div>
                       <p className="text-sm font-medium dark:text-white">{user.fullName}</p>
                       <p className="text-xs text-gray-400">{user.username}</p>
