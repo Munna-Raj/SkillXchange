@@ -205,10 +205,11 @@ export default function Profile() {
     }
   };
 
-  const getProfilePictureUrl = () => {
-    if (profile.profilePic) {
+  const getProfilePictureUrl = (pic) => {
+    const targetPic = pic || profile.profilePic;
+    if (targetPic) {
       // Extract filename if it's a full URL
-      const filename = profile.profilePic.includes('/') ? profile.profilePic.split('/').pop() : profile.profilePic;
+      const filename = targetPic.includes('/') ? targetPic.split('/').pop() : targetPic;
       
       // Always construct the URL using the frontend's environment variable
       let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -393,7 +394,7 @@ export default function Profile() {
                         <img
                           src={
                             follower.profilePic
-                              ? `${import.meta.env.VITE_API_URL}/uploads/${follower.profilePic}`
+                              ? getProfilePictureUrl(follower.profilePic)
                               : `https://ui-avatars.com/api/?name=${encodeURIComponent(
                                   follower.fullName || follower.username
                                 )}&background=random`
@@ -424,7 +425,7 @@ export default function Profile() {
                       <img
                         src={
                           followed.profilePic
-                            ? `${import.meta.env.VITE_API_URL}/uploads/${followed.profilePic}`
+                            ? getProfilePictureUrl(followed.profilePic)
                             : `https://ui-avatars.com/api/?name=${encodeURIComponent(
                                 followed.fullName || followed.username
                               )}&background=random`

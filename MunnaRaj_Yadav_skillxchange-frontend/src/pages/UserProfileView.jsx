@@ -32,6 +32,23 @@ const UserProfileView = () => {
   const email = localStorage.getItem("email");
   const isAdmin = role === "admin" || email === "rajyadavproject@gmail.com";
 
+  const getProfilePictureUrl = (pic) => {
+    if (!pic) return null;
+    
+    // Extract filename if it's a full URL
+    const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+    
+    // Always construct the URL using the frontend's environment variable
+    let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    if (baseUrl.endsWith("/api")) {
+      baseUrl = baseUrl.replace("/api", "");
+    } else if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+    
+    return `${baseUrl}/uploads/${filename}`;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -235,13 +252,7 @@ const UserProfileView = () => {
                 <img
                   src={
                     user.profilePic
-                      ? (() => {
-                          const filename = user.profilePic.includes('/') ? user.profilePic.split('/').pop() : user.profilePic;
-                          let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-                          if (baseUrl.endsWith("/api")) baseUrl = baseUrl.replace("/api", "");
-                          else if (baseUrl.endsWith("/")) baseUrl = baseUrl.slice(0, -1);
-                          return `${baseUrl}/uploads/${filename}`;
-                        })()
+                      ? getProfilePictureUrl(user.profilePic)
                       : `https://ui-avatars.com/api/?name=${encodeURIComponent(
                           user.fullName || user.username || "User"
                         )}&background=random`

@@ -10,6 +10,23 @@ const SendRequestModal = ({ isOpen, onClose, receiver, currentUserSkills }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const getProfilePictureUrl = (pic) => {
+    if (!pic) return null;
+    
+    // Extract filename if it's a full URL
+    const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+    
+    // Always construct the URL using the frontend's environment variable
+    let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    if (baseUrl.endsWith("/api")) {
+      baseUrl = baseUrl.replace("/api", "");
+    } else if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+    
+    return `${baseUrl}/uploads/${filename}`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -49,7 +66,7 @@ const SendRequestModal = ({ isOpen, onClose, receiver, currentUserSkills }) => {
         <div className="p-6">
           <div className="mb-4 flex items-center gap-3">
             <img
-              src={receiver.profilePic ? `${import.meta.env.VITE_API_URL}/uploads/${receiver.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(receiver.fullName)}&background=random`}
+              src={receiver.profilePic ? getProfilePictureUrl(receiver.profilePic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(receiver.fullName)}&background=random`}
               alt={receiver.fullName}
               className="w-12 h-12 rounded-full object-cover border border-gray-200"
             />

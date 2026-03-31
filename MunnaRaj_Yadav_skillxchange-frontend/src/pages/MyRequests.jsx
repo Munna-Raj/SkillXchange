@@ -15,6 +15,23 @@ const MyRequests = () => {
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
+  const getProfilePictureUrl = (pic) => {
+    if (!pic) return null;
+    
+    // Extract filename if it's a full URL
+    const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+    
+    // Always construct the URL using the frontend's environment variable
+    let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    if (baseUrl.endsWith("/api")) {
+      baseUrl = baseUrl.replace("/api", "");
+    } else if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+    
+    return `${baseUrl}/uploads/${filename}`;
+  };
+
   useEffect(() => {
     fetchRequests();
   }, []);
@@ -130,7 +147,7 @@ const MyRequests = () => {
                 <div key={req._id} className="request-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
                   <div className="request-user-info flex items-center gap-4 w-full md:w-auto">
                     <img
-                      src={req.senderId?.profilePic ? `${import.meta.env.VITE_API_URL}/uploads/${req.senderId.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.senderId?.fullName || "Deleted")}&background=random`}
+                      src={req.senderId?.profilePic ? getProfilePictureUrl(req.senderId.profilePic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.senderId?.fullName || "Deleted")}&background=random`}
                       alt={req.senderId?.fullName || "Deleted User"}
                       className="w-14 h-14 rounded-full object-cover border border-gray-200"
                     />
@@ -188,7 +205,7 @@ const MyRequests = () => {
               <div key={req._id} className="request-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="request-user-info flex items-center gap-4">
                   <img
-                    src={req.receiverId?.profilePic ? `${import.meta.env.VITE_API_URL}/uploads/${req.receiverId.profilePic}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.receiverId?.fullName || "Deleted")}&background=random`}
+                    src={req.receiverId?.profilePic ? getProfilePictureUrl(req.receiverId.profilePic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.receiverId?.fullName || "Deleted")}&background=random`}
                     alt={req.receiverId?.fullName || "Deleted User"}
                     className="w-14 h-14 rounded-full object-cover border border-gray-200"
                   />
