@@ -37,8 +37,14 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
     if (!fileUrl) return "";
     if (fileUrl.startsWith("http")) return fileUrl;
     
-    // Remove /api from baseURL if it exists to get the root server URL
-    const rootUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    // Fallback for old records that only store filename
+    let rootUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    if (rootUrl.endsWith("/api")) {
+      rootUrl = rootUrl.replace("/api", "");
+    } else if (rootUrl.endsWith("/")) {
+      rootUrl = rootUrl.slice(0, -1);
+    }
+    
     return `${rootUrl}/uploads/${fileUrl}`;
   };
 
@@ -94,7 +100,13 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
 
     // Listen
     socket.on("receive_message", (data) => {
-      setMessages((prev) => [...prev, data]);
+      setMessages((prev) => {
+        // More robust duplicate check using String conversion for IDs
+        const dataId = String(data._id || data.id);
+        const exists = prev.some(m => String(m._id || m.id) === dataId);
+        if (exists) return prev;
+        return [...prev, data];
+      });
     });
 
     socket.on("message_deleted", ({ messageId }) => {
@@ -200,13 +212,14 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
       setUploading(true);
       const uploadedMsg = await uploadChatFileApi(formData);
       
-      // Emit the uploaded message via socket to other user
+      // Emit the uploaded message via socket so it appears for EVERYONE (including sender)
       socket.emit("send_message", {
         ...uploadedMsg,
-        fromUpload: true // Flag to prevent duplicate saving on server if handled differently
+        fromUpload: true
       });
       
-      setMessages((prev) => [...prev, uploadedMsg]);
+      // We don't manually add to state here anymore to avoid duplicates.
+      // The socket listener 'receive_message' will add it for us.
     } catch (err) {
       console.error("Upload failed", err);
       alert("Failed to upload file. Please try again.");

@@ -47,7 +47,8 @@ exports.uploadFile = async (req, res) => {
     }
 
     const { requestId, receiverId } = req.body;
-    const fileUrl = req.file.filename;
+    const baseUrl = process.env.BASE_URL || "http://localhost:5000";
+    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
     const fileName = req.file.originalname;
     const fileType = req.file.mimetype.startsWith("image/") ? "image" : "document";
 
@@ -99,7 +100,8 @@ exports.deleteMessage = async (req, res) => {
       return res.status(403).json({ msg: "Not allowed to delete this message" });
     }
     if (msg.fileUrl) {
-      const filePath = path.join(process.cwd(), "uploads", msg.fileUrl);
+      const filename = msg.fileUrl.split('/').pop();
+      const filePath = path.join(process.cwd(), "uploads", filename);
       fs.promises.unlink(filePath).catch(() => {});
     }
     await Message.deleteOne({ _id: id });

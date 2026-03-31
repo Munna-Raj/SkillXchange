@@ -328,14 +328,15 @@ exports.updateProfilePicture = async (req, res) => {
     }
 
     // Set new pic
-    user.profilePic = req.file.filename;
+    const baseUrl = process.env.BASE_URL || "http://localhost:5000";
+    user.profilePic = `${baseUrl}/uploads/${req.file.filename}`;
     await user.save();
 
     const updatedUser = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpire");
     res.json({ 
       msg: "Profile picture updated successfully", 
       user: updatedUser,
-      profilePicUrl: `/uploads/${req.file.filename}`
+      profilePicUrl: user.profilePic
     });
   } catch (error) {
     console.error("UPDATE PROFILE PICTURE ERROR:", error);

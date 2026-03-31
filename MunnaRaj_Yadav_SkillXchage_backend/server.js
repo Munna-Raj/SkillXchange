@@ -94,31 +94,39 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", async (data) => {
-    const { requestId, groupId, isGroupMessage, senderId, receiverId, text, fileUrl, fileName, fileType } = data;
+    const { requestId, groupId, isGroupMessage, senderId, receiverId, text, fileUrl, fileName, fileType, fromUpload } = data;
     
     try {
-      const messageData = {
-        senderId,
-        text,
-        fileUrl,
-        fileName,
-        fileType
-      };
+      let newMessage;
+      
+      if (fromUpload && data._id) {
+        // If it's already saved via API (fromUpload: true), just use the data
+        newMessage = data;
+      } else {
+        const messageData = {
+          senderId,
+          text,
+          fileUrl,
+          fileName,
+          fileType
+        };
 
-      if (isGroupMessage && groupId) {
-        messageData.groupId = groupId;
-        messageData.isGroupMessage = true;
-      } else if (requestId) {
-        messageData.requestId = requestId;
-        messageData.receiverId = receiverId;
+        if (isGroupMessage && groupId) {
+          messageData.groupId = groupId;
+          messageData.isGroupMessage = true;
+        } else if (requestId) {
+          messageData.requestId = requestId;
+          messageData.receiverId = receiverId;
+        }
+
+        newMessage = new Message(messageData);
+        await newMessage.save();
       }
-
-      const newMessage = new Message(messageData);
-      await newMessage.save();
       
       const roomId = isGroupMessage ? groupId : requestId;
       
-      // Emit to everyone in the room
+      // Broadcast to EVERYONE in the room including the sender.
+      // The duplicate check in the frontend will handle any double-rendering.
       io.to(roomId).emit("receive_message", newMessage);
 
       // Handle notifications
