@@ -319,24 +319,16 @@ exports.updateProfilePicture = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    // Delete old pic
-    if (user.profilePic) {
-      const filename = user.profilePic.split('/').pop();
-      const oldPicPath = path.join(__dirname, "..", "uploads", filename);
-      if (fs.existsSync(oldPicPath)) {
-        fs.unlinkSync(oldPicPath);
-      }
-    }
-
-    // Set new pic
-    user.profilePic = req.file.filename;
+    // Delete old pic if it's NOT a cloudinary link (optional, depends on preference)
+    // For now, just update the reference to the new Cloudinary URL
+    user.profilePic = req.file.path;
     await user.save();
 
     const updatedUser = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpire");
     res.json({ 
       msg: "Profile picture updated successfully", 
       user: updatedUser,
-      profilePicUrl: `/uploads/${req.file.filename}`
+      profilePicUrl: user.profilePic
     });
   } catch (error) {
     console.error("UPDATE PROFILE PICTURE ERROR:", error);

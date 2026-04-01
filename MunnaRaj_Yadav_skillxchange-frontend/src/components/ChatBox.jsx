@@ -36,10 +36,10 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
   const getFileUrl = (fileUrl) => {
     if (!fileUrl) return "";
     
-    // Extract filename if it's a full URL
-    const filename = fileUrl.includes('/') ? fileUrl.split('/').pop() : fileUrl;
+    // If it's already a full URL (Cloudinary), return it directly
+    if (fileUrl.startsWith("http")) return fileUrl;
     
-    // Always construct the URL using the frontend's environment variable
+    // Fallback for old local records
     let rootUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
     if (rootUrl.endsWith("/api")) {
       rootUrl = rootUrl.replace("/api", "");
@@ -47,7 +47,7 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
       rootUrl = rootUrl.slice(0, -1);
     }
     
-    return `${rootUrl}/uploads/${filename}`;
+    return `${rootUrl}/uploads/${fileUrl}`;
   };
 
   useEffect(() => {

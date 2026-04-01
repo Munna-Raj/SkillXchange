@@ -46,17 +46,17 @@ const Navbar = ({ userProfile, pageTitle = "Dashboard" }) => {
   const getProfilePictureUrl = () => {
     const pic = userProfile?.profilePic || currentUser?.profilePic;
     if (pic) {
-      // Extract filename if it's a full URL
-      const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+      // If it's already a full URL (Cloudinary), return it directly
+      if (pic.startsWith("http")) return pic;
       
-      // Always construct the URL using the frontend's environment variable
+      // Fallback for old local records
       let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
       if (baseUrl.endsWith("/api")) {
         baseUrl = baseUrl.replace("/api", "");
       } else if (baseUrl.endsWith("/")) {
         baseUrl = baseUrl.slice(0, -1);
       }
-      return `${baseUrl}/uploads/${filename}`;
+      return `${baseUrl}/uploads/${pic}`;
     }
     return null;
   };

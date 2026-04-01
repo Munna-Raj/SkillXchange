@@ -1,47 +1,27 @@
 const multer = require("multer");
-const path = require("path");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
-// Multer storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    // Unique filename
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
-    const prefix = file.mimetype.startsWith("image/") ? "chat-img-" : "chat-doc-";
-    cb(null, prefix + uniqueSuffix + path.extname(file.originalname));
-  }
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// File filter
-const fileFilter = (req, file, cb) => {
-  // Allow images and common documents
-  const allowedMimetypes = [
-    "image/jpeg", "image/png", "image/gif", "image/webp",
-    "application/pdf", "application/msword", 
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-powerpoint",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "text/plain"
-  ];
+// Setup Cloudinary Storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "skillxchange",
+    allowed_formats: ["jpg", "png", "jpeg", "pdf", "doc", "docx"],
+    resource_type: "auto", // Automatically detect if it's an image or document
+  },
+});
 
-  if (allowedMimetypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("File type not supported. Please upload an image or a document."), false);
-  }
-};
-
-// Multer config
 const upload = multer({
   storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  },
-  fileFilter: fileFilter
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 });
 
 module.exports = upload;

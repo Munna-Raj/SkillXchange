@@ -47,7 +47,7 @@ exports.uploadFile = async (req, res) => {
     }
 
     const { requestId, receiverId } = req.body;
-    const fileUrl = req.file.filename;
+    const fileUrl = req.file.path; // Cloudinary URL
     const fileName = req.file.originalname;
     const fileType = req.file.mimetype.startsWith("image/") ? "image" : "document";
 
