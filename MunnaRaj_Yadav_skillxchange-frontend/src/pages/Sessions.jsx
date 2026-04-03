@@ -4,6 +4,30 @@ import { getUpcomingForMeApi } from "../services/sessionService";
 import { markAttendanceApi } from "../services/attendanceService";
 
 const SessionCard = ({ session, item, isNext, partnerInfo }) => {
+  const [imgError, setImgError] = useState(false);
+
+  const partnerName = partnerInfo?.fullName || partnerInfo?.username || "User";
+  const partnerPic = partnerInfo?.profilePic;
+
+  useEffect(() => {
+    setImgError(false);
+  }, [partnerPic]);
+
+  const getProfilePicUrl = () => {
+    if (!partnerPic) return null;
+    if (partnerPic.startsWith("http") || partnerPic.startsWith("data:image/")) return partnerPic;
+    
+    let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
+    if (baseUrl.endsWith("/api")) {
+      baseUrl = baseUrl.replace("/api", "");
+    } else if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+    return `${baseUrl}/uploads/${partnerPic}`;
+  };
+
+  const profilePicUrl = getProfilePicUrl();
+
   const [isLive, setIsLive] = useState(() => {
     const now = new Date();
     const startDate = new Date(item.date);
@@ -93,7 +117,6 @@ const SessionCard = ({ session, item, isNext, partnerInfo }) => {
   const skillTitle = session.isGroupSession ? "Group Session" : (session.requestId?.teachSkill || "Skill Session");
   const valid = typeof session.meetLink === "string" && session.meetLink.startsWith("https://meet.google.com/");
   const dateStr = new Date(item.date).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-  const partnerName = partnerInfo?.fullName || partnerInfo?.username || "User";
   
   return (
     <div className={`rounded-[2rem] p-6 border-2 transition-all relative overflow-hidden ${
@@ -160,10 +183,15 @@ const SessionCard = ({ session, item, isNext, partnerInfo }) => {
           <div className={`h-9 w-9 rounded-full flex items-center justify-center font-black text-sm shadow-sm overflow-hidden ${
             isNext && !isLive ? 'bg-white text-indigo-600' : 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300'
           }`}>
-            {partnerInfo?.profilePic ? (
-              <img src={`${import.meta.env.VITE_API_URL}/uploads/${partnerInfo.profilePic}`} alt={partnerName} className="h-full w-full object-cover" />
+            {profilePicUrl && !imgError ? (
+              <img 
+                src={profilePicUrl} 
+                alt="" 
+                className="h-full w-full object-cover" 
+                onError={() => setImgError(true)}
+              />
             ) : (
-              partnerName.charAt(0)
+              <span className="uppercase">{partnerName.charAt(0)}</span>
             )}
           </div>
           <div className="flex flex-col">
