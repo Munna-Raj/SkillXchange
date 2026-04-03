@@ -10,12 +10,12 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
 
   const getProfilePictureUrl = (pic) => {
-    if (!pic) return null;
+    if (!pic) return "/logo%20skillxChange.jpeg";
     
-    // Extract filename if it's a full URL
-    const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+    // If it's already a full URL (Cloudinary) or Base64 string, return it directly
+    if (pic.startsWith("http") || pic.startsWith("data:image/")) return pic;
     
-    // Always construct the URL using the frontend's environment variable
+    // Fallback for old local records
     let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
     if (baseUrl.endsWith("/api")) {
       baseUrl = baseUrl.replace("/api", "");
@@ -23,7 +23,7 @@ const AdminUsers = () => {
       baseUrl = baseUrl.slice(0, -1);
     }
     
-    return `${baseUrl}/uploads/${filename}`;
+    return `${baseUrl}/uploads/${pic}`;
   };
 
   const fetchUsers = async () => {
@@ -155,17 +155,11 @@ const AdminUsers = () => {
                     <tr key={user._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Link to={`/user/${user._id}`} className="flex items-center group">
-                          {user.profilePic ? (
-                            <img
-                              src={getProfilePictureUrl(user.profilePic)}
-                              alt={user.fullName || user.username}
-                              className="h-10 w-10 rounded-full object-cover border border-gray-100 shadow-sm"
-                            />
-                          ) : (
-                            <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl group-hover:bg-blue-600 transition-colors">
-                              {((user.name || user.fullName || user.username || user.email || '?')[0] || '?').toUpperCase()}
-                            </div>
-                          )}
+                          <img
+                            src={getProfilePictureUrl(user.profilePic)}
+                            alt={user.fullName || user.username}
+                            className="h-10 w-10 rounded-full object-cover border border-gray-100 shadow-sm"
+                          />
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
                               {user.name || user.fullName || user.username || user.email || 'Unknown'}

@@ -187,20 +187,25 @@ export default function Dashboard() {
   };
 
   // Format profile pic URL
-  const getProfilePictureUrl = () => {
-    if (userProfile?.profilePic) {
-      // Extract filename if it's a full URL
-      const filename = userProfile.profilePic.includes('/') ? userProfile.profilePic.split('/').pop() : userProfile.profilePic;
+  const getProfilePictureUrl = (pic) => {
+    // If a specific pic is passed (e.g. from a match), use it. 
+    // Otherwise, fallback to the logged-in user's profile pic.
+    const targetPic = pic !== undefined ? pic : userProfile?.profilePic;
+    
+    if (targetPic) {
+      // If it's already a full URL (Cloudinary) or Base64 string, return it directly
+      if (targetPic.startsWith("http") || targetPic.startsWith("data:image/")) return targetPic;
       
-      // Always construct the URL using the frontend's environment variable
+      // Fallback for old local records
       let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
       if (baseUrl.endsWith("/api")) {
         baseUrl = baseUrl.replace("/api", "");
       } else if (baseUrl.endsWith("/")) {
         baseUrl = baseUrl.slice(0, -1);
       }
-      return `${baseUrl}/uploads/${filename}`;
+      return `${baseUrl}/uploads/${targetPic}`;
     }
+    // No picture set
     return null;
   };
 
@@ -498,18 +503,25 @@ export default function Dashboard() {
                     className="match-card rounded-2xl bg-white dark:bg-gray-800 p-5 ring-1 ring-gray-200 dark:ring-gray-700 shadow-sm transition-all hover:shadow-md dark:hover:shadow-indigo-900/10"
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3">
+                      <div 
+                        onClick={() => navigate(`/user/${m._id}`)}
+                        className="flex items-center gap-3 cursor-pointer group"
+                      >
                         <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 dark:border-gray-700">
-                          {m.profilePic ? (
-                            <img src={`${import.meta.env.VITE_API_URL}/uploads/${m.profilePic}`} alt={m.fullName} className="w-full h-full object-cover" />
+                          {getProfilePictureUrl(m.profilePic) ? (
+                            <img 
+                              src={getProfilePictureUrl(m.profilePic)} 
+                              alt={m.fullName} 
+                              className="w-full h-full object-cover" 
+                            />
                           ) : (
-                            <div className="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 font-bold">
-                              {m.fullName?.charAt(0)}
+                            <div className="w-full h-full flex items-center justify-center font-bold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+                              {m.fullName?.charAt(0).toUpperCase()}
                             </div>
                           )}
                         </div>
                         <div>
-                          <p className="text-base font-bold text-gray-900 dark:text-white">{m.fullName}</p>
+                          <p className="text-base font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{m.fullName}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{m.username}</p>
                         </div>
                       </div>
@@ -577,11 +589,15 @@ export default function Dashboard() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
-                          {r.senderId?.profilePic ? (
-                            <img src={`${import.meta.env.VITE_API_URL}/uploads/${r.senderId.profilePic}`} alt={r.senderId.fullName} className="w-full h-full object-cover" />
+                          {getProfilePictureUrl(r.senderId?.profilePic) ? (
+                            <img 
+                              src={getProfilePictureUrl(r.senderId?.profilePic)} 
+                              alt={r.senderId?.fullName} 
+                              className="w-full h-full object-cover" 
+                            />
                           ) : (
-                            <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 text-[10px] font-bold">
-                              {r.senderId?.fullName?.charAt(0) || "?"}
+                            <div className="w-full h-full flex items-center justify-center font-bold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px]">
+                              {r.senderId?.fullName?.charAt(0).toUpperCase() || "?"}
                             </div>
                           )}
                         </div>

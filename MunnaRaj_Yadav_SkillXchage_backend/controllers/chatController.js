@@ -46,30 +46,42 @@ exports.uploadFile = async (req, res) => {
       return res.status(400).json({ msg: "No file uploaded" });
     }
 
-    const { requestId, receiverId } = req.body;
-    const fileUrl = req.file.path; // Cloudinary URL
+    const { requestId, receiverId, isGroupMessage, groupId } = req.body;
+    
+    // Use the filename from diskStorage
+    const fileUrl = req.file.filename;
     const fileName = req.file.originalname;
     const fileType = req.file.mimetype.startsWith("image/") ? "image" : "document";
 
-    const newMessage = new Message({
-      requestId,
+    const messageData = {
       senderId: req.user.id,
-      receiverId,
       fileUrl,
       fileName,
       fileType,
       text: req.body.text || ""
-    });
+    };
 
+    if (isGroupMessage === "true" && groupId) {
+      messageData.groupId = groupId;
+      messageData.isGroupMessage = true;
+    } else {
+      messageData.requestId = requestId;
+      messageData.receiverId = receiverId;
+    }
+
+    const newMessage = new Message(messageData);
     await newMessage.save();
 
     // Populate sender for frontend
     const populatedMessage = await Message.findById(newMessage._id).populate("senderId", "fullName profilePic");
 
     res.json(populatedMessage);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+  } catch (error) {
+    console.error("UPLOAD FILE DISK ERROR:", error);
+    res.status(500).json({ 
+      msg: "Server error during file upload", 
+      error: error.message
+    });
   }
 };
 

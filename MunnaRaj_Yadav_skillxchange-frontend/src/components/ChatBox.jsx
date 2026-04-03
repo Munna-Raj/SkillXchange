@@ -24,6 +24,8 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
   const [timeSlot, setTimeSlot] = useState("10:00");
   const [meetLinkInput, setMeetLinkInput] = useState("");
   const [linkError, setLinkError] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
+
   const isValidMeetLink = (v) => typeof v === "string" && v.startsWith("https://meet.google.com/");
   const pasteLink = async () => {
     try {
@@ -33,11 +35,25 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
     } catch {}
   };
 
+  const downloadBase64File = (base64Data, fileName) => {
+    try {
+      const link = document.createElement("a");
+      link.href = base64Data;
+      link.download = fileName || "download";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("Download failed:", err);
+      alert("Failed to download file");
+    }
+  };
+
   const getFileUrl = (fileUrl) => {
     if (!fileUrl) return "";
     
-    // If it's already a full URL (Cloudinary), return it directly
-    if (fileUrl.startsWith("http")) return fileUrl;
+    // If it's already a full URL (Cloudinary) or Base64 string, return it directly
+    if (fileUrl.startsWith("http") || fileUrl.startsWith("data:")) return fileUrl;
     
     // Fallback for old local records
     let rootUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -214,7 +230,19 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
 
     try {
       setUploading(true);
-      const uploadedMsg = await uploadChatFileApi(formData);
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.msg || "Upload failed");
+      }
+
+      const uploadedMsg = await response.json();
       
       // Emit the uploaded message via socket so it appears for EVERYONE (including sender)
       socket.emit("send_message", {
@@ -222,11 +250,9 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
         fromUpload: true
       });
       
-      // We don't manually add to state here anymore to avoid duplicates.
-      // The socket listener 'receive_message' will add it for us.
     } catch (err) {
       console.error("Upload failed", err);
-      alert("Failed to upload file. Please try again.");
+      alert(err.message || "Failed to upload file. Please try again.");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -458,33 +484,51 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
                     : "bg-white text-gray-800 border border-gray-100 rounded-tl-none"
                 }`}>
                   {msg.fileUrl && (
-                    <div className="mb-2">
+                    <div className="mb-2 relative group/file">
                       {msg.fileType === "image" ? (
-                        <a href={getFileUrl(msg.fileUrl)} target="_blank" rel="noopener noreferrer">
+                        <div className="relative">
                           <img 
                             src={getFileUrl(msg.fileUrl)} 
                             alt={msg.fileName} 
-                            className="max-w-full rounded-lg border border-white/20 hover:opacity-90 transition-opacity"
+                            className="max-w-full rounded-lg border border-white/20 hover:opacity-95 transition-all shadow-md cursor-pointer"
                             style={{ maxHeight: "200px" }}
+                            onClick={() => setPreviewImage({ url: getFileUrl(msg.fileUrl), name: msg.fileName })}
                           />
-                        </a>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              downloadBase64File(msg.fileUrl, msg.fileName);
+                            }}
+                            className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-0 group-hover/file:opacity-100 transition-opacity z-10"
+                            title="Download Image"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                          </button>
+                        </div>
                       ) : (
-                        <a 
-                          href={getFileUrl(msg.fileUrl)} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className={`flex items-center gap-2 p-2 rounded-xl border ${
-                            isMe ? "bg-white/10 border-white/20 text-white" : "bg-gray-50 border-gray-100 text-gray-700"
-                          } hover:opacity-80 transition-opacity`}
+                        <button 
+                          onClick={() => downloadBase64File(msg.fileUrl, msg.fileName)}
+                          className={`flex items-center gap-2 p-3 rounded-xl border w-full text-left transition-all ${
+                            isMe ? "bg-white/10 border-white/20 text-white hover:bg-white/20" : "bg-gray-50 border-gray-100 text-gray-700 hover:bg-gray-100"
+                          } shadow-sm`}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                          </svg>
-                          <div className="overflow-hidden">
-                            <p className="text-xs font-bold truncate">{msg.fileName}</p>
-                            <p className="text-[10px] opacity-70">Download File</p>
+                          <div className={`p-2 rounded-lg ${isMe ? "bg-white/20" : "bg-indigo-50 text-indigo-600"}`}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
                           </div>
-                        </a>
+                          <div className="overflow-hidden flex-1">
+                            <p className="text-xs font-bold truncate">{msg.fileName}</p>
+                            <p className="text-[10px] opacity-70 flex items-center gap-1">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                              Download File
+                            </p>
+                          </div>
+                        </button>
                       )}
                     </div>
                   )}
@@ -550,6 +594,48 @@ const ChatBox = ({ requestId, currentUser, otherUser, onClose, variant = "floati
           </svg>
         </button>
       </form>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="relative max-w-4xl w-full h-full flex flex-col items-center justify-center gap-4">
+            <button 
+              className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all"
+              onClick={() => setPreviewImage(null)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <img 
+              src={previewImage.url} 
+              alt={previewImage.name} 
+              className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl animate-scale-in"
+              onClick={(e) => e.stopPropagation()}
+            />
+            
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-white text-sm font-medium">{previewImage.name}</p>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  downloadBase64File(previewImage.url, previewImage.name);
+                }}
+                className="px-6 py-2 bg-indigo-600 text-white rounded-full text-sm font-bold shadow-lg hover:bg-indigo-700 transition-all flex items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download Original
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

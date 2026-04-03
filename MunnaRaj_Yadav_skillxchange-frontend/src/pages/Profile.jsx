@@ -189,9 +189,25 @@ export default function Profile() {
         body: formData,
       });
 
+      // Improved error handling for server responses
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.msg || "Upload failed");
+        let errorMsg = "Upload failed";
+        const responseText = await response.text();
+        console.error("SERVER ERROR RESPONSE:", responseText);
+        
+        try {
+          // Try to parse as JSON first
+          const errorData = JSON.parse(responseText);
+          errorMsg = errorData.msg || errorData.error || errorMsg;
+        } catch (e) {
+          // If not JSON, it's likely an HTML error page (like a 500)
+          if (responseText.includes("<!DOCTYPE html>") || responseText.includes("<html")) {
+            errorMsg = `Server returned an HTML error page instead of JSON. Status: ${response.status}. This usually means a server-side crash or misconfiguration.`;
+          } else {
+            errorMsg = responseText.substring(0, 100) || errorMsg;
+          }
+        }
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();
@@ -208,19 +224,20 @@ export default function Profile() {
   const getProfilePictureUrl = (pic) => {
     const targetPic = pic || profile.profilePic;
     if (targetPic) {
-      // Extract filename if it's a full URL
-      const filename = targetPic.includes('/') ? targetPic.split('/').pop() : targetPic;
+      // If it's already a full URL (Cloudinary) or Base64 string, return it directly
+      if (targetPic.startsWith("http") || targetPic.startsWith("data:image/")) return targetPic;
       
-      // Always construct the URL using the frontend's environment variable
+      // Construct URL for static files in /uploads
       let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
       if (baseUrl.endsWith("/api")) {
         baseUrl = baseUrl.replace("/api", "");
       } else if (baseUrl.endsWith("/")) {
         baseUrl = baseUrl.slice(0, -1);
       }
-      return `${baseUrl}/uploads/${filename}`;
+      return `${baseUrl}/uploads/${targetPic}`;
     }
-    return null;
+    // Default fallback image
+    return "/logo%20skillxChange.jpeg";
   };
 
   // Skill logic
@@ -392,13 +409,7 @@ export default function Profile() {
                         className="w-full flex items-center gap-3 text-left p-2 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         <img
-                          src={
-                            follower.profilePic
-                              ? getProfilePictureUrl(follower.profilePic)
-                              : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                  follower.fullName || follower.username
-                                )}&background=random`
-                          }
+                          src={getProfilePictureUrl(follower.profilePic)}
                           alt={follower.fullName}
                           className="w-8 h-8 rounded-full object-cover"
                         />
@@ -423,13 +434,7 @@ export default function Profile() {
                       className="w-full flex items-center gap-3 text-left p-2 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <img
-                        src={
-                          followed.profilePic
-                            ? getProfilePictureUrl(followed.profilePic)
-                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                followed.fullName || followed.username
-                              )}&background=random`
-                        }
+                        src={getProfilePictureUrl(followed.profilePic)}
                         alt={followed.fullName}
                         className="w-8 h-8 rounded-full object-cover"
                       />

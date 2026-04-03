@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const multer = require("multer");
 require("dotenv").config();
 const connectDB = require("./config/db");
 const Message = require("./models/Message");
@@ -28,6 +29,11 @@ const Notification = require("./models/Notification");
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
+  "http://localhost:5175",
+  "http://localhost:3000",
+  "http://localhost:5176",
+  "http://localhost:5177",
+  "https://skillxchange-1.netlify.app",
   process.env.CLIENT_URL
 ].filter(Boolean);
 
@@ -54,6 +60,30 @@ app.use("/uploads", cors(), express.static(path.join(__dirname, "uploads")));
 
 connectDB();
 
+// Verify Cloudinary Environment Variables and Connectivity on Startup
+console.log("--- SYSTEM CONFIG CHECK ---");
+console.log("NODE_ENV:", process.env.NODE_ENV || "development");
+console.log("CLOUDINARY_CLOUD_NAME:", process.env.CLOUDINARY_CLOUD_NAME ? "PRESENT" : "MISSING");
+console.log("CLOUDINARY_API_KEY:", process.env.CLOUDINARY_API_KEY ? "PRESENT" : "MISSING");
+console.log("CLOUDINARY_API_SECRET:", process.env.CLOUDINARY_API_SECRET ? "PRESENT" : "MISSING");
+
+if (process.env.CLOUDINARY_CLOUD_NAME) {
+  const cloudinary = require("cloudinary").v2;
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  
+  cloudinary.api.ping()
+    .then(result => console.log("CLOUDINARY: Connection Successful", result))
+    .catch(err => console.error("CLOUDINARY: Connection Failed - Check your Secret/Key!", err.message));
+}
+
+console.log("BASE_URL:", process.env.BASE_URL);
+console.log("CLIENT_URL:", process.env.CLIENT_URL);
+console.log("---------------------------");
+
 app.get("/", (req, res) => res.send("API working!"));
 
 app.get("/api/test", (req, res) => {
@@ -73,6 +103,49 @@ app.use("/api/sessions", sessionRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api", searchRoutes); 
+
+// 404 Handler
+app.use((req, res, next) => {
+  res.status(404).json({ msg: "Route not found" });
+});
+
+// Global Error Handler to catch Multer and other middleware errors
+app.use((err, req, res, next) => {
+  const errorDetails = {
+    message: err.message || "No message",
+    name: err.name || "Error",
+    code: err.code,
+    status: err.status,
+    path: req.path,
+    method: req.method
+  };
+
+  // Only log stack in development
+  if (process.env.NODE_ENV !== 'production') {
+    errorDetails.stack = err.stack;
+  }
+
+  console.error("CRITICAL GLOBAL ERROR:", errorDetails);
+  
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  if (err instanceof multer.MulterError || err.name === "MulterError" || err.code?.startsWith("LIMIT_")) {
+    return res.status(400).json({
+      msg: "File upload error",
+      error: err.message,
+      code: err.code || "UPLOAD_ERROR"
+    });
+  }
+
+  const statusCode = err.status || 500;
+  res.status(statusCode).json({
+    msg: "Internal Server Error",
+    error: process.env.NODE_ENV === 'production' ? "An unexpected error occurred" : err.message,
+    type: err.name || "Error"
+  });
+});
 
 // Socket.io logic
 io.on("connection", (socket) => {

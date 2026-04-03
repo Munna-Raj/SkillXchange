@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signupApi } from "../services/authService";
-const API_URL = `${import.meta.env.VITE_API_URL}/api/`;
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -11,14 +10,16 @@ export default function Register() {
     username: "", 
     email: "", 
     password: "", 
-    countryCode: "+977", 
-    phoneNumber: "" 
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState("");
+
+  useEffect(() => {
+    console.log("[REGISTER] Component mounted. Current environment:", import.meta.env.MODE);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,7 +51,8 @@ export default function Register() {
       setError("Email is required");
       return false;
     }
-    if (!form.email.includes("@")) {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(form.email)) {
       setError("Please enter a valid email address");
       return false;
     }
@@ -62,19 +64,12 @@ export default function Register() {
       setError("Password must be at least 6 characters");
       return false;
     }
-    if (!form.phoneNumber) {
-      setError("Phone number is required");
-      return false;
-    }
-    if (!/^\d{10}$/.test(form.phoneNumber)) {
-      setError("Phone number must be exactly 10 digits");
-      return false;
-    }
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("[REGISTER] handleSubmit triggered.");
     setError("");
     setSuccess("");
 
@@ -82,13 +77,8 @@ export default function Register() {
 
     setLoading(true);
 
-    const registrationData = {
-      ...form,
-      contactNumber: `${form.countryCode}${form.phoneNumber}`
-    };
-
     try {
-      const res = await signupApi(registrationData);
+      const res = await signupApi(form);
       const successMessage = res?.data?.msg || "Account created successfully! Please login.";
       setSuccess(successMessage);
       toast.success(successMessage);
@@ -254,42 +244,6 @@ export default function Register() {
                     </svg>
                   )}
                 </button>
-              </div>
-            </div>
-
-            {/* Phone Number */}
-            <div>
-              <label className="auth-label">
-                Phone Number
-              </label>
-              <div className="flex gap-2">
-                <select
-                  name="countryCode"
-                  value={form.countryCode}
-                  onChange={handleChange}
-                  className="w-28 p-3 border rounded-xl bg-gray-50 border-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm font-medium"
-                >
-                  <option value="+977">Nepal (+977)</option>
-                  <option value="+91">India (+91)</option>
-                </select>
-                <input
-                  type="text"
-                  name="phoneNumber"
-                  value={form.phoneNumber}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                    setForm({ ...form, phoneNumber: value });
-                  }}
-                  onFocus={() => setFocusedField("phoneNumber")}
-                  onBlur={() => setFocusedField("")}
-                  className={`auth-input-field auth-input-field-no-icon flex-1 ${
-                    focusedField === "phoneNumber"
-                      ? "auth-input-focus"
-                      : "auth-input-default"
-                  }`}
-                  placeholder="10-digit number"
-                  required
-                />
               </div>
             </div>
 

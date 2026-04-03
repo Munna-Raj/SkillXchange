@@ -44,10 +44,12 @@ const Navbar = ({ userProfile, pageTitle = "Dashboard" }) => {
   };
 
   const getProfilePictureUrl = () => {
+    // Priority: userProfile prop (fresh data) -> currentUser (local storage)
     const pic = userProfile?.profilePic || currentUser?.profilePic;
+    
     if (pic) {
-      // If it's already a full URL (Cloudinary), return it directly
-      if (pic.startsWith("http")) return pic;
+      // If it's already a full URL (Cloudinary) or Base64 string, return it directly
+      if (pic.startsWith("http") || pic.startsWith("data:image/")) return pic;
       
       // Fallback for old local records
       let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -58,6 +60,7 @@ const Navbar = ({ userProfile, pageTitle = "Dashboard" }) => {
       }
       return `${baseUrl}/uploads/${pic}`;
     }
+    // No picture set
     return null;
   };
 

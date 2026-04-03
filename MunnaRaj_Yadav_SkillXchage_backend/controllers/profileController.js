@@ -313,25 +313,43 @@ exports.unfollowUser = async (req, res) => {
 
 // UPDATE PROFILE PICTURE 
 exports.updateProfilePicture = async (req, res) => {
+  // Use file from multer's diskStorage
+  const file = req.file;
+
+  console.log("UPDATE_PROFILE_PICTURE: Disk Storage Mode", { 
+    userId: req.user?.id, 
+    hasFile: !!file, 
+    filename: file?.filename 
+  });
+
   try {
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    // Delete old pic if it's NOT a cloudinary link (optional, depends on preference)
-    // For now, just update the reference to the new Cloudinary URL
-    user.profilePic = req.file.path;
+    // Check if file was uploaded
+    if (!file) {
+      return res.status(400).json({ msg: "No file uploaded" });
+    }
+
+    // Store only the filename in MongoDB
+    user.profilePic = file.filename;
     await user.save();
 
     const updatedUser = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpire");
+    
+    // Return filename for display
     res.json({ 
-      msg: "Profile picture updated successfully", 
+      msg: "Profile picture updated successfully (Disk)", 
       user: updatedUser,
-      profilePicUrl: user.profilePic
+      profilePic: user.profilePic
     });
   } catch (error) {
-    console.error("UPDATE PROFILE PICTURE ERROR:", error);
-    res.status(500).json({ msg: "Server error" });
+    console.error("UPDATE_PROFILE_PICTURE_DISK: CRASH", error);
+    res.status(500).json({ 
+      msg: "Server error during profile picture update", 
+      error: error.message
+    });
   }
 };

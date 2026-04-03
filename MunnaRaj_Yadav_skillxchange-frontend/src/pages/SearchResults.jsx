@@ -27,12 +27,12 @@ const SearchResults = () => {
   };
 
   const getProfilePictureUrl = (pic) => {
-    if (!pic) return null;
+    if (!pic) return "/logo%20skillxChange.jpeg";
     
-    // Extract filename if it's a full URL
-    const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+    // If it's already a full URL (Cloudinary) or Base64 string, return it directly
+    if (pic.startsWith("http") || pic.startsWith("data:image/")) return pic;
     
-    // Always construct the URL using the frontend's environment variable
+    // Fallback for old local records
     let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
     if (baseUrl.endsWith("/api")) {
       baseUrl = baseUrl.replace("/api", "");
@@ -40,7 +40,7 @@ const SearchResults = () => {
       baseUrl = baseUrl.slice(0, -1);
     }
     
-    return `${baseUrl}/uploads/${filename}`;
+    return `${baseUrl}/uploads/${pic}`;
   };
 
   useEffect(() => {
@@ -119,7 +119,7 @@ const SearchResults = () => {
               <div key={user._id} className="user-result-card">
                 <div className="user-card-header">
                   <img 
-                    src={user.profilePic ? getProfilePictureUrl(user.profilePic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`} 
+                    src={getProfilePictureUrl(user.profilePic)} 
                     alt={user.fullName} 
                     className="user-card-avatar"
                   />

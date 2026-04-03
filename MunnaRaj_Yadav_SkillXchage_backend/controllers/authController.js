@@ -8,8 +8,19 @@ exports.signup = async (req, res) => {
   const { fullName, username, email, password, contactNumber } = req.body;
 
   try {
-    // Check email exists
-    const emailExists = await User.findOne({ email: email?.toLowerCase().trim() });
+    // 1. Validate input
+    if (!fullName || !username || !email || !password) {
+      return res.status(400).json({ msg: "All fields are required." });
+    }
+
+    // Email validation regex
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email.toLowerCase().trim())) {
+      return res.status(400).json({ msg: "Please enter a valid email address." });
+    }
+
+    // 2. Check if user already exists
+    const emailExists = await User.findOne({ email: email.toLowerCase().trim() });
     if (emailExists) {
       return res.status(400).json({ msg: "Email already registered" });
     }
@@ -39,7 +50,7 @@ exports.signup = async (req, res) => {
     res.status(201).json({ msg: "Signup successful" });
   } catch (error) {
     console.error("SIGNUP ERROR:", error);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: "Server error: " + error.message });
   }
 };
 
@@ -70,69 +81,6 @@ exports.changePassword = async (req, res) => {
   } catch (error) {
     console.error("CHANGE PASSWORD ERROR:", error);
     res.status(500).json({ msg: "Server error" });
-  }
-};
-
-// VERIFY EMAIL 
-exports.verifyEmail = async (req, res) => {
-  const { email, code } = req.body;
-
-  try {
-    const user = await User.findOne({ 
-      email, 
-      verificationCode: code,
-      verificationCodeExpire: { $gt: Date.now() }
-    });
-
-    if (!user) {
-      return res.status(400).json({ msg: "Invalid or expired verification code" });
-    }
-
-    user.isVerified = true;
-    user.verificationCode = undefined;
-    user.verificationCodeExpire = undefined;
-    await user.save();
-
-    res.json({ msg: "Email verified successfully. You can now login." });
-  } catch (error) {
-    console.error("VERIFY EMAIL ERROR:", error);
-    res.status(500).json({ msg: "Server error" });
-  }
-};
-
-// RESEND CODE 
-exports.resendCode = async (req, res) => {
-  const { email } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ msg: "User not found" });
-    }
-
-    if (user.isVerified) {
-      return res.status(400).json({ msg: "Account already verified" });
-    }
-
-    // Generate code
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const verificationCodeExpire = Date.now() + 10 * 60 * 1000; // 10 mins
-
-    user.verificationCode = verificationCode;
-    user.verificationCodeExpire = verificationCodeExpire;
-    await user.save();
-
-    await sendEmail({
-      email: user.email,
-      subject: "SkillXchange - New Verification Code",
-      message: `Your new verification code is: ${verificationCode}`,
-      html: `<h1>SkillXchange</h1><p>Your new verification code is: <strong>${verificationCode}</strong></p>`
-    });
-
-    res.json({ msg: "Verification code resent" });
-  } catch (error) {
-    console.error("RESEND CODE ERROR:", error);
-    res.status(500).json({ msg: "Server error: " + error.message });
   }
 };
 

@@ -14,6 +14,7 @@ const authMiddleware = (req, res, next) => {
       req.user = decoded.user;
     } else if (decoded.id) {
       req.user = { id: decoded.id };
+
     } else {
       console.error("Invalid token structure:", decoded);
       return res.status(401).json({ msg: "Token structure invalid" });

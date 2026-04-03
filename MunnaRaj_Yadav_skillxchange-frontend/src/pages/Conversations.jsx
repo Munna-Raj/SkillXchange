@@ -23,10 +23,10 @@ const Conversations = () => {
   const getProfilePictureUrl = (pic) => {
     if (!pic) return null;
     
-    // Extract filename if it's a full URL
-    const filename = pic.includes('/') ? pic.split('/').pop() : pic;
+    // If it's already a full URL (Cloudinary) or Base64 string, return it directly
+    if (pic.startsWith("http") || pic.startsWith("data:image/")) return pic;
     
-    // Always construct the URL using the frontend's environment variable
+    // Fallback for old local records
     let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
     if (baseUrl.endsWith("/api")) {
       baseUrl = baseUrl.replace("/api", "");
@@ -34,7 +34,7 @@ const Conversations = () => {
       baseUrl = baseUrl.slice(0, -1);
     }
     
-    return `${baseUrl}/uploads/${filename}`;
+    return `${baseUrl}/uploads/${pic}`;
   };
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
