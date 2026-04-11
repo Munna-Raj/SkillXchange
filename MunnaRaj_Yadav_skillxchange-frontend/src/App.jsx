@@ -19,6 +19,9 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import { AdminSkills, AdminRequests, AdminReports } from "./pages/admin/AdminPages";
 import SessionManagement from "./pages/admin/SessionManagement";
 import MentorDashboard from "./pages/mentor/MentorDashboard";
+import MentorAssignments from "./pages/mentor/MentorAssignments";
+import GroupAssignments from "./pages/GroupAssignments";
+import AdminAssignments from "./pages/admin/AdminAssignments";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import MentorRoute from "./components/MentorRoute";
@@ -107,6 +110,14 @@ function Layout() {
             </AdminRoute>
           } 
         />
+        <Route
+          path="/admin/assignments"
+          element={
+            <AdminRoute>
+              <AdminDashboard content={<AdminAssignments />} />
+            </AdminRoute>
+          }
+        />
 
         {/* Mentor Routes */}
         <Route 
@@ -172,6 +183,47 @@ function Layout() {
           element={
             <ProtectedRoute>
               <GroupDetails />
+            </ProtectedRoute>
+          }
+        />
+        {/* Workshops removed in favor of Assignment Portal; old URLs redirect */}
+        <Route
+          path="/workshops"
+          element={
+            <ProtectedRoute>
+              <Navigate to="/groups" replace />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workshops/:id"
+          element={
+            <ProtectedRoute>
+              <Navigate to="/groups" replace />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mentor/workshops"
+          element={
+            <MentorRoute>
+              <Navigate to="/mentor/assignments" replace />
+            </MentorRoute>
+          }
+        />
+        <Route
+          path="/mentor/assignments"
+          element={
+            <MentorRoute>
+              <MentorAssignments />
+            </MentorRoute>
+          }
+        />
+        <Route
+          path="/groups/:id/assignments"
+          element={
+            <ProtectedRoute>
+              <GroupAssignments />
             </ProtectedRoute>
           }
         />

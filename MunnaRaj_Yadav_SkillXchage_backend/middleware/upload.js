@@ -19,23 +19,34 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter to accept only images
+// File filter to accept images and common docs
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const allowedExt = [
+    ".jpeg", ".jpg", ".png", ".gif",
+    ".pdf", ".doc", ".docx", ".txt", ".zip"
+  ];
+  const allowedMime = [
+    "image/jpeg", "image/jpg", "image/png", "image/gif",
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "text/plain",
+    "application/zip", "application/x-zip-compressed"
+  ];
+  const extname = allowedExt.includes(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedMime.includes(file.mimetype);
 
   if (extname && mimetype) {
     return cb(null, true);
   } else {
-    cb(new Error("Error: Images only! (jpeg, jpg, png, gif)"));
+    cb(new Error("Invalid file type"));
   }
 };
 
 // Initialize multer
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: fileFilter,
 });
 

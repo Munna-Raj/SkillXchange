@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import adminService from '../../services/adminService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const AdminPlaceholder = ({ title }) => {
   return (
@@ -341,6 +341,7 @@ export const AdminReports = () => {
 
     const doc = new jsPDF();
     const date = new Date().toLocaleDateString();
+    const safeDate = new Date().toISOString().slice(0, 10);
 
     // Title
     doc.setFontSize(22);
@@ -362,7 +363,7 @@ export const AdminReports = () => {
       ["Recent Signups (30 days)", data.summary.recentSignups],
     ];
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 50,
       head: [summaryData[0]],
       body: summaryData.slice(1),
@@ -371,13 +372,15 @@ export const AdminReports = () => {
     });
 
     // Popular Skills Section
-    const finalY = doc.lastAutoTable.finalY + 15;
+    const finalY = doc.lastAutoTable?.finalY ? doc.lastAutoTable.finalY + 15 : 80;
     doc.setFontSize(16);
     doc.text("Most Popular Skills (Teaching)", 14, finalY);
 
-    const skillsData = data.popularSkills.map(s => [s.name, s.count]);
+    const skillsData = data.popularSkills.length
+      ? data.popularSkills.map(s => [s.name, s.count])
+      : [["No skills data", 0]];
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: finalY + 5,
       head: [["Skill Name", "Count"]],
       body: skillsData,
@@ -385,7 +388,7 @@ export const AdminReports = () => {
       headStyles: { fillColor: [16, 185, 129] } // Emerald-500
     });
 
-    doc.save(`SkillXchange_Report_${date}.pdf`);
+    doc.save(`SkillXchange_Report_${safeDate}.pdf`);
   };
 
   if (loading) return <div className="p-6 text-center">Loading report data...</div>;

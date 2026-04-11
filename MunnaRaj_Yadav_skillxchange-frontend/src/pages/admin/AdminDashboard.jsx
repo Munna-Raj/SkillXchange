@@ -65,6 +65,7 @@ const AdminDashboard = ({ content }) => {
     if (path.includes("/admin/requests")) return "Requests Management";
     if (path.includes("/admin/reports")) return "Reports Management";
     if (path.includes("/admin/sessions")) return "Session Management";
+    if (path.includes("/admin/assignments")) return "Assignments Management";
     return "Dashboard Overview";
   };
 
@@ -94,6 +95,9 @@ const AdminDashboard = ({ content }) => {
           </NavLink>
           <NavLink to="/admin/sessions" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
             Sessions
+          </NavLink>
+          <NavLink to="/admin/assignments" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            Assignments
           </NavLink>
         </nav>
 

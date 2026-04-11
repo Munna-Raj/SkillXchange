@@ -22,6 +22,8 @@ const chatRoutes = require("./routes/chatRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const groupRoutes = require("./routes/groupRoutes");
+const workshopRoutes = require("./routes/workshopRoutes");
+const assignmentRoutes = require("./routes/assignmentRoutes");
 const Session = require("./models/Session");
 const Group = require("./models/Group");
 const Notification = require("./models/Notification");
@@ -45,6 +47,8 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 });
+// Expose io to controllers for real-time notifications
+app.set("io", io);
 
 app.use(cors({
   origin: allowedOrigins,
@@ -102,6 +106,8 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/groups", groupRoutes);
+app.use("/api/workshops", workshopRoutes);
+app.use("/api/assignments", assignmentRoutes);
 app.use("/api", searchRoutes); 
 
 // 404 Handler

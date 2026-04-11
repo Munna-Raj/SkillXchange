@@ -13,7 +13,8 @@ const {
     promoteToMentor,
     getAllSessions,
     getAllCategories,
-    deleteCategory
+    deleteCategory,
+    getAssignmentsOverview
 } = require("../controllers/adminController");
 const adminAuth = require("../middleware/adminAuth");
 
@@ -88,5 +89,10 @@ router.get("/categories", adminAuth, getAllCategories);
 // @desc    Delete a category
 // @access  Private (Admin only)
 router.delete("/categories/:id", adminAuth, deleteCategory);
+
+// @route   GET /api/admin/assignments
+// @desc    Get assignment portal overview
+// @access  Private (Admin only)
+router.get("/assignments", adminAuth, getAssignmentsOverview);
 
 module.exports = router;

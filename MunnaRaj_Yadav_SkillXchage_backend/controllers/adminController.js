@@ -4,6 +4,10 @@ const User = require("../models/User");
 const SkillExchangeRequest = require("../models/SkillExchangeRequest");
 const Session = require("../models/Session");
 const Attendance = require("../models/Attendance");
+const Group = require("../models/Group");
+const Workshop = require("../models/Workshop");
+const Assignment = require("../models/Assignment");
+const Submission = require("../models/Submission");
 
 const Category = require("../models/Category");
 
@@ -228,6 +232,7 @@ exports.getDashboardStats = async (req, res) => {
   try {
     // Users
     const totalUsers = await User.countDocuments();
+    const totalMentors = await User.countDocuments({ role: "mentor" });
 
     // Requests
     const activeRequests = await SkillExchangeRequest.countDocuments({ status: "pending" });
@@ -238,6 +243,13 @@ exports.getDashboardStats = async (req, res) => {
       { $group: { _id: null, total: { $sum: "$skillCount" } } }
     ]);
     const totalSkills = skillsAggregation.length > 0 ? skillsAggregation[0].total : 0;
+
+    // Groups & Workshops
+    const totalGroups = await Group.countDocuments();
+    const totalWorkshops = await Workshop.countDocuments();
+
+    // Active sessions (simple heuristic)
+    const activeSessions = await Session.countDocuments({ status: "active" });
 
     // Reports
     const pendingReports = 0;
@@ -295,6 +307,10 @@ exports.getDashboardStats = async (req, res) => {
 
     res.json({
       totalUsers,
+      totalMentors,
+      totalGroups,
+      totalWorkshops,
+      activeSessions,
       activeRequests,
       pendingReports,
       totalSkills,
@@ -477,6 +493,43 @@ exports.deleteCategory = async (req, res) => {
     res.json({ msg: "Category removed successfully" });
   } catch (err) {
     console.error("DELETE CATEGORY ERROR:", err);
+    res.status(500).send("Server Error");
+  }
+};
+
+// Assignment overview for admin panel
+exports.getAssignmentsOverview = async (req, res) => {
+  try {
+    const totalAssignments = await Assignment.countDocuments();
+    const totalSubmissions = await Submission.countDocuments();
+    const reviewedSubmissions = await Submission.countDocuments({ status: "reviewed" });
+    const lateSubmissions = await Submission.countDocuments({ status: "late" });
+
+    const recentAssignments = await Assignment.find()
+      .populate("groupId", "name")
+      .populate("mentorId", "fullName email")
+      .sort({ createdAt: -1 })
+      .limit(20);
+
+    const enriched = await Promise.all(
+      recentAssignments.map(async (assignment) => {
+        const submissionsCount = await Submission.countDocuments({ assignmentId: assignment._id });
+        return {
+          ...assignment.toObject(),
+          submissionsCount,
+        };
+      })
+    );
+
+    res.json({
+      totalAssignments,
+      totalSubmissions,
+      reviewedSubmissions,
+      lateSubmissions,
+      recentAssignments: enriched,
+    });
+  } catch (err) {
+    console.error("GET ASSIGNMENTS OVERVIEW ERROR:", err);
     res.status(500).send("Server Error");
   }
 };

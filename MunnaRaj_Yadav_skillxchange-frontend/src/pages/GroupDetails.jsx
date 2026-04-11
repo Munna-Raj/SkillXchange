@@ -122,6 +122,65 @@ const GroupDetails = () => {
     setNewMessage("");
   };
 
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+
+  const getUploadRoot = () => {
+    let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
+    if (baseUrl.endsWith("/api")) {
+      baseUrl = baseUrl.replace("/api", "");
+    }
+    return baseUrl;
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const allowed = [
+      "image/png","image/jpeg","image/jpg","image/gif",
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "text/plain",
+      "application/zip","application/x-zip-compressed"
+    ];
+    if (!allowed.includes(file.type)) {
+      toast.error("Invalid file type");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("isGroupMessage", "true");
+    formData.append("groupId", groupId);
+    formData.append("text", newMessage || "");
+
+    try {
+      setUploading(true);
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (!response.ok) {
+        const errData = await response.json().catch(()=>({}));
+        throw new Error(errData.msg || "Upload failed");
+      }
+      const uploadedMsg = await response.json();
+      socketRef.current.emit("send_message", { ...uploadedMsg, isGroupMessage: true, groupId, fromUpload: true });
+      setNewMessage("");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || "Failed to upload");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const handleSearchUsers = async () => {
     if (!userSearch.trim()) return;
     setIsSearching(true);
@@ -212,6 +271,12 @@ const GroupDetails = () => {
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{group.description}</p>
           
           <div className="flex gap-2">
+            <button
+              onClick={() => navigate(`/groups/${groupId}/assignments`)}
+              className="flex-1 text-xs bg-violet-50 text-violet-600 px-3 py-2 rounded-lg hover:bg-violet-100 transition"
+            >
+              Assignments
+            </button>
             {isMentor && (
               <>
                 <button
@@ -286,7 +351,37 @@ const GroupDetails = () => {
                           : "bg-white dark:bg-gray-700 dark:text-white rounded-tl-none shadow-sm"
                       }`}
                     >
-                      {msg.text}
+                      {/* Text */}
+                      {msg.text && <div className="whitespace-pre-wrap">{msg.text}</div>}
+                      {/* File */}
+                      {msg.fileUrl && (
+                        <div className="mt-2">
+                          {msg.fileType === "image" ? (
+                            <img
+                              src={
+                                (msg.fileUrl.startsWith("http") || msg.fileUrl.startsWith("data:"))
+                                  ? msg.fileUrl
+                                  : `${getUploadRoot()}/uploads/${msg.fileUrl}`
+                              }
+                              alt=""
+                              className="max-h-48 rounded-lg object-cover"
+                            />
+                          ) : (
+                            <a
+                              href={
+                                (msg.fileUrl.startsWith("http") || msg.fileUrl.startsWith("data:"))
+                                  ? msg.fileUrl
+                                  : `${getUploadRoot()}/uploads/${msg.fileUrl}`
+                              }
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 text-xs font-bold underline"
+                            >
+                              Download {msg.fileName || "file"}
+                            </a>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -307,6 +402,16 @@ const GroupDetails = () => {
             placeholder="Type a message..."
             className="flex-1 px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none"
           />
+          <input ref={fileInputRef} onChange={handleFileUpload} type="file" className="hidden" />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="px-3 py-2 border rounded-xl text-sm"
+            title="Attach file"
+          >
+            {uploading ? "Uploading..." : "File"}
+          </button>
           <button
             type="submit"
             disabled={!newMessage.trim()}

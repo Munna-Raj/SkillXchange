@@ -43,7 +43,7 @@ const MentorDashboard = () => {
         }
 
         // Fetch all upcoming sessions and filter on the client
-        const sessionsRes = await fetch(`${import.meta.env.VITE_API_URL}/api/sessions/upcoming`, {
+        const sessionsRes = await fetch(`${import.meta.env.VITE_API_URL}/api/sessions/upcoming/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (sessionsRes.ok) {
@@ -72,13 +72,13 @@ const MentorDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-200">
-      <Navbar userProfile={mentorData} pageTitle="Mentor Workspace" />
+      <Navbar userProfile={mentorData} pageTitle="Assignment Portal" />
       
       <div className="max-w-6xl mx-auto p-6">
-        <header className="flex justify-between items-center mb-8">
+        <header className="mb-8">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white uppercase">Mentor Workspace</h1>
-            <p className="text-gray-500 dark:text-gray-400 font-medium">Welcome, {mentorData?.fullName}. Manage your mentorship activities here.</p>
+            <h1 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white uppercase">Assignment Portal</h1>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">Welcome, {mentorData?.fullName}. Manage groups, sessions, and assignments from here.</p>
           </div>
         </header>
 
@@ -227,13 +227,13 @@ const MentorDashboard = () => {
           </div>
           <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Ready to boost your impact?</h2>
           <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
-            Groups allow you to teach multiple students simultaneously, maximizing your reach and building a collaborative learning community.
+            Open a group to chat, schedule sessions, and post assignments for your members.
           </p>
           <button 
             onClick={() => navigate('/groups')}
             className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-xl hover:bg-indigo-700 hover:scale-105 transition-all"
           >
-            Go to Groups Workspace
+            Go to groups
           </button>
         </div>
       </div>

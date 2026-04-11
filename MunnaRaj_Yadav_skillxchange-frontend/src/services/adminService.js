@@ -60,6 +60,11 @@ const getCategories = async () => {
   return response.data;
 };
 
+const getAssignmentsOverview = async () => {
+  const response = await api.get('/admin/assignments');
+  return response.data;
+};
+
 const deleteCategory = async (id) => {
   const response = await api.delete(`/admin/categories/${id}`);
   return response.data;
@@ -77,6 +82,7 @@ const adminService = {
   getReportsData,
   getSessions,
   getCategories,
+  getAssignmentsOverview,
   deleteCategory,
 };
 

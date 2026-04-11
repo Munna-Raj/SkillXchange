@@ -128,13 +128,13 @@ const Navbar = ({ userProfile, pageTitle = "Dashboard" }) => {
             </svg>
           </button>
 
-          {role === "mentor" && (
+          {(role === "mentor" || role === "admin") && (
             <button
-              onClick={() => navigate("/mentor/dashboard")}
+              onClick={() => navigate("/mentor/assignments")}
               className="hidden lg:inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-semibold ring-1 border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-              title="Mentor Workspace"
+              title="Assignment Portal"
             >
-              Workspace
+              Assignments
             </button>
           )}
 

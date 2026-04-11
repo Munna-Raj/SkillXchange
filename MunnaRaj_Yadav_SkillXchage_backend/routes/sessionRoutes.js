@@ -12,5 +12,7 @@ router.post("/", auth, createSession);
 router.get("/request/:requestId", auth, getSessionsByRequest);
 router.put("/:id", auth, updateSessionSchedule);
 router.get("/upcoming/me", auth, getUpcomingForUser);
+// Alias: older clients called /sessions/upcoming
+router.get("/upcoming", auth, getUpcomingForUser);
 
 module.exports = router;
