@@ -45,7 +45,7 @@ const Footer = () => {
           <h3 className="footerHeading">Contact Information</h3>
           <div className="space-y-4">
             <a
-              href="https://wa.me/919829395174"
+              href="https://wa.me/9779829395174"
               target="_blank"
               rel="noopener noreferrer"
               className="footerContactItem"
