@@ -59,10 +59,13 @@ exports.adminLogin = async (req, res) => {
   }
 };
 
-// Get all sessions for Admin
+// Get all sessions for Admin with pagination
 exports.getAllSessions = async (req, res) => {
   try {
     const { status, search, date, creator } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
     let query = {};
 
@@ -82,7 +85,38 @@ exports.getAllSessions = async (req, res) => {
       query.createdBy = creator;
     }
 
-    let sessions = await Session.find(query)
+    // First find matching users or groups if search is provided
+    let searchCriteria = {};
+    if (search) {
+      const regex = new RegExp(search, "i");
+      
+      // Find matching users
+      const users = await User.find({
+        $or: [
+          { fullName: regex },
+          { email: regex }
+        ]
+      }).select("_id");
+      const userIds = users.map(u => u._id);
+
+      // Find matching groups
+      const groups = await Group.find({
+        name: regex
+      }).select("_id");
+      const groupIds = groups.map(g => g._id);
+
+      searchCriteria = {
+        $or: [
+          { createdBy: { $in: userIds } },
+          { groupId: { $in: groupIds } }
+        ]
+      };
+    }
+
+    const finalQuery = { ...query, ...searchCriteria };
+    const totalSessions = await Session.countDocuments(finalQuery);
+
+    let sessions = await Session.find(finalQuery)
       .populate("createdBy", "fullName email role")
       .populate("groupId", "name")
       .populate("users", "fullName") // For total member count
@@ -94,18 +128,9 @@ exports.getAllSessions = async (req, res) => {
           select: 'fullName email role'
         }
       })
-      .sort({ createdAt: -1 });
-
-    if (search) {
-      const regex = new RegExp(search, "i");
-      sessions = sessions.filter(session => {
-        const createdByMatch = session.createdBy && (regex.test(session.createdBy.fullName) || regex.test(session.createdBy.email));
-        const groupMatch = session.groupId && regex.test(session.groupId.name);
-        // Basic title match for 1-on-1 sessions if possible
-        // This part is tricky without populating the request, so we keep it simple
-        return createdByMatch || groupMatch;
-      });
-    }
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     // After filtering, get attendance counts for each session
     const sessionsWithAttendance = await Promise.all(
@@ -128,7 +153,12 @@ exports.getAllSessions = async (req, res) => {
       })
     );
 
-    res.json(sessionsWithAttendance);
+    res.json({
+      sessions: sessionsWithAttendance,
+      currentPage: page,
+      totalPages: Math.ceil(totalSessions / limit),
+      totalSessions
+    });
 
   } catch (err) {
     console.error("GET ALL SESSIONS ERROR:", err);
@@ -136,10 +166,32 @@ exports.getAllSessions = async (req, res) => {
   }
 };
 
-// All users
+// All users with pagination
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-password").sort({ createdAt: -1 });
+    const { search } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    let query = {};
+    if (search) {
+      const regex = new RegExp(search, "i");
+      query = {
+        $or: [
+          { fullName: regex },
+          { email: regex },
+          { username: regex }
+        ]
+      };
+    }
+
+    const totalUsers = await User.countDocuments(query);
+    const users = await User.find(query)
+      .select("-password")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
     
     // Calculate running streak dynamically
     const today = new Date();
@@ -165,7 +217,12 @@ exports.getAllUsers = async (req, res) => {
       return u;
     });
 
-    res.json(processedUsers);
+    res.json({
+      users: processedUsers,
+      currentPage: page,
+      totalPages: Math.ceil(totalUsers / limit),
+      totalUsers
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -324,9 +381,13 @@ exports.getDashboardStats = async (req, res) => {
   }
 };
 
-// All skills (extracted from User models)
+// All skills (extracted from User models) with pagination
 exports.getAllSkills = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     const users = await User.find().select("fullName skillsToTeach skillsToLearn");
     
     let allSkills = [];
@@ -366,7 +427,15 @@ exports.getAllSkills = async (req, res) => {
     // Sort by name
     allSkills.sort((a, b) => a.name.localeCompare(b.name));
 
-    res.json(allSkills);
+    const totalSkills = allSkills.length;
+    const paginatedSkills = allSkills.slice(skip, skip + limit);
+
+    res.json({
+      skills: paginatedSkills,
+      currentPage: page,
+      totalPages: Math.ceil(totalSkills / limit),
+      totalSkills
+    });
   } catch (err) {
     console.error("GET ALL SKILLS ERROR:", err);
     res.status(500).send("Server Error");
@@ -397,14 +466,27 @@ exports.deleteSkill = async (req, res) => {
   }
 };
 
-// All requests
+// All requests with pagination
 exports.getAllRequests = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const totalRequests = await SkillExchangeRequest.countDocuments();
     const requests = await SkillExchangeRequest.find()
       .populate("senderId", "fullName email")
       .populate("receiverId", "fullName email")
-      .sort({ createdAt: -1 });
-    res.json(requests);
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      requests,
+      currentPage: page,
+      totalPages: Math.ceil(totalRequests / limit),
+      totalRequests
+    });
   } catch (err) {
     console.error("GET ALL REQUESTS ERROR:", err);
     res.status(500).send("Server Error");

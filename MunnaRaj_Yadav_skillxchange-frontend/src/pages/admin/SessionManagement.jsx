@@ -13,21 +13,29 @@ const SessionManagement = () => {
   const [selectedSession, setSelectedSession] = useState(null);
   const [sessionAttendance, setSessionAttendance] = useState([]);
   const [loadingAttendance, setLoadingAttendance] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalSessions, setTotalSessions] = useState(0);
+  const itemsPerPage = 10;
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchSessions();
-  }, [statusFilter, dateFilter]);
+    fetchSessions(currentPage);
+  }, [statusFilter, dateFilter, currentPage]);
 
-  const fetchSessions = async () => {
+  const fetchSessions = async (page = 1) => {
     setLoading(true);
     try {
       const data = await adminService.getSessions({
         status: statusFilter,
         date: dateFilter,
-        search: searchTerm
+        search: searchTerm,
+        page,
+        limit: itemsPerPage
       });
-      setSessions(data);
+      setSessions(data.sessions || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalSessions(data.totalSessions || 0);
     } catch (error) {
       console.error('Error fetching sessions:', error);
       toast.error('Failed to fetch sessions');
@@ -38,8 +46,16 @@ const SessionManagement = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchSessions();
+    setCurrentPage(1);
+    fetchSessions(1);
   };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
+  const indexOfLastItem = indexOfFirstItem + sessions.length;
 
   const fetchSessionDetails = async (session) => {
     setSelectedSession(session);
@@ -201,6 +217,69 @@ const SessionManagement = () => {
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center mt-6 mb-8 px-4">
+          <div className="text-sm text-gray-500">
+            Showing {indexOfFirstItem + 1} to {indexOfLastItem} of {totalSessions} sessions
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-3 py-1 rounded-md border ${
+                currentPage === 1 
+                  ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed' 
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 transition-colors'
+              }`}
+            >
+              Previous
+            </button>
+            
+            {[...Array(totalPages)].map((_, index) => {
+              const pageNum = index + 1;
+              if (
+                pageNum === 1 || 
+                pageNum === totalPages || 
+                (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+              ) {
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`px-3 py-1 rounded-md border transition-colors ${
+                      currentPage === pageNum
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              } else if (
+                (pageNum === 2 && currentPage > 3) || 
+                (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+              ) {
+                return <span key={pageNum} className="px-2 py-1 text-gray-400">...</span>;
+              }
+              return null;
+            })}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1 rounded-md border ${
+                currentPage === totalPages 
+                  ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed' 
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 transition-colors'
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Session Details Modal */}
       {selectedSession && (

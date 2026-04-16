@@ -23,16 +23,22 @@ export const AdminSkills = () => {
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalSkills, setTotalSkills] = useState(0);
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    fetchSkills();
-  }, []);
+    fetchSkills(currentPage);
+  }, [currentPage]);
 
-  const fetchSkills = async () => {
+  const fetchSkills = async (page = 1) => {
     try {
       setLoading(true);
-      const data = await adminService.getSkills();
-      setSkills(data);
+      const data = await adminService.getSkills(page, itemsPerPage);
+      setSkills(data.skills || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalSkills(data.totalSkills || 0);
     } catch (err) {
       console.error("Failed to fetch skills:", err);
       setError("Failed to load skills.");
@@ -47,14 +53,29 @@ export const AdminSkills = () => {
     try {
       await adminService.deleteSkill(skillId, ownerId, type);
       setSkills(skills.filter(s => !(s.id === skillId && s.ownerId === ownerId && s.type === type)));
+      setTotalSkills(prev => prev - 1);
     } catch (err) {
       console.error("Failed to delete skill:", err);
       alert("Failed to delete skill.");
     }
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
+  const indexOfLastItem = indexOfFirstItem + skills.length;
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex justify-between items-center mb-6 px-6 pt-4">
+        <h2 className="text-xl font-semibold text-gray-700">All Registered Skills</h2>
+        <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+          Total: {totalSkills}
+        </span>
+      </div>
+
       <main className="flex-1 overflow-x-hidden overflow-y-auto">
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
@@ -70,7 +91,7 @@ export const AdminSkills = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
+                {loading && skills.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="px-6 py-10 text-center text-gray-500">Loading skills...</td>
                   </tr>
@@ -84,7 +105,7 @@ export const AdminSkills = () => {
                   </tr>
                 ) : (
                   skills.map((skill, index) => (
-                    <tr key={`${skill.id}-${index}`}>
+                    <tr key={`${skill.id}-${index}`} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{skill.name}</div>
                       </td>
@@ -130,6 +151,68 @@ export const AdminSkills = () => {
             </table>
           </div>
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-between items-center mt-6 mb-8 px-4">
+            <div className="text-sm text-gray-500">
+              Showing {indexOfFirstItem + 1} to {indexOfLastItem} of {totalSkills} skills
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded-md border ${
+                  currentPage === 1 
+                    ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 transition-colors'
+                }`}
+              >
+                Previous
+              </button>
+              
+              {[...Array(totalPages)].map((_, index) => {
+                const pageNum = index + 1;
+                if (
+                  pageNum === 1 || 
+                  pageNum === totalPages || 
+                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-1 rounded-md border transition-colors ${
+                        currentPage === pageNum
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                } else if (
+                  (pageNum === 2 && currentPage > 3) || 
+                  (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                ) {
+                  return <span key={pageNum} className="px-2 py-1 text-gray-400">...</span>;
+                }
+                return null;
+              })}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded-md border ${
+                  currentPage === totalPages 
+                    ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 transition-colors'
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
@@ -139,16 +222,22 @@ export const AdminRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRequests, setTotalRequests] = useState(0);
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    fetchRequests();
-  }, []);
+    fetchRequests(currentPage);
+  }, [currentPage]);
 
-  const fetchRequests = async () => {
+  const fetchRequests = async (page = 1) => {
     try {
       setLoading(true);
-      const data = await adminService.getRequests();
-      setRequests(data);
+      const data = await adminService.getRequests(page, itemsPerPage);
+      setRequests(data.requests || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalRequests(data.totalRequests || 0);
     } catch (err) {
       console.error("Failed to fetch requests:", err);
       setError("Failed to load requests.");
@@ -163,11 +252,19 @@ export const AdminRequests = () => {
     try {
       await adminService.deleteRequest(requestId);
       setRequests(requests.filter(r => r._id !== requestId));
+      setTotalRequests(prev => prev - 1);
     } catch (err) {
       console.error("Failed to delete request:", err);
       alert("Failed to delete request.");
     }
   };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
+  const indexOfLastItem = indexOfFirstItem + requests.length;
 
   // Process data for bar graph
   const getStatusData = () => {
@@ -177,6 +274,10 @@ export const AdminRequests = () => {
       rejected: 0
     };
     
+    // Note: Since we only have the current page's data, 
+    // this graph will only represent the current page.
+    // Ideally, the backend should provide aggregate stats for the graph.
+    // For now, I'll stick with what's available.
     requests.forEach(r => {
       if (statusCounts[r.status] !== undefined) {
         statusCounts[r.status]++;
@@ -198,7 +299,7 @@ export const AdminRequests = () => {
         {/* Stats Section with Bar Graph */}
         <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100 min-w-0">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">Request Status Distribution</h2>
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">Request Status Distribution (Page {currentPage})</h2>
             <div style={{ width: '100%', height: 300 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
@@ -233,7 +334,7 @@ export const AdminRequests = () => {
               ))}
               <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
                 <span className="text-sm font-bold text-gray-700">Total Requests</span>
-                <span className="text-xl font-extrabold text-indigo-600">{requests.length}</span>
+                <span className="text-xl font-extrabold text-indigo-600">{totalRequests}</span>
               </div>
             </div>
           </div>
@@ -254,7 +355,7 @@ export const AdminRequests = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
+                {loading && requests.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="px-6 py-10 text-center text-gray-500">Loading requests...</td>
                   </tr>
@@ -310,6 +411,68 @@ export const AdminRequests = () => {
             </table>
           </div>
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-between items-center mt-6 mb-8 px-4">
+            <div className="text-sm text-gray-500">
+              Showing {indexOfFirstItem + 1} to {indexOfLastItem} of {totalRequests} requests
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded-md border ${
+                  currentPage === 1 
+                    ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 transition-colors'
+                }`}
+              >
+                Previous
+              </button>
+              
+              {[...Array(totalPages)].map((_, index) => {
+                const pageNum = index + 1;
+                if (
+                  pageNum === 1 || 
+                  pageNum === totalPages || 
+                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-1 rounded-md border transition-colors ${
+                        currentPage === pageNum
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                } else if (
+                  (pageNum === 2 && currentPage > 3) || 
+                  (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                ) {
+                  return <span key={pageNum} className="px-2 py-1 text-gray-400">...</span>;
+                }
+                return null;
+              })}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded-md border ${
+                  currentPage === totalPages 
+                    ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 transition-colors'
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -1,7 +1,9 @@
 import api from './api';
 
-const getUsers = async () => {
-  const response = await api.get('/admin/users');
+const getUsers = async (page = 1, limit = 10, search = '') => {
+  let url = `/admin/users?page=${page}&limit=${limit}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  const response = await api.get(url);
   return response.data;
 };
 
@@ -20,8 +22,8 @@ const getDashboardStats = async () => {
   return response.data;
 };
 
-const getSkills = async () => {
-  const response = await api.get('/admin/skills');
+const getSkills = async (page = 1, limit = 10) => {
+  const response = await api.get(`/admin/skills?page=${page}&limit=${limit}`);
   return response.data;
 };
 
@@ -30,8 +32,8 @@ const deleteSkill = async (skillId, ownerId, type) => {
   return response.data;
 };
 
-const getRequests = async () => {
-  const response = await api.get('/admin/requests');
+const getRequests = async (page = 1, limit = 10) => {
+  const response = await api.get(`/admin/requests?page=${page}&limit=${limit}`);
   return response.data;
 };
 
@@ -46,8 +48,8 @@ const getReportsData = async () => {
 };
 
 const getSessions = async (filters = {}) => {
-  const { status, date, search } = filters;
-  let url = '/admin/sessions?';
+  const { status, date, search, page = 1, limit = 10 } = filters;
+  let url = `/admin/sessions?page=${page}&limit=${limit}&`;
   if (status) url += `status=${status}&`;
   if (date) url += `date=${date}&`;
   if (search) url += `search=${encodeURIComponent(search)}&`;

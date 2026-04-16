@@ -5,9 +5,12 @@ import { toast } from 'react-toastify';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const itemsPerPage = 10;
 
   const getProfilePictureUrl = (pic) => {
     if (!pic) return "/logo%20skillxChange.jpeg";
@@ -26,12 +29,13 @@ const AdminUsers = () => {
     return `${baseUrl}/uploads/${pic}`;
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 1) => {
     try {
-      const data = await adminService.getUsers();
-      const userList = Array.isArray(data) ? data : [];
-      setUsers(userList);
-      setFilteredUsers(userList);
+      setLoading(true);
+      const data = await adminService.getUsers(page, itemsPerPage, searchTerm);
+      setUsers(data.users || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalUsers(data.totalUsers || 0);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching users:', err);
@@ -41,18 +45,15 @@ const AdminUsers = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchUsers(currentPage);
+    }, 500); // Debounce search
+    return () => clearTimeout(timer);
+  }, [currentPage, searchTerm]);
 
-  useEffect(() => {
-    const lowercasedFilter = searchTerm.toLowerCase();
-    const filtered = users.filter(user => {
-      const name = (user.name || user.fullName || user.username || '').toLowerCase();
-      const email = (user.email || '').toLowerCase();
-      return name.includes(lowercasedFilter) || email.includes(lowercasedFilter);
-    });
-    setFilteredUsers(filtered);
-  }, [searchTerm, users]);
+  // We no longer need to filter users in frontend, 
+  // since the backend provides the results.
+  const filteredUsers = users;
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
@@ -87,13 +88,20 @@ const AdminUsers = () => {
     }
   };
 
-  if (loading) {
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  if (loading && users.length === 0) {
     return (
       <div className="flex justify-center items-center h-full">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
+
+  const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
+  const indexOfLastItem = indexOfFirstItem + users.length;
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -106,7 +114,10 @@ const AdminUsers = () => {
               placeholder="Search users..."
               className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset to first page on search
+              }}
             />
             <svg
               className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"
@@ -118,7 +129,7 @@ const AdminUsers = () => {
             </svg>
           </div>
           <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
-            Total: {filteredUsers.length}
+            Total: {totalUsers}
           </span>
         </div>
       </div>
@@ -230,6 +241,70 @@ const AdminUsers = () => {
             </table>
           </div>
         </div>
+        
+        {totalPages > 1 && (
+          <div className="flex justify-between items-center mt-6 mb-8 px-4">
+            <div className="text-sm text-gray-500">
+              Showing {indexOfFirstItem + 1} to {indexOfLastItem} of {totalUsers} users
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded-md border ${
+                  currentPage === 1 
+                    ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 transition-colors'
+                }`}
+              >
+                Previous
+              </button>
+              
+              {/* Simplified page numbers: show current, first, last, and neighbors if many */}
+              {[...Array(totalPages)].map((_, index) => {
+                const pageNum = index + 1;
+                // Only show first, last, and pages around current
+                if (
+                  pageNum === 1 || 
+                  pageNum === totalPages || 
+                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-1 rounded-md border transition-colors ${
+                        currentPage === pageNum
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                } else if (
+                  (pageNum === 2 && currentPage > 3) || 
+                  (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                ) {
+                  return <span key={pageNum} className="px-2 py-1 text-gray-400">...</span>;
+                }
+                return null;
+              })}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded-md border ${
+                  currentPage === totalPages 
+                    ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 transition-colors'
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
