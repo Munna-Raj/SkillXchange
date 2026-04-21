@@ -15,8 +15,7 @@ A skill exchange platform where users can teach and learn from each other throug
  
 **Frontend:** React, Vite, Tailwind CSS, Socket.io  
 **Backend:** Node.js, Express, MongoDB, Socket.io  
-**Storage:** Cloudinary for files  
-**Video:** Google Meet integration
+**sessision:** Google Meet integration
  
 ## 📋 Quick Start
  
